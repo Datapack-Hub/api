@@ -8,6 +8,7 @@ import util
 import json
 import sqlite3
 import config
+import regex as re
 
 projects = Blueprint("projects",__name__,url_prefix="/projects")
 
@@ -18,7 +19,7 @@ def query():
     
     # SQL stuff
     conn = sqlite3.connect(config.db)
-    r = conn.execute(f"select type, author, title, icon, url, description, rowid from projects limit {amount}").fetchall()
+    r = conn.execute(f"select type, author, title, icon, url, description, rowid, tags from projects where status = 'live' limit {amount}").fetchall()
     
     out = []
     
@@ -30,7 +31,8 @@ def query():
             "icon":item[3],
             "url":item[4],
             "description":item[5],
-            "ID":item[6]
+            "ID":item[6],
+            "tags":json.loads(item[7])
         })
     
     conn.close()
@@ -52,7 +54,9 @@ def amount_of_projects():
 def get_proj(id):
     conn = sqlite3.connect(config.db)
     
-    proj = conn.execute(f"select type, author, title, icon, url, description, rowid from projects where rowid = {id}").fetchone()
+    proj = conn.execute(f"select type, author, title, icon, url, description, rowid, tags from projects where rowid = {id}").fetchone()
+    
+    conn.close()
     
     return {
             "type":proj[0],
@@ -61,5 +65,31 @@ def get_proj(id):
             "icon":proj[3],
             "url":proj[4],
             "description":proj[5],
-            "ID":proj[6]
+            "ID":proj[6],
+            "tags":json.loads(proj[7])
         }
+    
+@projects.route("/create",methods=["POST"])
+def new_project():
+    # Check authentication
+    tok = request.cookies.get("token")
+    if not tok:
+        return "Not authenticated! You gotta log in first :P", 401
+    user = util.get_user_from_token(tok)
+    b = util.get_user_ban_data(user["id"])
+    if b:
+        return f"This user is banned: {b['reason']}.", 403
+    data = request.get_json(force=True)
+    if not data["type"] or not data["url"] or not data["title"] or not data["description"] or not data["tags"] or not data["icon"] or not data["gallery"]:
+        return "Missing field", 400
+    if not data["type"] in config.valid_types:
+        return f"Type {json['type']} is not a valid type! Acceptable content types: {config.valid_types}"
+    if not re.match(r'^[\w!@$()`.+,"\-\']{3,64}$',json["url"]):
+        return "URL is bad", 400
+    if len(data["tags"]) > 3:
+        return "Too many tags", 400
+    
+    # Update database
+    conn = sqlite3.connect(config.db)
+    
+    conn.execute("insert into projects(type, author, title, description)")

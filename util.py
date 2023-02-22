@@ -1,6 +1,7 @@
 import sqlite3
 import secrets
 import config
+import flask
 
 def get_user(id: int):
     conn = sqlite3.connect(config.db)
@@ -53,6 +54,7 @@ def get_user_from_token(token: str):
     u = conn.execute(f"select username, rowid, role, bio from users where token = '{token}'").fetchone()
     
     if not u:
+        print("huh?")
         return None
     
     return {
@@ -75,3 +77,16 @@ def create_user_account(ghubdata: dict):
     print(get_user_from_github_id(ghubdata["id"]))
     
     return token
+
+def get_user_ban_data(id: int):
+    conn = sqlite3.connect(config.db)
+    
+    banned_user = conn.execute("select reason, expires from banned_users where id = " + str(id)).fetchone()
+    
+    if not banned_user:
+        return None
+    
+    return {
+        "reason": banned_user[0],
+        "expires": banned_user[1]
+    }
