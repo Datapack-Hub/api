@@ -20,6 +20,7 @@ def tellraw():
     color = input("Color Input: ")
 
     #Text Style
+    print("Choose True or False?")
     bold = input("Bold?: ").lower()
     strikethrough = input("Strikethrough?: ").lower()
     underlined = input("Underlined?: ").lower()
