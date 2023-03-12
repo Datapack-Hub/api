@@ -49,15 +49,16 @@ def me():
     
     return u
 
-@user.route("/<int:id>/projects")
-def user_projects(id):
+@user.route("/<string:username>/projects")
+def user_projects(username):
     conn = sqlite3.connect(config.db)
     # Check if user is authenticated
     t = request.cookies.get("token")
+    user = util.get_user.from_username(username)
     if t:
-        if util.get_user.from_token(t)["id"] == id:
+        if util.get_user.from_token(t)["id"] == user["id"]:
             # Get all submissions
-            r = conn.execute(f"select type, author, title, icon, url, description, rowid from projects where author = {id} and status != 'deleted'").fetchall()
+            r = conn.execute(f"select type, author, title, icon, url, description, rowid, status from projects where author = {user['id']} and status != 'deleted'").fetchall()
             
             # Form array
             out = []
@@ -69,7 +70,8 @@ def user_projects(id):
                     "icon":item[3],
                     "url":item[4],
                     "description":item[5],
-                    "ID":item[6]
+                    "ID":item[6],
+                    "status":item[7]
                 })
             
             conn.close()
@@ -80,7 +82,7 @@ def user_projects(id):
             }
         else:
             # Get all PUBLIC submissions
-            r = conn.execute(f"select type, author, title, icon, url, description, rowid from projects where author = {id} and status == 'live'").fetchall()
+            r = conn.execute(f"select type, author, title, icon, url, description, rowid, status from projects where author = {user['id']} and status == 'live'").fetchall()
             
             # Form array
             out = []
@@ -92,7 +94,8 @@ def user_projects(id):
                     "icon":item[3],
                     "url":item[4],
                     "description":item[5],
-                    "ID":item[6]
+                    "ID":item[6],
+                    "status":item[7]
                 })
             
             conn.close()
