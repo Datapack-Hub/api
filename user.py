@@ -106,7 +106,7 @@ def user_projects(username):
             }
     else:
         # Get all PUBLIC submissions
-        r = conn.execute(f"select type, author, title, icon, url, description, rowid from projects where author = {id} and status == 'live'").fetchall()
+        r = conn.execute(f"select type, author, title, icon, url, description, rowid from projects where author = {user['id']} and status == 'live'").fetchall()
         
         # Form array
         out = []
