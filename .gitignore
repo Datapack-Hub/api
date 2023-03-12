@@ -1,2 +1,6 @@
 *.db
 *.wsgi
+
+__pycache__/
+
+prod.py

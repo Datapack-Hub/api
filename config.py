@@ -1,4 +1,4 @@
-PROD = 0
+from prod import PROD
 
 if PROD == 1:
     db = "/var/DatapackHub/data.db"
