@@ -3,6 +3,7 @@
 """
 
 import flask
+from flask_cors import CORS
 from flask import Blueprint, request
 import util
 import json
@@ -11,6 +12,15 @@ import config
 import regex as re
 
 projects = Blueprint("projects",__name__,url_prefix="/projects")
+
+CORS(projects)
+
+@projects.after_request
+def after(resp):
+    header = resp.headers
+    header['Access-Control-Allow-Credentials'] = "true"
+    # Other headers can be added here if needed
+    return resp
 
 @projects.route("/", methods=["GET"])
 def query():
@@ -54,9 +64,20 @@ def amount_of_projects():
 def get_proj(id):
     conn = sqlite3.connect(config.db)
     
-    proj = conn.execute(f"select type, author, title, icon, url, description, rowid, tags from projects where rowid = {id}").fetchone()
+    this_user = util.get_user.from_token(request.headers.get("token"))
+    
+    proj = conn.execute(f"select type, author, title, icon, url, description, rowid, tags, status from projects where rowid = {id}").fetchone()
     
     conn.close()
+    
+    if not proj:
+        return "Not found", 404
+    
+    if proj[8] != "live":
+        if not this_user:
+            return "Not found", 404
+        if not proj[1] == this_user["id"]:
+            return "Not found", 404
     
     return {
             "type":proj[0],
@@ -73,23 +94,44 @@ def get_proj(id):
 def new_project():
     # Check authentication
     tok = request.cookies.get("token")
+    
     if not tok:
         return "Not authenticated! You gotta log in first :P", 401
-    user = util.get_user_from_token(tok)
+    
+    user = util.get_user.from_token(tok)
+    
+    if not user:
+        return "Error authenticating. Please log in again.", 401
+    
     b = util.get_user_ban_data(user["id"])
+    
     if b:
         return f"This user is banned: {b['reason']}.", 403
+    
     data = request.get_json(force=True)
-    if not data["type"] or not data["url"] or not data["title"] or not data["description"] or not data["tags"] or not data["icon"] or not data["gallery"]:
+    if data["type"] == None or data["url"] == None or data["title"] == None or data["description"] == None or data["tags"] == None:
         return "Missing field", 400
     if not data["type"] in config.valid_types:
-        return f"Type {json['type']} is not a valid type! Acceptable content types: {config.valid_types}"
-    if not re.match(r'^[\w!@$()`.+,"\-\']{3,64}$',json["url"]):
+        return f"Type {data['type']} is not a valid type! Acceptable content types: {config.valid_types}"
+    if not re.match(r'^[\w!@$()`.+,"\-\']{3,64}$',data["url"]):
         return "URL is bad", 400
     if len(data["tags"]) > 3:
         return "Too many tags", 400
     
-    # Update database
+    # Update databas
     conn = sqlite3.connect(config.db)
-    
-    conn.execute("insert into projects(type, author, title, description)")
+    conn.execute(f"insert into projects(type, author, title, description, tags, url, status) values ('{data['type']}', {user['id']}, '{data['title']}', '{data['description']}', 'TODO', '{data['url']}', 'draft')")
+    x = conn.execute("SELECT rowid, type, author, title, description, tags, url, status FROM projects ORDER BY rowid DESC LIMIT 1").fetchone()
+    conn.commit()
+    conn.close()
+
+    return {
+        "id":x[0],
+        "type":x[1],
+        "author":x[2],
+        "title":x[3],
+        "description":x[4],
+        "tags":x[5],
+        "url":x[6],
+        "status":x[7]
+    }

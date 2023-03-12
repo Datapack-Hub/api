@@ -7,13 +7,14 @@ import requests
 import util
 from flask import request
 import config
+import sqlite3
+from datetime import datetime, timedelta
 
 auth = flask.Blueprint("auth",__name__,url_prefix="/auth")
 
 @auth.route("/login")
 def login():
     return flask.redirect(f"https://github.com/login/oauth/authorize?client_id={config.github.client_id}")
-
 @auth.route("/callback")
 def callback():
     # Get an access token
@@ -24,26 +25,25 @@ def callback():
     github = requests.get("https://api.github.com/user",headers={"Authorization":f"Bearer {access_token}"}).json()
     
     # Get DH user
-    u = util.get_user_from_github_id(github["id"])
+    u = util.get_user.from_github_id(github["id"])
     
     if not u:
         # Make account
         print(github)
         t = util.create_user_account(github)
         
-        resp = flask.make_response(flask.redirect("https://datapack-hub.pages.dev"))
-        resp.set_cookie("token",t)
+        resp = flask.make_response(flask.redirect("https://datapackhub.net?login=1"))
+        resp.set_cookie("token",t, samesite="None", secure=True, max_age=None, expires=datetime.now() + timedelta(days=120))
         
         return resp
     else:
         t = util.get_user_token(github["id"])
         
         if not t:
-            return "Something went wrong, but I can't actually be bothered to figure out why this error would ever be needed, because we already check if the user exists. For that reason, just assume that you broke something and it can never be fixed."
+            return "Something went wrong, but I can't actually be bothered to figure out why this error would ever be needed, because we already check if the user exists. For that reason, just assume that you broke something and it can never be fixed.", 500
         
-        resp = flask.make_response(flask.redirect("https://datapack-hub.pages.dev"))
+        resp = flask.make_response(flask.redirect("https://datapackhub.net?login=1"))
         
-        print(t)
-        resp.set_cookie("token",t)
+        resp.set_cookie("token",t, samesite="None", secure=True, expires=datetime.now() + timedelta(days=120))
         
         return resp
