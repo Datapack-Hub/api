@@ -4,6 +4,35 @@ import config
 import flask
 from hashlib import sha256
 
+def authenticate(auth: str):
+    """
+    `dict` - If success returns user details\n
+    `31` - If auth not supplied\n
+    `32` - If auth is not basic\n
+    `33` - If user is not existing\n
+    """
+    if not auth:
+        return 31
+    if not auth.startswith("Basic"):
+        return 32
+    
+    token = auth[6:]
+    
+    conn = sqlite3.connect(config.db)
+    u = conn.execute(f"select username, rowid, role, bio, profile_icon from users where token = '{token}'").fetchone()
+    if not u:
+        print("user doth not exists")
+        return 33
+    conn.close()
+    
+    return {
+        "username":u[0],
+        "id":u[1],
+        "role":u[2],
+        "bio":u[3],
+        "profile_icon":u[4]
+    }
+
 class get_user():
     def from_username(uname: str):
         conn = sqlite3.connect(config.db)
@@ -23,6 +52,7 @@ class get_user():
             "bio":u[3],
             "profile_icon":u[4]
         }
+        
     def from_id(id: int):
         conn = sqlite3.connect(config.db)
     
@@ -68,7 +98,7 @@ class get_user():
         
         if not u:
             print("SillySilabearError: The user does not exist")
-            return 37
+            return False
         
         conn.close()
         
@@ -138,3 +168,6 @@ def log_user_out(id: int):
     conn.close()
     
     return "Success!"
+
+def update_user(username: str):
+    pass

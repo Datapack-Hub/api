@@ -37,24 +37,33 @@ def get_user_id(id):
 
 @user.route("/me")
 def me():
-    print(request.cookies.lists)
-    t = request.cookies.get("token")
-    if not t:
-        return "Authentication required", 401
+    print(request.headers.get("Authorization"))
     
-    u = util.get_user.from_token(request.cookies.get("token"))
+    if not request.headers.get("Authorization"):
+        return "Authorization required", 401
     
-    if u == 37:
-        return "Auth failed", 400
+    usr = util.authenticate(request.headers.get("Authorization"))
     
-    return u
+    if usr == 32:
+        return "Please make sure authorization type = Basic"
+    
+    if usr == 33:
+        return "Token Expired", 498
+    
+    return usr
 
 @user.route("/<string:username>/projects")
 def user_projects(username):
     conn = sqlite3.connect(config.db)
     # Check if user is authenticated
-    t = request.cookies.get("token")
+    t = request.headers.get("Authorization")
     user = util.get_user.from_username(username)
+    
+    authed = util.authenticate(t)
+    if authed == 32:
+        return "Make sure authorization is basic!", 400
+    elif authed == 33:
+        return "Token expired!",429
     if t:
         if util.get_user.from_token(t)["id"] == user["id"]:
             # Get all submissions
@@ -127,3 +136,38 @@ def user_projects(username):
             "count":len(out),
             "result":out
         }
+        
+@user.route("/<string:username>/edit", methods=["POST"])
+def edit(username: str):
+    t = request.headers.get("Authorization")
+    user = util.get_user.from_username(username)
+    
+    
+    if t:
+        loggedin = util.authenticate(t)
+        if loggedin == 32:
+            return "Make sure authorization is basic!", 400
+        elif loggedin == 33:
+            return "Token expired!",429
+        
+        if loggedin["id"] == user["id"]:
+            # User is logged in 
+            data = request.get_json()
+            
+            if data["bio"]:
+                conn = sqlite3.connect(config.db)
+                conn.execute(f"UPDATE users SET bio = '{data['bio']}' WHERE username = '{username}'")
+                conn.commit()
+                conn.close()
+        
+            if data["username"]:
+                conn = sqlite3.connect(config.db)
+                conn.execute(f"UPDATE users SET username = '{data['username']}' WHERE username = '{username}'")
+                conn.commit()
+                conn.close()
+            
+            return "pretend it worked", 200
+        else:
+            return "You do not have perms!", 403
+    else:
+        return "You must log in!", 401

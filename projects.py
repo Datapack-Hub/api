@@ -64,7 +64,12 @@ def amount_of_projects():
 def get_proj(id):
     conn = sqlite3.connect(config.db)
     
-    this_user = util.get_user.from_token(request.headers.get("token"))
+    this_user = util.authenticate(request.headers.get("Authorization"))
+    
+    if this_user == 32:
+        return "Make sure authorization is basic!", 400
+    elif this_user == 33:
+        return "Token expired!",429
     
     proj = conn.execute(f"select type, author, title, icon, url, description, rowid, tags, status from projects where rowid = {id}").fetchone()
     
@@ -93,15 +98,16 @@ def get_proj(id):
 @projects.route("/create",methods=["POST"])
 def new_project():
     # Check authentication
-    tok = request.cookies.get("token")
+    tok = request.headers.get("Authorization")
     
     if not tok:
         return "Not authenticated! You gotta log in first :P", 401
     
-    user = util.get_user.from_token(tok)
-    
-    if not user:
-        return "Error authenticating. Please log in again.", 401
+    user = util.authenticate(tok)
+    if user == 32:
+        return "Make sure authorization is basic!", 400
+    elif user == 33:
+        return "Token expired!",429
     
     b = util.get_user_ban_data(user["id"])
     

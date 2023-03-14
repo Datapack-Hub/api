@@ -3,7 +3,7 @@ import config
 
 conn = sqlite3.connect(config.db)
 
-print(conn.execute("update users set role = 'admin' where username = 'Silabear'").fetchall())
+print(conn.execute("select * from users").fetchall())
 
 conn.commit()
 
