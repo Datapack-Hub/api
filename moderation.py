@@ -21,7 +21,10 @@ def auth(token: str, perm_levels: list[str]):
     if not token:
         return False
     
-    user = util.get_user.from_token(token)
+    user = util.authenticate(token)
+    
+    if user == 33:
+        return 33
     
     if user["role"] not in perm_levels:
         return False
@@ -34,10 +37,14 @@ CORS(mod,supports_credentials=True)
 @mod.route("/console", methods=["POST"])
 def console():
     data = json.loads(request.data)
+    
     full = data["command"]
+    
     args = data["command"].split()
     del args[0]
+    
     cmd = data["command"].split()[0]
+    
     if cmd not in console_commands:
         closest = difflib.get_close_matches(cmd, console_commands)
         if len(closest) >= 1:
@@ -45,9 +52,13 @@ def console():
         else:
             return f"Error: Command {cmd} not found.", 400
         
+    # Check user authentication status
+    if not util.get_user.from_token(request.headers.get("Authorization")[6:]):
+        return "hey u! sign in again plz (i am not hax)", 429
+        
     if cmd == "sql":
         # Check auth
-        if not auth(request.cookies.get("token"), ["admin"]):
+        if not auth(request.headers.get("Authorization"), ["admin"]):
             return "You do not have permission to run this command!"
         
         sql_command = full[3:]
@@ -109,7 +120,7 @@ def console():
 @mod.route("/get_members")
 def members():
     # Check auth
-    if not auth(request.cookies.get("token"), ["admin"]):
+    if not auth(request.headers.get("Authorization"), ["admin"]):
         return 403
     
     conn = sqlite3.connect(config.db)
@@ -138,7 +149,7 @@ def members():
 @mod.route("/moderate/<int:id>", methods=["post"])
 def moderate(id):
     # Check auth
-    if not auth(request.cookies.get("token"), ["admin","moderator"]):
+    if not auth(request.headers.get("Authorization"), ["admin","moderator","developer"]):
         return 403
     
     data = request.get_json(force=True)
