@@ -5,7 +5,8 @@
 console_commands = [
     "sql",
     "select",
-    "ban"
+    "ban",
+    "hello"
 ]
 
 import flask
@@ -116,6 +117,8 @@ def console():
         
         print(int(args[0]))
         return f"User: {args[0]} | Reason: {' '.join(args[1:])}"
+    elif cmd == "hello":
+        return "Beep boop! Hi!"
     
 @mod.route("/get_members")
 def members():
