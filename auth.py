@@ -33,7 +33,7 @@ def callback():
         print(github)
         t = util.create_user_account(github)
         
-        resp = flask.make_response(flask.redirect(f"http://localhost:5173?login=1&token={t}"))
+        resp = flask.make_response(flask.redirect(f"https://datapackhub.net?login=1&token={t}"))
         
         return resp
     else:
@@ -42,6 +42,6 @@ def callback():
         if not t:
             return "Something went wrong, but I can't actually be bothered to figure out why this error would ever be needed, because we already check if the user exists. For that reason, just assume that you broke something and it can never be fixed.", 500
         
-        resp = flask.make_response(flask.redirect(f"http://localhost:5173?login=1&token={t}"))
+        resp = flask.make_response(flask.redirect(f"https://datapackhub.net?login=1&token={t}"))
         
         return resp
