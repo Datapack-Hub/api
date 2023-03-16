@@ -19,6 +19,9 @@ def authenticate(auth: str):
     token = auth[6:]
     
     conn = sqlite3.connect(config.db)
+    
+    print(token)
+    
     u = conn.execute(f"select username, rowid, role, bio, profile_icon from users where token = '{token}'").fetchone()
     if not u:
         print("user doth not exists")

@@ -10,7 +10,7 @@ CORS(app)
 
 @app.route("/")
 def main():
-    return "I see you discovered our API 👀"
+    return "I see you discovered our API 👀 why hello there"
 
 # Register blueprints
 from user import user
