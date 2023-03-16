@@ -76,7 +76,7 @@ def console():
             return "Processed SQL command!", 200
         
     elif cmd == "select":
-        if not auth(request.cookies.get("token"), ["admin", "developer"]):
+        if not auth(request.headers.get("Authorization"), ["admin", "developer"]):
             return "You do not have permission to run this command!"
         
         sql_command = "SELECT " + full[7:]
