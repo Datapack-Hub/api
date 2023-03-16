@@ -60,12 +60,14 @@ def user_projects(username):
     user = util.get_user.from_username(username)
     
     authed = util.authenticate(t)
+    
     if authed == 32:
         return "Make sure authorization is basic!", 400
     elif authed == 33:
         return "Token expired!",429
+    
     if t:
-        if util.get_user.from_token(t)["id"] == user["id"]:
+        if authed["id"] == user["id"]:
             # Get all submissions
             r = conn.execute(f"select type, author, title, icon, url, description, rowid, status from projects where author = {user['id']} and status != 'deleted'").fetchall()
             
