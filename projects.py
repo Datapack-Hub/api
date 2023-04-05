@@ -97,7 +97,7 @@ def get_proj(id):
             "tags":json.loads(proj[7])
         }
     
-@projects.route("/get/<str:slug>")
+@projects.route("/get/<string:slug>")
 def get_project(slug: str):
     # connect to the thingy thingy
     conn = sqlite3.connect(config.db)
