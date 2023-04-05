@@ -113,7 +113,7 @@ def get_project(slug: str):
         return "Token expired!",429
     
     # gimme dat project and gtfo
-    proj = conn.execute(f"select type, author, title, icon, url, description, rowid, tags, status from projects where url = {slug}").fetchone()
+    proj = conn.execute(f"select type, author, title, icon, url, description, rowid, tags, status from projects where url = '{slug}'").fetchone()
     conn.close()
     
     # hey u didnt give me a project, hate u
