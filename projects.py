@@ -62,7 +62,7 @@ def amount_of_projects():
         fp.close()
     return str(amount)
 
-@projects.route("/get/<int:id>")
+@projects.route("/id/<int:id>")
 def get_proj(id):
     conn = sqlite3.connect(config.db)
     
@@ -86,6 +86,48 @@ def get_proj(id):
         if not proj[1] == this_user["id"]:
             return "Not found", 404
     
+    return {
+            "type":proj[0],
+            "author":proj[1],
+            "title":proj[2],
+            "icon":proj[3],
+            "url":proj[4],
+            "description":proj[5],
+            "ID":proj[6],
+            "tags":json.loads(proj[7])
+        }
+    
+@projects.route("/get/<str:slug>")
+def get_project(slug: str):
+    # connect to the thingy thingy
+    conn = sqlite3.connect(config.db)
+    
+    # do we need auth? no
+    # do we have auth? yes
+    # this is an accurate representation of minecraft 1.15
+    # auth:
+    this_user = util.authenticate(request.headers.get("Authorization"))
+    if this_user == 32:
+        return "Make sure authorization is basic!", 400
+    elif this_user == 33:
+        return "Token expired!",429
+    
+    # gimme dat project and gtfo
+    proj = conn.execute(f"select type, author, title, icon, url, description, rowid, tags, status from projects where url = {slug}").fetchone()
+    conn.close()
+    
+    # hey u didnt give me a project, hate u
+    if not proj:
+        return "Not found", 404
+    
+    # shh im a spy
+    if proj[8] != "live":
+        if not this_user:
+            return "Not found", 404
+        if not proj[1] == this_user["id"]:
+            return "Not found", 404
+    
+    # alr fine i give up take the project
     return {
             "type":proj[0],
             "author":proj[1],
