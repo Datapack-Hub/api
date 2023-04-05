@@ -24,8 +24,10 @@ def after(resp):
 
 @projects.route("/", methods=["GET"])
 def query():
-    amount = request.args.get("amount", 20)
+    page = request.args.get("page", 1)
     sort = request.args.get("sort", "updated")
+    
+    amount = 20*page
     
     # SQL stuff
     conn = sqlite3.connect(config.db)
@@ -33,7 +35,7 @@ def query():
     
     out = []
     
-    for item in r:
+    for item in r[-20:]:
         out.append({
             "type":item[0],
             "author":item[1],
