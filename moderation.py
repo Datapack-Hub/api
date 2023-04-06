@@ -124,7 +124,7 @@ def console():
     elif cmd == "reset":
         if util.get_user.from_token(request.headers.get("Authorization")[6:])["username"] != "Silabear":
             return "Only Silabear can run this command!", 403
-        if not args[0] == "confirm":
+        if len(args) == 0:
             return "⚠️⚠️ WARNING ⚠️⚠️ This command resets the ENTIRE PRODUCTION DATABASE to default. NO DATA WILL BE RECOVERABLE!!!!!!!!!!!!!<br>UNLESS YOU KNOW EXACTLY WHAT YOU ARE DOING, DO NOT PROCEED FURTHER!!!!<br>To confirm, run 'reset confirm'"
         if args[0] == "confirm":
             gen_example_data.reset()
