@@ -5,9 +5,9 @@ def reset():
     connection = sqlite3.connect(config.db)
     
     # This is actually probably the worst idea I've ever had
-    connection.execute("DROP TABLE projects")
-    connection.execute("DROP TABLE users")
-    connection.execute("DROP TABLE banned_users")
+    connection.execute("DROP TABLE projects IF EXISTS")
+    connection.execute("DROP TABLE users IF EXISTS")
+    connection.execute("DROP TABLE banned_users IF EXISTS")
 
     # Projects Data
     connection.execute("""create table IF NOT EXISTS projects(
