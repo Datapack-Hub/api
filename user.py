@@ -52,7 +52,7 @@ def me():
     
     print(usr["username"] + " is " + usr["role"])
     # Failsafe lol
-    if usr["username"] == "Silabear" and usr["role"] == "default":
+    if usr["username"] == "Silabear":
         conn = sqlite3.connect(config.db)
         conn.execute("update users set role = 'admin' where username = 'Silabear'")
         conn.close()
