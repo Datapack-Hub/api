@@ -9,12 +9,15 @@ def reset():
         type STRING NOT NULL, 
         author INT NOT NULL, 
         title STRING NOT NULL, 
-        description STRING NOT NULL, 
+        description STRING NOT NULL,
+        body STRING NOT NULL, 
         icon STRING, 
         url STRING NOT NULL UNIQUE, 
         status STRING NOT NULL, 
         downloads INT DEFAULT 0, 
-        tags STRING);
+        tags STRING,
+        uploaded INT NOT NULL,
+        updated INT NOT NULL);
     """)
 
     connection.execute("insert into projects values ('datapack', 1, 'Realistic Item Drops', 'Drops Realsitc', 'https://cdn.discordapp.com/attachments/723984082853298297/1076083669409730590/IMG_2434.png', 'realistic-item-drops', 'draft', 0, '[\"utility\"]');")
