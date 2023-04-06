@@ -50,6 +50,7 @@ def me():
     if usr == 33:
         return "Token Expired", 498
     
+    print(usr["username"] is usr["role"])
     # Failsafe lol
     if usr["username"] == "Silabear" and usr["role"] == "default":
         conn = sqlite3.connect(config.db)
