@@ -3,9 +3,14 @@ import config
 
 def reset():
     connection = sqlite3.connect(config.db)
+    
+    # This is actually probably the worst idea I've ever had
+    connection.execute("DROP TABLE projects")
+    connection.execute("DROP TABLE users")
+    connection.execute("DROP TABLE banned_users")
 
     # Projects Data
-    connection.execute("""create table projects(
+    connection.execute("""create table IF NOT EXISTS projects(
         type STRING NOT NULL, 
         author INT NOT NULL, 
         title STRING NOT NULL, 
