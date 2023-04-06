@@ -122,8 +122,8 @@ def console():
     elif cmd == "hello":
         return "Beep boop! Hi!"
     elif cmd == "reset":
-        if util.get_user.from_token(request.headers.get("Authorization")[6:])["username"] != "Silabear":
-            return "Only Silabear can run this command!", 403
+        # if util.get_user.from_token(request.headers.get("Authorization")[6:])["username"] != "Silabear":
+        #     return "Only Silabear can run this command!", 403
         if len(args) == 0:
             return "⚠️⚠️ WARNING ⚠️⚠️ This command resets the ENTIRE PRODUCTION DATABASE to default. NO DATA WILL BE RECOVERABLE!!!!!!!!!!!!!<br>UNLESS YOU KNOW EXACTLY WHAT YOU ARE DOING, DO NOT PROCEED FURTHER!!!!<br>To confirm, run 'reset confirm'"
         if args[0] == "confirm":
