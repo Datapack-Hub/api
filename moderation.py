@@ -6,7 +6,8 @@ console_commands = [
     "sql",
     "select",
     "ban",
-    "hello"
+    "hello",
+    "reset"
 ]
 
 import flask
