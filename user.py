@@ -35,7 +35,7 @@ def get_user_id(id):
         if not u:
             return "User does not exist", 404
         return u
-    else if request.method == "PATCH":
+    elif request.method == "PATCH":
         dat = request.get_json(force=True)
         conn = sqlite3.connect(config.db)
         try:
