@@ -53,6 +53,7 @@ def get_user_id(id):
             conn.execute(f"UPDATE users SET bio = '{dat['bio']}' where rowid = {dat['id']}")
         except sqlite3.Error as er:
             return er, 400
+        conn.close()
         return util.get_user.from_id(dat["id"])
 
 @user.route("/me")
