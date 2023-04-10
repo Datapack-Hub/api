@@ -37,6 +37,16 @@ def get_user_id(id):
         return u
     elif request.method == "PATCH":
         dat = request.get_json(force=True)
+        
+        usr = util.authenticate(request.headers.get("Authorization"))
+        if usr == 32:
+            return "Please make sure authorization type = Basic"
+        if usr == 33:
+            return "Token Expired", 498
+        
+        if usr["id"] != dat["id"] or usr["role"] != "admin":
+            return "You aren't allowed to edit this user!", 403
+        
         conn = sqlite3.connect(config.db)
         try:
             sqlite3.execute(f"UPDATE users SET username = '{dat['username']}' where rowid = {dat['id']}")
