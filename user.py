@@ -28,12 +28,22 @@ def get_user(username):
         return "User does not exist", 404
     return u
 
-@user.route("/id/<int:id>")
+@user.route("/id/<int:id>", methods=["GET","PATCH"])
 def get_user_id(id):
-    u = util.get_user.from_id(id)
-    if not u:
-        return "User does not exist", 404
-    return u
+    if request.method == "GET":
+        u = util.get_user.from_id(id)
+        if not u:
+            return "User does not exist", 404
+        return u
+    else if request.method == "PATCH":
+        dat = request.get_json(force=True)
+        conn = sqlite3.connect(config.db)
+        try:
+            sqlite3.execute(f"UPDATE users SET username = '{dat['username']}' where rowid = {dat['id']}")
+            sqlite3.execute(f"UPDATE users SET bio = '{dat['bio']}' where rowid = {dat['id']}")
+        except Error as er:
+            return er, 400
+        return util.get_user_from_id(dat["id"])
 
 @user.route("/me")
 def me():
