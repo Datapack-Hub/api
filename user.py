@@ -51,7 +51,7 @@ def get_user_id(id):
         try:
             sqlite3.execute(f"UPDATE users SET username = '{dat['username']}' where rowid = {dat['id']}")
             sqlite3.execute(f"UPDATE users SET bio = '{dat['bio']}' where rowid = {dat['id']}")
-        except Error as er:
+        except sqlite3.Error as er:
             return er, 400
         return util.get_user_from_id(dat["id"])
 
