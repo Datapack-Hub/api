@@ -51,6 +51,7 @@ def get_user_id(id):
         try:
             conn.execute(f"UPDATE users SET username = '{dat['username']}' where rowid = {id}")
             conn.execute(f"UPDATE users SET bio = '{dat['bio']}' where rowid = {id}")
+            print(conn.execute(f"select * from users where rowid = {id}").fetchone())
         except sqlite3.Error as er: 
             return er, 400
         conn.close()
