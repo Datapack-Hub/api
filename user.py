@@ -29,13 +29,13 @@ def staff(role):
     list = conn.execute(f"select username, rowid, role, bio, profile_icon from users where role = '{role}'").fetchall()
     finale = []
     for i in list:
-    finale.append({
-        "id":i[1],
-        "username":i[0],
-        "role":i[2],
-        "bio":i[3],
-        "profile_icon":i[4]
-    })
+        finale.append({
+            "id":i[1],
+            "username":i[0],
+            "role":i[2],
+            "bio":i[3],
+            "profile_icon":i[4]
+        })
     return {
         "count":len(finale),
         "values":finale
