@@ -54,6 +54,7 @@ def get_user_id(id):
             print(conn.execute(f"select * from users where rowid = {id}").fetchone())
         except sqlite3.Error as er: 
             return er, 400
+        conn.commit()
         conn.close()
         return util.get_user.from_id(id)
 
