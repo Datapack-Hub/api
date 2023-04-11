@@ -44,17 +44,17 @@ def get_user_id(id):
         if usr == 33:
             return "Token Expired", 498
         
-        if usr["id"] != dat["id"] or usr["role"] != "admin":
+        if usr["id"] != id or usr["role"] != "admin":
             return "You aren't allowed to edit this user!", 403
         
         conn = sqlite3.connect(config.db)
         try:
-            conn.execute(f"UPDATE users SET username = '{dat['username']}' where rowid = {dat['id']}")
-            conn.execute(f"UPDATE users SET bio = '{dat['bio']}' where rowid = {dat['id']}")
-        except sqlite3.Error as er:
+            conn.execute(f"UPDATE users SET username = '{dat['username']}' where rowid = {id}")
+            conn.execute(f"UPDATE users SET bio = '{dat['bio']}' where rowid = {id}")
+        except sqlite3.Error as er: 
             return er, 400
         conn.close()
-        return util.get_user.from_id(dat["id"])
+        return util.get_user.from_id(id)
 
 @user.route("/me")
 def me():
