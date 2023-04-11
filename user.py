@@ -36,7 +36,7 @@ def get_user(username):
         if usr == 33:
             return "Token Expired", 498
         
-        if usr["username"] != username or usr["role"] != "admin":
+        if not (usr["username"] == username or usr["role"] == "admin"):
             return "You aren't allowed to edit this user!", 403
         
         conn = sqlite3.connect(config.db)
