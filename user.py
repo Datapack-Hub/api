@@ -21,6 +21,17 @@ CORS(user,supports_credentials=True)
 #     # Other headers can be added here if needed
 #     return resp
 
+@user.route("/staff/<role>")
+def staff(role):
+    conn = sqlite3.connect(config.db)
+    if role == "default":
+        return "Role has to be staff role", 400
+    list = conn.execute(f"select username, rowid, role, bio, profile_icon from users where role = '{role}'").fetchall()
+    return {
+        "count":len(list),
+        "values":list
+    }
+
 @user.route("/<string:username>", methods=["GET","PATCH"])
 def get_user(username):
     u = util.get_user.from_username(username)
