@@ -21,12 +21,33 @@ CORS(user,supports_credentials=True)
 #     # Other headers can be added here if needed
 #     return resp
 
-@user.route("/<string:username>")
+@user.route("/<string:username>", methods=["GET","PATCH"])
 def get_user(username):
-    u = util.get_user.from_username(username)
-    if not u:
-        return "User does not exist", 404
-    return u
+    if request.method == "GET":
+        u = util.get_user.from_username(username)
+        if not u:
+            return "User does not exist", 404
+        return u
+    elif request.method == "PATCH":
+        dat = request.get_json(force=True)
+        usr = util.authenticate(request.headers.get("Authorization"))
+        if usr == 32:
+            return "Please make sure authorization type = Basic"
+        if usr == 33:
+            return "Token Expired", 498
+        
+        if usr["username"] != username or usr["role"] != "admin":
+            return "You aren't allowed to edit this user!", 403
+        
+        conn = sqlite3.connect(config.db)
+        try:
+            conn.execute(f"UPDATE users SET bio = '{dat['bio']}' where username = {username}")
+            conn.execute(f"UPDATE users SET username = '{dat['username']}' where username = {username}")
+        except sqlite3.Error as er: 
+            return er, 400
+        conn.commit()
+        conn.close()
+        return util.get_user.from_username(dat["username"])
 
 @user.route("/id/<int:id>", methods=["GET","PATCH"])
 def get_user_id(id):
