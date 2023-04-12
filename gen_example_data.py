@@ -50,7 +50,8 @@ def reset(table: str):
         message STRING NOT NULL,
         description STRING NOT NULL,
         read BOOL NOT NULL,
-        user INT NOT NULL
+        user INT NOT NULL,
+        type STRING NOT NULL
     );
     """)
 
