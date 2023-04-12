@@ -18,12 +18,14 @@ from auth import auth
 from projects import projects
 from moderation import mod
 from notifications import notifs
+from misc import misc
 
 app.register_blueprint(user)
 app.register_blueprint(auth)
 app.register_blueprint(projects)
 app.register_blueprint(mod)
 app.register_blueprint(notifs)
+app.register_blueprint(misc)
 
 # Database things
 if not exists(config.db):
