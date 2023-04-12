@@ -126,6 +126,7 @@ def console():
         if util.get_user.from_token(request.headers.get("Authorization")[6:])["username"] != "Silabear":
             return "Only Silabear can run this command!", 403
         gen_example_data.reset(args[0])
+        return "Reset the database."
     
 @mod.route("/get_members")
 def members():
