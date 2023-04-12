@@ -22,6 +22,38 @@ def after(resp):
     # Other headers can be added here if needed
     return resp
 
+@notifs.route("/")
+def all():
+    if not request.headers.get("Authorization"):
+        return "Authorization required", 401
+    
+    usr = util.authenticate(request.headers.get("Authorization"))
+    
+    if usr == 32:
+        return "Please make sure authorization type = Basic"
+    
+    if usr == 33:
+        return "Token Expired", 498
+    
+    conn = sqlite3.connect(config.db)
+    notifs = conn.execute(f"select rowid, message, description, read, type from notifs where user = {usr['id']} order by rowid desc limit 20").fetchall()
+
+    res = []
+
+    for i in notifs:
+        res.append({
+            "id":i[0],
+            "message":i[1],
+            "description":i[2],
+            "read":i[3],
+            "type":i[4]
+        })
+
+    return {
+        "count":len(res),
+        "result":res
+    }
+
 @notifs.route("/unread")
 def unread():
     if not request.headers.get("Authorization"):
@@ -36,7 +68,7 @@ def unread():
         return "Token Expired", 498
     
     conn = sqlite3.connect(config.db)
-    notifs = conn.execute(f"select rowid, message, description, read from notifs where user = {usr['id']} and read = 0 order by rowid desc").fetchall()
+    notifs = conn.execute(f"select rowid, message, description, read, type from notifs where user = {usr['id']} and read = 0 order by rowid desc").fetchall()
 
     res = []
 
@@ -45,7 +77,8 @@ def unread():
             "id":i[0],
             "message":i[1],
             "description":i[2],
-            "read":i[3]
+            "read":i[3],
+            "type":i[4]
         })
 
     return {
