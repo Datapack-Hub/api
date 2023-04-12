@@ -36,7 +36,7 @@ def unread():
         return "Token Expired", 498
     
     conn = sqlite3.connect(config.db)
-    notifs = conn.execute(f"select rowid, message, description, read from notifs where user = {usr['id']} and read = 0").fetchall()
+    notifs = conn.execute(f"select rowid, message, description, read from notifs where user = {usr['id']} and read = 0 order by rowid desc").fetchall()
 
     res = []
 
