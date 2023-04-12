@@ -43,6 +43,7 @@ def staff(role):
 
 @user.route("/<string:username>", methods=["GET","PATCH"])
 def get_user(username):
+    # TODO mods can see banned users
     u = util.get_user.from_username(username)
     if not u:
         return "User does not exist", 404
@@ -50,6 +51,7 @@ def get_user(username):
 
 @user.route("/id/<int:id>", methods=["GET","PATCH"])
 def get_user_id(id):
+    # TODO mods can see banned users
     if request.method == "GET":
         u = util.get_user.from_id(id)
         if not u:
@@ -81,6 +83,7 @@ def get_user_id(id):
 
 @user.route("/me")
 def me():
+    #TODO user can see if they are banned
     if not request.headers.get("Authorization"):
         return "Authorization required", 401
     
@@ -92,12 +95,10 @@ def me():
     if usr == 33:
         return "Token Expired", 498
     
-    print(usr["username"] + " is " + usr["role"])
     # Failsafe lol
     if usr["username"] == "Silabear":
         conn = sqlite3.connect(config.db)
         conn.execute("UPDATE users SET role = 'admin' WHERE username = 'Silabear';")
-        print("done?")
         conn.close()
     
     return usr
