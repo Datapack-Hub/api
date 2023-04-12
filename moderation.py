@@ -138,6 +138,8 @@ def console():
             conn.execute(f"INSERT INTO notifs VALUES ('{args[1]}', '{args[2]}', False, {args[0]})")
         except sqlite3.Error as er:
             return "Error: " + " ".join(er.args), 400
+        conn.commit()
+        conn.close()
         return "Notified the user!"
 
     
