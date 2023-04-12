@@ -48,6 +48,14 @@ def all():
             "read":i[3],
             "type":i[4]
         })
+    
+    # Mark as read
+    for i in res:
+        if i["read"] == False:
+            conn.execute("UPDATE notifs SET read = True WHERE rowid = " + i["id"])
+    
+    conn.commit()
+    conn.close()
 
     return {
         "count":len(res),
