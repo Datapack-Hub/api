@@ -133,10 +133,9 @@ def console():
             return "You can't run this command!", 403
         if len(args) < 3:
             return "Missing values!", 400
-        return json.dumps(args)
         conn = sqlite3.connect(config.db)
         try:
-            conn.execute(f"INSERT INTO notifs VALUES ({args[1]}, {args[2]}, False, {args[0]})")
+            conn.execute(f"INSERT INTO notifs VALUES ('{args[1]}', '{args[2]}', False, {args[0]})")
         except sqlite3.Error as er:
             return "Error: " + " ".join(er.args), 400
         return "Notified the user!"
