@@ -93,3 +93,30 @@ def unread():
         "count":len(res),
         "result":res
     }
+
+@notifs.route("/send/<int:target>", methods = ["POST"])
+def send(target):
+    if not request.headers.get("Authorization"):
+        return "Authorization required", 401
+    
+    usr = util.authenticate(request.headers.get("Authorization"))
+    
+    if usr == 32:
+        return "Please make sure authorization type = Basic"
+    
+    if usr == 33:
+        return "Token Expired", 498
+
+    if not (usr["role"] in ["admin","developer","moderator","helper"]):
+        return "You are not allowed to do this!", 403
+
+    notifData = request.json(force=True)
+
+    conn = sqlite3.connect(config.db)
+    try:
+        conn.execute(f"INSERT INTO notifs VALUES ('{notifData['message']}', '{notifData['description']}', False, {target}, {notifData['type']})")
+    except:
+        return "There was a problem", 500
+    conn.commit()
+    conn.close()
+    return "Successfully warned user!", 200

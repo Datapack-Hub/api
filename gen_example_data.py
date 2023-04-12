@@ -60,4 +60,4 @@ def reset(table: str):
     connection.close()
     
 if __name__ == "__main__":
-    reset()
+    reset("no-drop")
