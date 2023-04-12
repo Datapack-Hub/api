@@ -81,8 +81,6 @@ def get_user_id(id):
 
 @user.route("/me")
 def me():
-    print(request.headers.get("Authorization"))
-    
     if not request.headers.get("Authorization"):
         return "Authorization required", 401
     
