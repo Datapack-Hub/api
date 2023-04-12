@@ -13,15 +13,6 @@ import regex as re
 
 notifs = Blueprint("notifications",__name__,url_prefix="/notifs")
 
-CORS(notifs)
-
-@notifs.after_request
-def after(resp):
-    header = resp.headers
-    header['Access-Control-Allow-Credentials'] = "true"
-    # Other headers can be added here if needed
-    return resp
-
 @notifs.route("/")
 def all():
     if not request.headers.get("Authorization"):
