@@ -85,7 +85,7 @@ def unread():
         "result":res
     }
 
-@notifs.route("/send/<int:target>", methods = ["POST"])
+@notifs.route("/send/<int:target>", methods=["POST"])
 def send(target):
     if not request.headers.get("Authorization"):
         return "Authorization required", 401
@@ -101,7 +101,7 @@ def send(target):
     if not (usr["role"] in ["admin","developer","moderator","helper"]):
         return "You are not allowed to do this!", 403
 
-    notifData = request.json(force=True)
+    notifData = request.get_json(force=True)
 
     conn = sqlite3.connect(config.db)
     try:
