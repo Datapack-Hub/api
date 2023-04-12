@@ -105,7 +105,7 @@ def send(target):
 
     conn = sqlite3.connect(config.db)
     try:
-        conn.execute(f"INSERT INTO notifs VALUES ('{notifData['message']}', '{notifData['description']}', False, {target}, {notifData['type']})")
+        conn.execute(f"INSERT INTO notifs VALUES ('{notifData['message']}', '{notifData['description']}', False, {target}, '{notifData['type']}')")
     except sqlite3.Error as er:
         return "There was a proble: " ' '.join(er.args) , 500
     conn.commit()
