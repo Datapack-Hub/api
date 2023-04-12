@@ -52,7 +52,7 @@ def all():
     # Mark as read
     for i in res:
         if i["read"] == False:
-            conn.execute("UPDATE notifs SET read = True WHERE rowid = " + i["id"])
+            conn.execute("UPDATE notifs SET read = True WHERE rowid = " + str(i["id"]))
     
     conn.commit()
     conn.close()
