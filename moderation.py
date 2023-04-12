@@ -172,18 +172,34 @@ def members():
         "result": return_this
     }
     
-@mod.route("/moderate/<int:id>", methods=["post"])
-def moderate(id):
+@mod.route("/log_out/<int:id>", methods=["post"])
+def logout(id):
     # Check auth
     if not auth(request.headers.get("Authorization"), ["admin","moderator","developer"]):
         return 403
     
     data = request.get_json(force=True)
     
-    if data["action"] == "log_out":
-        try:
-            util.log_user_out(id)
-        except:
-            return "Failed", 500
-        else:
-            return "Success!", 200
+    try:
+        util.log_user_out(id)
+    except:
+        return "Failed", 500
+    else:
+        return "Success!", 200
+
+@mod.route("/ban/<int:id>",methods=["post"])
+def ban(id):
+    if not auth(request.headers.get("Authorization"), ["admin","moderator","developer"]):
+        return "Not allowed.", 403
+
+    dat = request.get_json(force=True)
+
+    conn = sqlite3.connect(config.db)
+    try:
+        conn.execute(f"insert into banned_users values ({dat['id']}, {dat['expires']}, '{dat['message']})")
+    except sqlite3.Error as er:
+        return " ".join(er.args)
+    else:
+        conn.commit()
+        conn.close()
+        return "worked fine"
