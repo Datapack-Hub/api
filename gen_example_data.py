@@ -1,7 +1,7 @@
 import sqlite3
 import config
 
-def reset(table: string):
+def reset(table: str):
     connection = sqlite3.connect(config.db)
     
     if table != "no-drop":
