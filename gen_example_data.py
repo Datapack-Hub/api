@@ -1,13 +1,12 @@
 import sqlite3
 import config
 
-def reset():
+def reset(table: string):
     connection = sqlite3.connect(config.db)
     
-    # # This is actually probably the worst idea I've ever had
-    # connection.execute("DROP TABLE projects IF EXISTS")
-    # connection.execute("DROP TABLE users IF EXISTS")
-    # connection.execute("DROP TABLE banned_users IF EXISTS")
+    if table != "no-drop":
+        if table == "projects":
+            connection.execute(f"DROP TABLE {table} IF EXISTS")
 
     # Projects Data
     connection.execute("""create table IF NOT EXISTS projects(
@@ -22,7 +21,8 @@ def reset():
         downloads INT DEFAULT 0, 
         tags STRING,
         uploaded INT NOT NULL,
-        updated INT NOT NULL);
+        updated INT NOT NULL,
+        resource_pack STRING);
     """)
 
     connection.execute("insert into projects values ('datapack', 1, 'Realistic Item Drops', 'Drops Realsitc short', 'actually very long description', 'https://cdn.discordapp.com/attachments/723984082853298297/1076083669409730590/IMG_2434.png', 'realistic-item-drops', 'draft', 0, '[\"utility\"]', 0, 0);")
@@ -44,8 +44,17 @@ def reset():
         reason string
     )""")
 
+    # Notification Data
+    connection.execute("""create table if not exists notifs(
+        message STRING NOT NULL,
+        description STRING NOT NULL,
+        read BOOL NOT NULL,
+        user INT NOT NULL
+    );
+    """)
+
+    # save and exit
     connection.commit()
-        
     connection.close()
     
 if __name__ == "__main__":

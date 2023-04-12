@@ -19,6 +19,7 @@ import json
 import difflib
 import util
 import gen_example_data
+import shlex
 
 def auth(token: str, perm_levels: list[str]):
     if not token:
@@ -43,10 +44,10 @@ def console():
     
     full = data["command"]
     
-    args = data["command"].split()
-    del args[0]
+    args = shlex.split(data["command"])
     
-    cmd = data["command"].split()[0]
+    cmd = args[0]
+    del args[0]
     
     if cmd not in console_commands:
         closest = difflib.get_close_matches(cmd, console_commands)
@@ -122,13 +123,9 @@ def console():
     elif cmd == "hello":
         return "Beep boop! Hi!"
     elif cmd == "reset":
-        # if util.get_user.from_token(request.headers.get("Authorization")[6:])["username"] != "Silabear":
-        #     return "Only Silabear can run this command!", 403
-        if len(args) == 0:
-            return "⚠️⚠️ WARNING ⚠️⚠️ This command resets the ENTIRE PRODUCTION DATABASE to default. NO DATA WILL BE RECOVERABLE!!!!!!!!!!!!!<br>UNLESS YOU KNOW EXACTLY WHAT YOU ARE DOING, DO NOT PROCEED FURTHER!!!!<br>To confirm, run 'reset confirm'"
-        if args[0] == "confirm":
-            gen_example_data.reset()
-            return "You've reset the database! Past you is probably wanting to murder you right now :D"
+        if util.get_user.from_token(request.headers.get("Authorization")[6:])["username"] != "Silabear":
+            return "Only Silabear can run this command!", 403
+        gen_example_data.reset(args[0])
     
 @mod.route("/get_members")
 def members():
