@@ -7,7 +7,8 @@ console_commands = [
     "select",
     "ban",
     "hello",
-    "reset"
+    "reset",
+    "notify"
 ]
 
 import flask
@@ -127,6 +128,18 @@ def console():
             return "Only Silabear can run this command!", 403
         gen_example_data.reset(args[0])
         return "Reset the database."
+    elif cmd == "notify":
+        if not auth(request.headers.get("Authorization"),["admin","developer","moderator","helper"]):
+            return "You can't run this command!", 403
+        if len(args) < 3:
+            return "Missing values!", 400
+        conn = sqlite3.connect(config.db)
+        try:
+            conn.execute(f"INSERT INTO notifs VALUES ({args[1]}, {args[2]}, False, {args[0]})")
+        except sqlite3.Error as er:
+            return er, 400
+        return "Notified the user!"
+
     
 @mod.route("/get_members")
 def members():
