@@ -160,10 +160,13 @@ def new_project():
     elif user == 33:
         return "Token expired!",429
     
-    b = util.get_user_ban_data(user["id"])
-    
-    if b:
-        return f"This user is banned: {b['reason']}.", 403
+    banned = util.get_user_ban_data(user["id"])
+    if banned != None:
+        return {
+            "banned":True,
+            "reason":banned["reason"],
+            "expires":banned["expires"]
+        }, 403
     
     data = request.get_json(force=True)
     if data["type"] == None or data["url"] == None or data["title"] == None or data["description"] == None or data["tags"] == None:
