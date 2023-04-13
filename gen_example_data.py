@@ -17,9 +17,9 @@ def reset(table: str):
         body STRING NOT NULL, 
         icon STRING, 
         url STRING NOT NULL UNIQUE, 
-        status STRING NOT NULL, 
+        status STRING NOT NULL DEFAULT "draft", 
         downloads INT DEFAULT 0, 
-        tags STRING,
+        category STRING NOT NULL,
         uploaded INT NOT NULL,
         updated INT NOT NULL,
         resource_pack STRING);
