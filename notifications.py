@@ -124,7 +124,7 @@ def delete(id):
     conn = sqlite3.connect(config.db)
     notif = conn.execute("SELECT user FROM notifs WHERE rowid = "+str(id)).fetchone()
     
-    if usr["id"] != notif["user"]:
+    if usr["id"] != notif[0]:
         return "Not your notif!", 403
     try:
         conn.execute(f"DELETE FROM notifs WHERE rowid = " + str(id))
