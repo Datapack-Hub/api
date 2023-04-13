@@ -45,7 +45,7 @@ def query():
             "url":item[4],
             "description":item[5],
             "ID":item[6],
-            "category":proj[7]
+            "category":item[7]
         })
     
     conn.close()
