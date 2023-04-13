@@ -7,6 +7,8 @@ from flask_cors import CORS
 from flask import Blueprint, request
 import sqlite3
 import config
+import math
+import time
 
 import util
 
@@ -94,12 +96,25 @@ def me():
     
     if usr == 33:
         return "Token Expired", 498
-    
-    # Failsafe lol
-    if usr["username"] == "Silabear":
-        conn = sqlite3.connect(config.db)
-        conn.execute("UPDATE users SET role = 'admin' WHERE username = 'Silabear';")
-        conn.close()
+
+    # banned?
+    conn = sqlite3.connect(config.db)
+    x = conn.execute("SELECT rowid, expires, message from banned_users where id = "+ str(usr["id"])).fetchall()
+    if len(x) == 1:
+        current = round(time.time())
+        expires = x[0][1]
+        if current > expires:
+            conn.execute(f"delete from banned_users where rowid = {str(x[0][0])}")
+            conn.commit()
+        else:
+            x["banned"] = True
+            x["banData"] = {
+                "message":x[0][2],
+                "expires":expires
+            }
+    else:
+        x["banned"] = False
+    conn.close()
     
     return usr
 
