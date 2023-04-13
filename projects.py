@@ -10,6 +10,7 @@ import json
 import sqlite3
 import config
 import regex as re
+import time
 
 projects = Blueprint("projects",__name__,url_prefix="/projects")
 
@@ -169,29 +170,48 @@ def new_project():
         }, 403
     
     data = request.get_json(force=True)
-    if data["type"] == None or data["url"] == None or data["title"] == None or data["description"] == None or data["tags"] == None:
+
+    try:
+        data["type"]
+        data["url"]
+        data["title"]
+        data["description"]
+        data["body"]
+        data["category"]
+    except:
         return "Missing field", 400
+    
     if not data["type"] in config.valid_types:
         return f"Type {data['type']} is not a valid type! Acceptable content types: {config.valid_types}"
+    
     if not re.match(r'^[\w!@$()`.+,"\-\']{3,64}$',data["url"]):
         return "URL is bad", 400
-    if len(data["tags"]) > 3:
-        return "Too many tags", 400
     
     # Update databas
     conn = sqlite3.connect(config.db)
-    conn.execute(f"insert into projects(type, author, title, description, tags, url, status) values ('{data['type']}', {user['id']}, '{data['title']}', '{data['description']}', 'TODO', '{data['url']}', 'draft')")
+    conn.execute(f"""insert into projects(
+                 type, 
+                 author, 
+                 title, 
+                 description, 
+                 body
+                 category, 
+                 url, 
+                 status,
+                 uploaded,
+                 updated) values (
+                    '{data['type']}', 
+                    {user['id']}, 
+                    '{data['title']}', 
+                    '{data['description']}', 
+                    '{data['body']}'
+                    '{data['category']}', 
+                    '{data['url']}', 
+                    'draft',
+                    {str(round(time.time()))},
+                    {str(round(time.time()))})""")
     x = conn.execute("SELECT rowid, type, author, title, description, tags, url, status FROM projects ORDER BY rowid DESC LIMIT 1").fetchone()
     conn.commit()
     conn.close()
 
-    return {
-        "id":x[0],
-        "type":x[1],
-        "author":x[2],
-        "title":x[3],
-        "description":x[4],
-        "tags":x[5],
-        "url":x[6],
-        "status":x[7]
-    }
+    return "done", 200
