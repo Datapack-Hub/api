@@ -204,7 +204,7 @@ def new_project():
                     {user['id']}, 
                     '{data['title']}', 
                     '{data['description']}', 
-                    '{data['body']}'
+                    '{data['body']}',
                     '{data['category']}', 
                     '{data['url']}', 
                     'draft',
