@@ -204,6 +204,21 @@ def ban(id):
         conn.close()
         return "worked fine"
 
+@mod.route("/unban/<int:id>",methods=["post"])
+def unban(id):
+    if not auth(request.headers.get("Authorization"), ["admin","moderator","developer"]):
+        return "Not allowed.", 403
+
+    conn = sqlite3.connect(config.db)
+    try:
+        conn.execute(f"delete from banned_users where id = {id}")
+    except sqlite3.Error as er:
+        return " ".join(er.args)
+    else:
+        conn.commit()
+        conn.close()
+        return "worked fine"
+
 @mod.route("/user/<int:id>")
 def userData(id):
     if not auth(request.headers.get("Authorization"), ["moderator","developer","admin"]):
