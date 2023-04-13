@@ -194,7 +194,7 @@ def new_project():
                  author, 
                  title, 
                  description, 
-                 body
+                 body,
                  category, 
                  url, 
                  status,
