@@ -99,7 +99,7 @@ def me():
 
     # banned?
     conn = sqlite3.connect(config.db)
-    x = conn.execute("SELECT rowid, expires, message from banned_users where id = "+ str(usr["id"])).fetchall()
+    x = conn.execute("SELECT rowid, expires, reason from banned_users where id = "+ str(usr["id"])).fetchall()
     if len(x) == 1:
         current = round(time.time())
         expires = x[0][1]
