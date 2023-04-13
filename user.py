@@ -107,8 +107,8 @@ def me():
             conn.execute(f"delete from banned_users where rowid = {str(x[0][0])}")
             conn.commit()
         else:
-            x["banned"] = True
-            x["banData"] = {
+            usr["banned"] = True
+            usr["banData"] = {
                 "message":x[0][2],
                 "expires":expires
             }
