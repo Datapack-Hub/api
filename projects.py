@@ -45,7 +45,7 @@ def query():
             "url":item[4],
             "description":item[5],
             "ID":item[6],
-            "tags":json.loads(item[7])
+            "category":proj[7]
         })
     
     conn.close()
@@ -95,7 +95,7 @@ def get_proj(id):
             "url":proj[4],
             "description":proj[5],
             "ID":proj[6],
-            "tags":json.loads(proj[7]),
+            "category":proj[7],
             "uploaded":proj[9],
             "updated":proj[10],
             "body":proj[11]
@@ -141,7 +141,7 @@ def get_project(slug: str):
             "url":proj[4],
             "description":proj[5],
             "ID":proj[6],
-            "tags":json.loads(proj[7]),
+            "category":proj[7],
             "uploaded":proj[9],
             "updated":proj[10],
             "body":proj[11]
