@@ -187,37 +187,32 @@ def logout(id):
     else:
         return "Success!", 200
 
-@mod.route("/ban/<int:id>",methods=["post"])
-def ban(id):
+@mod.route("/ban/<int:id>",methods=["post", "delete"])
+def ban(id): 
     if not auth(request.headers.get("Authorization"), ["admin","moderator","developer"]):
         return "Not allowed.", 403
+    if request.method == "post":
+        dat = request.get_json(force=True)
 
-    dat = request.get_json(force=True)
-
-    conn = sqlite3.connect(config.db)
-    try:
-        conn.execute(f"insert into banned_users values ({dat['id']}, {dat['expires']}, '{dat['message']}')")
-    except sqlite3.Error as er:
-        return " ".join(er.args)
+        conn = sqlite3.connect(config.db)
+        try:
+            conn.execute(f"insert into banned_users values ({dat['id']}, {dat['expires']}, '{dat['message']}')")
+        except sqlite3.Error as er:
+            return " ".join(er.args)
+        else:
+            conn.commit()
+            conn.close()
+            return "worked fine"
     else:
-        conn.commit()
-        conn.close()
-        return "worked fine"
-
-@mod.route("/unban/<int:id>",methods=["post"])
-def unban(id):
-    if not auth(request.headers.get("Authorization"), ["admin","moderator","developer"]):
-        return "Not allowed.", 403
-
-    conn = sqlite3.connect(config.db)
-    try:
-        conn.execute(f"delete from banned_users where id = {id}")
-    except sqlite3.Error as er:
-        return " ".join(er.args)
-    else:
-        conn.commit()
-        conn.close()
-        return "worked fine"
+        conn = sqlite3.connect(config.db)
+        try:
+            conn.execute(f"delete from banned_users where id = {id}")
+        except sqlite3.Error as er:
+            return " ".join(er.args)
+        else:
+            conn.commit()
+            conn.close()
+            return "worked fine"
 
 @mod.route("/user/<int:id>")
 def userData(id):
