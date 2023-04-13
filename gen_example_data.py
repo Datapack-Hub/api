@@ -6,7 +6,7 @@ def reset(table: str):
     
     if table != "no-drop":
         if table == "projects":
-            connection.execute(f"DROP TABLE {table} IF EXISTS")
+            connection.execute(f"DROP TABLE {table}")
 
     # Projects Data
     connection.execute("""create table IF NOT EXISTS projects(
