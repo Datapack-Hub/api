@@ -68,6 +68,14 @@ def get_user_id(id):
         if usr == 33:
             return "Token Expired", 498
         
+        banned = util.get_user_ban_data(usr["id"])
+        if banned != None:
+            return {
+                "banned":True,
+                "reason":banned["reason"],
+                "expires":banned["expires"]
+            }, 403
+        
         if not (usr["id"] == id or usr["role"] in ["moderator","admin"]):
             return "You aren't allowed to edit this user!", 403
         
@@ -210,13 +218,20 @@ def edit(username: str):
     t = request.headers.get("Authorization")
     user = util.get_user.from_username(username)
     
-    
     if t:
         loggedin = util.authenticate(t)
         if loggedin == 32:
             return "Make sure authorization is basic!", 400
         elif loggedin == 33:
             return "Token expired!",429
+        
+        banned = util.get_user_ban_data(user["id"])
+        if banned != None:
+            return {
+                "banned":True,
+                "reason":banned["reason"],
+                "expires":banned["expires"]
+            }, 403
         
         if loggedin["id"] == user["id"]:
             # User is logged in 
