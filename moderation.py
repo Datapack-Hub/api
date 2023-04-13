@@ -203,3 +203,24 @@ def ban(id):
         conn.commit()
         conn.close()
         return "worked fine"
+
+@mod.route("/user/<int:id>")
+def userData(id):
+    if not auth(request.headers.get("Authorization"), ["moderator","developer","admin"]):
+        return "You can't do this!", 403
+
+    conn = sqlite3.connect(config.db)
+    banData = conn.execute(f"SELECT * FROM banned_users WHERE id = {id}").fetchall()
+
+    if len(banData) == 0:
+        return {
+            "banned":False,
+            "banMessage":None,
+            "banExpiry":None
+        }
+    else:
+        return {
+            "banned":True,
+            "banMessage":banData[0][2],
+            "banExpiry":banData[0][1]
+        }
