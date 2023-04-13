@@ -125,7 +125,7 @@ def delete(id):
     notif = conn.execute("SELECT user FROM notifs WHERE rowid = "+str(id)).fetchone()
     
     if usr["id"] != notif["user"]:
-        reuturn "Not your notif!", 403
+        return "Not your notif!", 403
     try:
         conn.execute(f"DELETE FROM notifs WHERE rowid = " + str(id))
         conn.commit()
