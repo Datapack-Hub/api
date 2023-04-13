@@ -121,7 +121,7 @@ def delete(id):
     if usr == 33:
         return "Token Expired", 498
     
-    conn = sqlite3.connect()
+    conn = sqlite3.connect(config.db)
     notif = conn.execute("SELECT user FROM notifs WHERE rowid = "+str(id)).fetchone()
     
     if usr["id"] != notif["user"]:
