@@ -113,7 +113,7 @@ def me():
                 "expires":expires
             }
     else:
-        x["banned"] = False
+        usr["banned"] = False
     conn.close()
     
     return usr
