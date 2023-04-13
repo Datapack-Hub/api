@@ -114,7 +114,18 @@ def send(target):
 
 @notifs.route("/delete/<int:id>",methods=["DELETE"])
 def delete(id):
+    usr = util.authenticate(request.headers.get("Authorization"))
+    if usr == 32:
+        return "Please make sure authorization type = Basic"
+    
+    if usr == 33:
+        return "Token Expired", 498
+    
     conn = sqlite3.connect()
+    notif = conn.execute("SELECT user FROM notifs WHERE rowid = "+str(id)).fetchone()
+    
+    if usr["id"] != notif["user"]:
+        reuturn "Not your notif!", 403
     try:
         conn.execute(f"DELETE FROM notifs WHERE rowid = " + str(id))
         conn.commit()
