@@ -210,7 +210,6 @@ def new_project():
                     'draft',
                     {str(round(time.time()))},
                     {str(round(time.time()))})""")
-    x = conn.execute("SELECT rowid, type, author, title, description, tags, url, status FROM projects ORDER BY rowid DESC LIMIT 1").fetchone()
     conn.commit()
     conn.close()
 
