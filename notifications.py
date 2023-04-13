@@ -111,3 +111,16 @@ def send(target):
     conn.commit()
     conn.close()
     return "Successfully warned user!", 200
+
+@notifs.route("/delete/<int:id>",methods=["DELETE"])
+def delete(id):
+    conn = sqlite3.connect()
+    try:
+        conn.execute(f"DELETE FROM notifs WHERE rowid = " + str(id))
+        conn.commit()
+    except:
+        return "Something bad happened",500
+    else:
+        conn.close()
+        return "worked fine"
+    
