@@ -32,7 +32,7 @@ def query():
     
     # SQL stuff
     conn = sqlite3.connect(config.db)
-    r = conn.execute(f"select type, author, title, icon, url, description, rowid, tags, uploaded, updated from projects where status = 'live' limit {amount}").fetchall()
+    r = conn.execute(f"select type, author, title, icon, url, description, rowid, category, uploaded, updated from projects where status = 'live' limit {amount}").fetchall()
     
     out = []
     
@@ -74,7 +74,7 @@ def get_proj(id):
     elif this_user == 33:
         return "Token expired!",429
     
-    proj = conn.execute(f"select type, author, title, icon, url, description, rowid, tags, status, uploaded, updated, body from projects where rowid = {id}").fetchone()
+    proj = conn.execute(f"select type, author, title, icon, url, description, rowid, category, status, uploaded, updated, body from projects where rowid = {id}").fetchone()
     
     conn.close()
     
@@ -118,7 +118,7 @@ def get_project(slug: str):
         return "Token expired!",429
     
     # gimme dat project and gtfo
-    proj = conn.execute(f"select type, author, title, icon, url, description, rowid, tags, status, uploaded, updated, body from projects where url = '{slug}'").fetchone()
+    proj = conn.execute(f"select type, author, title, icon, url, description, rowid, category, status, uploaded, updated, body from projects where url = '{slug}'").fetchone()
     conn.close()
     
     # hey u didnt give me a project, hate u
