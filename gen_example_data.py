@@ -26,7 +26,7 @@ def reset(table: str):
     """)
 
     if table == "projects":
-        connection.execute("insert into projects values ('datapack', 1, 'Realistic Item Drops', 'Drops Realsitc short', 'actually very long description', 'https://cdn.discordapp.com/attachments/723984082853298297/1076083669409730590/IMG_2434.png', 'realistic-item-drops', 'draft', 0, '[\"utility\"]', 0, 0);")
+        connection.execute("insert into projects values ('datapack', 1, 'Realistic Item Drops', 'Drops Realsitc short', 'actually very long description', 'https://cdn.discordapp.com/attachments/723984082853298297/1076083669409730590/IMG_2434.png', 'realistic-item-drops', 'draft', 0, '[\"utility\"]', 0, 0, 'google.com');")
 
     # User data
     connection.execute("""create table IF NOT EXISTS users (
