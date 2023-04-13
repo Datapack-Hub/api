@@ -191,7 +191,7 @@ def logout(id):
 def ban(id): 
     if not auth(request.headers.get("Authorization"), ["admin","moderator","developer"]):
         return "Not allowed.", 403
-    if request.method == "post":
+    if request.method == "POST":
         dat = request.get_json(force=True)
 
         conn = sqlite3.connect(config.db)
