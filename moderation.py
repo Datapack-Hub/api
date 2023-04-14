@@ -215,3 +215,23 @@ def userData(id):
             "banMessage":banData[0][2],
             "banExpiry":banData[0][1]
         }
+    
+@mod.route("/logs")
+def logs():
+    if not auth(request.headers.get("Authorization"), ["helper","moderator","developer","admin"]):
+        return "You can't do this!", 403
+    
+    page = request.args.get("page", 1)
+
+    conn = sqlite3.connect(config.db)
+    x = conn.execute("select username, action, time from mod_logs").fetchall()
+    x = x[int(page)*30-1:]
+    y = []
+    for i in x:
+        y.append({
+            "username":i[0],
+            "action":i[1],
+            "time":i[2]
+        })
+
+    return y
