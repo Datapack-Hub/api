@@ -55,6 +55,15 @@ def reset(table: str):
     );
     """)
 
+    # Log data
+    connection.execute("""create table if not exists mod_logs(
+        user INT NOT NULL,
+        username STRING NOT NULL,
+        action STRING NOT NULL,
+        time INT NOT NULL
+    )
+    """)
+
     # save and exit
     connection.commit()
     connection.close()

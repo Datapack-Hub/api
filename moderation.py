@@ -5,7 +5,6 @@
 console_commands = [
     "sql",
     "select",
-    "ban",
     "hello",
     "reset",
     "notify"
@@ -21,6 +20,7 @@ import difflib
 import util
 import gen_example_data
 import shlex
+import time
 
 def auth(token: str, perm_levels: list[str]):
     if not token:
@@ -96,31 +96,6 @@ def console():
             return "SQL Error: " + (' '.join(error.args)), 400
         else:
             return json.dumps(out, indent=3).replace("\n","<br />"), 200
-    elif cmd == "ban":
-        if not args[0]:
-            return "Missing username/UID!", 400
-        x = None
-        try:
-            x = int(args[0])
-        except:
-            print(f"{args[0]} is not an ID, but probably a username.")
-            
-        if x:
-            # TODO Ban them by their ID
-            conn = sqlite3.connect(config.db)
-            
-            if args[1]:
-                conn.execute(f"INSERT INTO banned_users(id, reason) VALUES ({x}, \"{' '.join(args[1:])}\")")
-                return f"Banned {args[0]} for reason {' '.join(args[1:])}"
-            else:
-                conn.execute(f"INSERT INTO banned_users(id) VALUES ({x})")
-                return f"Banned {args[0]}"
-        else:
-            # TODO Ban them by their username
-            pass
-        
-        print(int(args[0]))
-        return f"User: {args[0]} | Reason: {' '.join(args[1:])}"
     elif cmd == "hello":
         return "Beep boop! Hi!"
     elif cmd == "reset":
@@ -178,13 +153,15 @@ def logout(id):
     if not auth(request.headers.get("Authorization"), ["admin","moderator","developer"]):
         return 403
     
-    data = request.get_json(force=True)
-    
     try:
         util.log_user_out(id)
     except:
         return "Failed", 500
     else:
+        conn = sqlite3.connect(config.db)
+        conn.execute(f"insert into mod_logs values ({util.get_user.from_token(request.headers.get('Authorization')[6:])['id']}, {util.get_user.from_token(request.headers.get('Authorization')[6:])['username']}, 'Logged user out: {id}',{round(time.time())})")
+        conn.commit()
+        conn.close()
         return "Success!", 200
 
 @mod.route("/ban/<int:id>",methods=["post", "delete"])
@@ -200,6 +177,9 @@ def ban(id):
         except sqlite3.Error as er:
             return " ".join(er.args)
         else:
+            # log
+            
+            conn.execute(f"insert into mod_logs values ({util.get_user.from_token(request.headers.get('Authorization')[6:])['id']}, {util.get_user.from_token(request.headers.get('Authorization')[6:])['username']}, 'Banned user {dat['id']}',{round(time.time())})")
             conn.commit()
             conn.close()
             return "worked fine"
@@ -210,6 +190,7 @@ def ban(id):
         except sqlite3.Error as er:
             return " ".join(er.args)
         else:
+            conn.execute(f"insert into mod_logs values ({util.get_user.from_token(request.headers.get('Authorization')[6:])['id']}, {util.get_user.from_token(request.headers.get('Authorization')[6:])['username']}, 'Unbanned user {dat['id']}',{round(time.time())})")
             conn.commit()
             conn.close()
             return "worked fine"
