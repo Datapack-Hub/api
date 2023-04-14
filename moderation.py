@@ -234,4 +234,4 @@ def logs():
             "time":i[2]
         })
 
-    return y
+    return {"result":y}
