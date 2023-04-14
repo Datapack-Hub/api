@@ -159,7 +159,7 @@ def logout(id):
         return "Failed", 500
     else:
         conn = sqlite3.connect(config.db)
-        conn.execute(f"insert into mod_logs values ({util.get_user.from_token(request.headers.get('Authorization')[6:])['id']}, {util.get_user.from_token(request.headers.get('Authorization')[6:])['username']}, 'Logged user out: {id}',{round(time.time())})")
+        conn.execute(f"insert into mod_logs values ({util.get_user.from_token(request.headers.get('Authorization')[6:])['id']}, '{util.get_user.from_token(request.headers.get('Authorization')[6:])['username']}', 'Logged user out: {id}',{round(time.time())})")
         conn.commit()
         conn.close()
         return "Success!", 200
@@ -179,7 +179,7 @@ def ban(id):
         else:
             # log
             
-            conn.execute(f"insert into mod_logs values ({util.get_user.from_token(request.headers.get('Authorization')[6:])['id']}, {util.get_user.from_token(request.headers.get('Authorization')[6:])['username']}, 'Banned user {dat['id']}',{round(time.time())})")
+            conn.execute(f"insert into mod_logs values ({util.get_user.from_token(request.headers.get('Authorization')[6:])['id']}, '{util.get_user.from_token(request.headers.get('Authorization')[6:])['username']}', 'Banned user {dat['id']}',{round(time.time())})")
             conn.commit()
             conn.close()
             return "worked fine"
@@ -190,7 +190,7 @@ def ban(id):
         except sqlite3.Error as er:
             return " ".join(er.args)
         else:
-            conn.execute(f"insert into mod_logs values ({util.get_user.from_token(request.headers.get('Authorization')[6:])['id']}, {util.get_user.from_token(request.headers.get('Authorization')[6:])['username']}, 'Unbanned user {dat['id']}',{round(time.time())})")
+            conn.execute(f"insert into mod_logs values ({util.get_user.from_token(request.headers.get('Authorization')[6:])['id']}, '{util.get_user.from_token(request.headers.get('Authorization')[6:])['username']}', 'Unbanned user {dat['id']}',{round(time.time())})")
             conn.commit()
             conn.close()
             return "worked fine"
