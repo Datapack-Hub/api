@@ -225,7 +225,10 @@ def logs():
 
     conn = sqlite3.connect(config.db)
     x = conn.execute("select username, action, time from mod_logs").fetchall()
-    x = x[((int(page)-1)*30)-1:]
+    if page > 1:
+        x = x[((int(page)-1)*30)-1:((int(page))*30)-1]
+    else:
+        x = x[0:29]
     y = []
     for i in x:
         y.append({
