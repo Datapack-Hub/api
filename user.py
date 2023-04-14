@@ -85,6 +85,7 @@ def get_user_id(id):
             conn.execute(f"UPDATE users SET bio = '{dat['bio']}' where rowid = {id}")
             if usr["role"] == "admin":
                 conn.execute(f"UPDATE users SET role = '{dat['role']}' where rowid = {id}")
+                conn.execute(f"insert into mod_logs values ({usr['id']}, {usr['username']}, 'Edited user {dat['id']}',{round(time.time())})")
         except sqlite3.Error as er: 
             return er, 400
         conn.commit()
@@ -123,7 +124,6 @@ def me():
     else:
         usr["banned"] = False
     conn.close()
-    
     return usr
 
 @user.route("/<string:username>/projects")

@@ -10,6 +10,7 @@ import json
 import sqlite3
 import config
 import regex as re
+import time
 
 notifs = Blueprint("notifications",__name__,url_prefix="/notifs")
 
@@ -108,6 +109,7 @@ def send(target):
         conn.execute(f"INSERT INTO notifs VALUES ('{notifData['message']}', '{notifData['description']}', False, {target}, '{notifData['type']}')")
     except sqlite3.Error as er:
         return "There was a proble: " ' '.join(er.args) , 500
+    conn.execute(f"insert into mod_logs values ({usr['id']}, {usr['username']}, 'Sent a notification to {target}: {notifData['message']} | {notifData['description']}', {round(time.time())})")
     conn.commit()
     conn.close()
     return "Successfully warned user!", 200
