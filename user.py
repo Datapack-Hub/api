@@ -85,7 +85,7 @@ def get_user_id(id):
             conn.execute(f"UPDATE users SET bio = '{dat['bio']}' where rowid = {id}")
             if usr["role"] == "admin":
                 conn.execute(f"UPDATE users SET role = '{dat['role']}' where rowid = {id}")
-                conn.execute(f"insert into mod_logs values ({usr['id']}, '{usr['username']}', 'Edited user {dat['id']}',{round(time.time())})")
+                conn.execute(f"insert into mod_logs values ({usr['id']}, '{usr['username']}', 'Edited user {dat['id']}',{int( time.time() )})")
         except sqlite3.Error as er: 
             return er, 400
         conn.commit()
@@ -110,7 +110,7 @@ def me():
     conn = sqlite3.connect(config.db)
     x = conn.execute("SELECT rowid, expires, reason from banned_users where id = "+ str(usr["id"])).fetchall()
     if len(x) == 1:
-        current = round(time.time())
+        current = int( time.time() )
         expires = x[0][1]
         if current > expires:
             conn.execute(f"delete from banned_users where rowid = {str(x[0][0])}")

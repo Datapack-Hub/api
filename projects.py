@@ -208,8 +208,8 @@ def new_project():
                     '{data['category']}', 
                     '{data['url']}', 
                     'draft',
-                    {str(round(time.time()))},
-                    {str(round(time.time()))})""")
+                    {str(int( time.time() ))},
+                    {str(int( time.time() ))})""")
     conn.commit()
     conn.close()
 
