@@ -46,7 +46,7 @@ def staff(role):
     
 @user.route("/staff/roles")
 def roles():
-    return json.load(open("./data/roles.json", "r+"))
+    return json.load(open(config.DATA + "roles.json", "r+"))
     
 @user.route("/<string:username>", methods=["GET","PATCH"])
 def get_user(username):
