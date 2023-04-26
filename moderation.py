@@ -10,7 +10,6 @@ console_commands = [
     "notify"
 ]
 
-import flask
 from flask_cors import CORS
 from flask import Blueprint, request
 import sqlite3

@@ -4,9 +4,18 @@ from flask_cors import CORS
 import config
 from os.path import exists
 import gen_example_data
+from flask_caching import Cache
+
+config = {
+    "DEBUG": True,          # some Flask specific configs
+    "CACHE_TYPE": "SimpleCache",  # Flask-Caching related configs
+    "CACHE_DEFAULT_TIMEOUT": 300
+}
 
 app = flask.Flask(__name__)
+app.config.from_mapping(config)
 CORS(app)
+Cache(app)
 
 @app.route("/")
 def main():

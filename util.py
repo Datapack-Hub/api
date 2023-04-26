@@ -1,7 +1,6 @@
 import sqlite3
 import secrets
 import config
-import flask
 from hashlib import sha256
 
 def authenticate(auth: str):
