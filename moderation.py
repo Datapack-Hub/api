@@ -70,7 +70,7 @@ def console():
         
         # Run SQLITE command
         try:
-            conn = sqlite3.connect(config.db)
+            conn = sqlite3.connect(config.DATA + "data.db")
             conn.execute(sql_command)
             conn.commit()
             conn.close()
@@ -88,7 +88,7 @@ def console():
         # Run SQLITE command
         try:
             print(sql_command)
-            conn = sqlite3.connect(config.db)
+            conn = sqlite3.connect(config.DATA + "data.db")
             out = conn.execute(sql_command).fetchall()
             conn.commit()
             conn.close()
@@ -108,7 +108,7 @@ def console():
             return "You can't run this command!", 403
         if len(args) < 3:
             return "Missing values!", 400
-        conn = sqlite3.connect(config.db)
+        conn = sqlite3.connect(config.DATA + "data.db")
         try:
             conn.execute(f"INSERT INTO notifs VALUES ('{args[1]}', '{args[2]}', False, {args[0]}, '{args[3]}')")
         except sqlite3.Error as er:
@@ -124,7 +124,7 @@ def members():
     if not auth(request.headers.get("Authorization"), ["admin"]):
         return 403
     
-    conn = sqlite3.connect(config.db)
+    conn = sqlite3.connect(config.DATA + "data.db")
     
     data = conn.execute("SELECT rowid, username, profile_icon, role, github_id FROM users").fetchall()
     
@@ -158,7 +158,7 @@ def logout(id):
     except:
         return "Failed", 500
     else:
-        conn = sqlite3.connect(config.db)
+        conn = sqlite3.connect(config.DATA + "data.db")
         conn.execute(f"insert into mod_logs values ({util.get_user.from_token(request.headers.get('Authorization')[6:])['id']}, '{util.get_user.from_token(request.headers.get('Authorization')[6:])['username']}', 'Logged user out: {id}',{int( time.time() )})")
         conn.commit()
         conn.close()
@@ -171,7 +171,7 @@ def ban(id):
     if request.method == "POST":
         dat = request.get_json(force=True)
 
-        conn = sqlite3.connect(config.db)
+        conn = sqlite3.connect(config.DATA + "data.db")
         try:
             conn.execute(f"insert into banned_users values ({dat['id']}, {dat['expires']}, '{dat['message']}')")
         except sqlite3.Error as er:
@@ -184,7 +184,7 @@ def ban(id):
             conn.close()
             return "worked fine"
     else:
-        conn = sqlite3.connect(config.db)
+        conn = sqlite3.connect(config.DATA + "data.db")
         try:
             conn.execute(f"delete from banned_users where id = {id}")
         except sqlite3.Error as er:
@@ -200,7 +200,7 @@ def userData(id):
     if not auth(request.headers.get("Authorization"), ["moderator","developer","admin"]):
         return "You can't do this!", 403
 
-    conn = sqlite3.connect(config.db)
+    conn = sqlite3.connect(config.DATA + "data.db")
     banData = conn.execute(f"SELECT * FROM banned_users WHERE id = {id}").fetchall()
 
     if len(banData) == 0:
@@ -223,7 +223,7 @@ def logs():
     
     page = request.args.get("page", 1)
 
-    conn = sqlite3.connect(config.db)
+    conn = sqlite3.connect(config.DATA + "data.db")
     x = conn.execute("select username, action, time from mod_logs").fetchall()
     if int(page) > 1:
         x = x[((int(page)-1)*30)-1:((int(page))*30)-1]
