@@ -31,7 +31,7 @@ def query():
     amount = 20*page
     
     # SQL stuff
-    conn = sqlite3.connect(config.db)
+    conn = sqlite3.connect(config.DATA + "data.db")
     r = conn.execute(f"select type, author, title, icon, url, description, rowid, category, uploaded, updated from projects where status = 'live' limit {amount}").fetchall()
     
     out = []
@@ -65,7 +65,7 @@ def amount_of_projects():
 
 @projects.route("/id/<int:id>")
 def get_proj(id):
-    conn = sqlite3.connect(config.db)
+    conn = sqlite3.connect(config.DATA + "data.db")
     
     this_user = util.authenticate(request.headers.get("Authorization"))
     
@@ -105,7 +105,7 @@ def get_proj(id):
 @projects.route("/get/<string:slug>")
 def get_project(slug: str):
     # connect to the thingy thingy
-    conn = sqlite3.connect(config.db)
+    conn = sqlite3.connect(config.DATA + "data.db")
     
     # do we need auth? no
     # do we have auth? yes
@@ -188,7 +188,7 @@ def new_project():
         return "URL is bad", 400
     
     # Update databas
-    conn = sqlite3.connect(config.db)
+    conn = sqlite3.connect(config.DATA + "data.db")
     conn.execute(f"""insert into projects(
                  type, 
                  author, 

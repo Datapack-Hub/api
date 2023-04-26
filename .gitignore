@@ -3,6 +3,7 @@
 *.txt
 
 __pycache__/
+data/
 
 prod.py
 run.py

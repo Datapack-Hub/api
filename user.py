@@ -26,7 +26,7 @@ CORS(user,supports_credentials=True)
 
 @user.route("/staff/<role>")
 def staff(role):
-    conn = sqlite3.connect(config.db)
+    conn = sqlite3.connect(config.DATA + "data.db")
     if role == "default":
         return "Role has to be staff role", 400
     list = conn.execute(f"select username, rowid, role, bio, profile_icon from users where role = '{role}'").fetchall()
@@ -84,7 +84,7 @@ def get_user_id(id):
         if not (usr["id"] == id or usr["role"] in ["moderator","admin"]):
             return "You aren't allowed to edit this user!", 403
         
-        conn = sqlite3.connect(config.db)
+        conn = sqlite3.connect(config.DATA + "data.db")
         try:
             conn.execute(f"UPDATE users SET username = '{dat['username']}' where rowid = {id}")
             conn.execute(f"UPDATE users SET bio = '{dat['bio']}' where rowid = {id}")
@@ -112,7 +112,7 @@ def me():
         return "Token Expired", 498
 
     # banned?
-    conn = sqlite3.connect(config.db)
+    conn = sqlite3.connect(config.DATA + "data.db")
     x = conn.execute("SELECT rowid, expires, reason from banned_users where id = "+ str(usr["id"])).fetchall()
     if len(x) == 1:
         current = int( time.time() )
@@ -133,7 +133,7 @@ def me():
 
 @user.route("/<string:username>/projects")
 def user_projects(username):
-    conn = sqlite3.connect(config.db)
+    conn = sqlite3.connect(config.DATA + "data.db")
     # Check if user is authenticated
     t = request.headers.get("Authorization")
     user = util.get_user.from_username(username)
@@ -243,13 +243,13 @@ def edit(username: str):
             data = request.get_json()
             
             if data["bio"]:
-                conn = sqlite3.connect(config.db)
+                conn = sqlite3.connect(config.DATA + "data.db")
                 conn.execute(f"UPDATE users SET bio = '{data['bio']}' WHERE username = '{username}'")
                 conn.commit()
                 conn.close()
         
             if data["username"]:
-                conn = sqlite3.connect(config.db)
+                conn = sqlite3.connect(config.DATA + "data.db")
                 conn.execute(f"UPDATE users SET username = '{data['username']}' WHERE username = '{username}'")
                 conn.commit()
                 conn.close()

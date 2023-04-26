@@ -2,7 +2,7 @@ import sqlite3
 import config
 
 def reset(table: str):
-    connection = sqlite3.connect(config.db)
+    connection = sqlite3.connect(config.DATA + "data.db")
     
     if table != "no-drop":
         if table == "projects":

@@ -28,7 +28,7 @@ app.register_blueprint(notifs)
 app.register_blueprint(misc)
 
 # Database things
-if not exists(config.db):
+if not exists(config.DATA + "data.db"):
     gen_example_data.reset()
 
 # Run the app

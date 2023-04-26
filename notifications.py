@@ -27,7 +27,7 @@ def all():
     if usr == 33:
         return "Token Expired", 498
     
-    conn = sqlite3.connect(config.db)
+    conn = sqlite3.connect(config.DATA + "data.db")
     notifs = conn.execute(f"select rowid, message, description, read, type from notifs where user = {usr['id']} order by rowid desc limit 20").fetchall()
 
     res = []
@@ -67,7 +67,7 @@ def unread():
     if usr == 33:
         return "Token Expired", 498
     
-    conn = sqlite3.connect(config.db)
+    conn = sqlite3.connect(config.DATA + "data.db")
     notifs = conn.execute(f"select rowid, message, description, read, type from notifs where user = {usr['id']} and read = 0 order by rowid desc").fetchall()
 
     res = []
@@ -104,7 +104,7 @@ def send(target):
 
     notifData = request.get_json(force=True)
 
-    conn = sqlite3.connect(config.db)
+    conn = sqlite3.connect(config.DATA + "data.db")
     try:
         conn.execute(f"INSERT INTO notifs VALUES ('{notifData['message']}', '{notifData['description']}', False, {target}, '{notifData['type']}')")
     except sqlite3.Error as er:
@@ -123,7 +123,7 @@ def delete(id):
     if usr == 33:
         return "Token Expired", 498
     
-    conn = sqlite3.connect(config.db)
+    conn = sqlite3.connect(config.DATA + "data.db")
     notif = conn.execute("SELECT user FROM notifs WHERE rowid = "+str(id)).fetchone()
     
     if usr["id"] != notif[0]:

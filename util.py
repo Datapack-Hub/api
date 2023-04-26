@@ -18,7 +18,7 @@ def authenticate(auth: str):
     
     token = auth[6:]
     
-    conn = sqlite3.connect(config.db)
+    conn = sqlite3.connect(config.DATA + "data.db")
     
     print(token)
     
@@ -38,7 +38,7 @@ def authenticate(auth: str):
 
 class get_user():
     def from_username(uname: str):
-        conn = sqlite3.connect(config.db)
+        conn = sqlite3.connect(config.DATA + "data.db")
     
         # Select
         u = conn.execute(f"select username, rowid, role, bio, profile_icon from users where lower(username) = '{uname.lower()}'").fetchone()
@@ -57,7 +57,7 @@ class get_user():
         }
         
     def from_id(id: int):
-        conn = sqlite3.connect(config.db)
+        conn = sqlite3.connect(config.DATA + "data.db")
     
         # Select
         u = conn.execute(f"select username, rowid, role, bio, profile_icon from users where rowid = {id}").fetchone()
@@ -76,7 +76,7 @@ class get_user():
         }
         
     def from_github_id(id: int):
-        conn = sqlite3.connect(config.db)
+        conn = sqlite3.connect(config.DATA + "data.db")
         
         # Select
         u = conn.execute(f"select username, rowid, role, bio, profile_icon from users where github_id = {id}").fetchone()
@@ -94,7 +94,7 @@ class get_user():
             "profile_icon":u[4]
         }
     def from_token(token: str):
-        conn = sqlite3.connect(config.db)
+        conn = sqlite3.connect(config.DATA + "data.db")
     
         # Select
         u = conn.execute(f"select username, rowid, role, bio, profile_icon from users where token = '{token}'").fetchone()
@@ -114,7 +114,7 @@ class get_user():
         }
     
 def get_user_token(github_id: int):
-    conn = sqlite3.connect(config.db)
+    conn = sqlite3.connect(config.DATA + "data.db")
     
     # Select
     u = conn.execute(f"select token from users where github_id = {github_id}").fetchone()
@@ -127,7 +127,7 @@ def get_user_token(github_id: int):
     return u[0]
 
 def create_user_account(ghubdata: dict):
-    conn = sqlite3.connect(config.db)
+    conn = sqlite3.connect(config.DATA + "data.db")
     
     token = secrets.token_urlsafe()
     
@@ -142,7 +142,7 @@ def create_user_account(ghubdata: dict):
     return token
 
 def get_user_ban_data(id: int):
-    conn = sqlite3.connect(config.db)
+    conn = sqlite3.connect(config.DATA + "data.db")
     
     banned_user = conn.execute("select reason, expires from banned_users where id = " + str(id)).fetchone()
     
@@ -157,7 +157,7 @@ def get_user_ban_data(id: int):
     }
     
 def log_user_out(id: int):
-    conn = sqlite3.connect(config.db)
+    conn = sqlite3.connect(config.DATA + "data.db")
     
     token = secrets.token_urlsafe()
     
