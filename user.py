@@ -2,12 +2,10 @@
 **User API endpoints**
 """
 
-import flask
 from flask_cors import CORS
 from flask import Blueprint, request
 import sqlite3
 import config
-import math
 import time
 import json
 
@@ -51,9 +49,11 @@ def roles():
 @user.route("/<string:username>", methods=["GET","PATCH"])
 def get_user(username):
     # TODO mods can see banned users
+    start_time = time.time()
     u = util.get_user.from_username(username)
     if not u:
         return "User does not exist", 404
+    print("%s to run" % start_time - time.time())
     return u
 
 @user.route("/id/<int:id>", methods=["GET","PATCH"])
