@@ -9,6 +9,7 @@ import sqlite3
 import config
 import math
 import time
+import json
 
 import util
 
@@ -42,7 +43,11 @@ def staff(role):
         "count":len(finale),
         "values":finale
     }
-
+    
+@user.route("/staff/roles")
+def roles():
+    return json.load(open("./data/roles.json", "r+"))
+    
 @user.route("/<string:username>", methods=["GET","PATCH"])
 def get_user(username):
     # TODO mods can see banned users
