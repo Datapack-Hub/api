@@ -15,7 +15,7 @@ import util
 
 user = Blueprint("user",__name__,url_prefix="/user")
 
-CORS(user,supports_credentials=True)
+# CORS(user,supports_credentials=True)
 
 # @user.after_request
 # def after(resp):
