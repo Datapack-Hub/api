@@ -23,6 +23,42 @@ def after(resp):
     # Other headers can be added here if needed
     return resp
 
+@projects.route("/search", methods=["GET"])
+def search():
+    x = time.time()
+    query = request.args.get("query").replace("'","")
+    page = request.args.get("page", 1)
+    print(query)
+    
+    conn = sqlite3.connect(config.DATA + "data.db")
+    r = conn.execute(f"select type, author, title, icon, url, description, rowid, category, uploaded, updated from projects where trim(title) LIKE '%{query}%'").fetchall()
+    print(f"select type, author, title, icon, url, description, rowid, category, uploaded, updated from projects where trim(title) LIKE '%{query}%'")
+    
+    out = []
+    
+    print(r)
+    
+    for item in r[page-1*20:page*20-1]:
+        out.append({
+            "type":item[0],
+            "author":item[1],
+            "title":item[2],
+            "icon":item[3],
+            "url":item[4],
+            "description":item[5],
+            "ID":item[6],
+            "category":item[7]
+        })
+    
+    conn.close()
+    
+    y = time.time()
+    return {
+        "count":len(out),
+        "time":y-x,
+        "result":out
+    }
+
 @projects.route("/", methods=["GET"])
 def query():
     page = request.args.get("page", 1)
