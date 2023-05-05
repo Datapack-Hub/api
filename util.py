@@ -3,6 +3,10 @@ import secrets
 import config
 import flask
 from hashlib import sha256
+import requests
+import disnake
+import aiohttp
+import datetime
 
 def authenticate(auth: str):
     """
@@ -174,3 +178,13 @@ def log_user_out(id: int):
 
 def update_user(username: str):
     pass
+
+def post_site_log(user: str, action: str, content: str):
+    usr = get_user.from_username(user)
+    
+    webhook = disnake.SyncWebhook.from_url(config.MOD_LOGS)
+    emb = disnake.Embed(title=action, description=content,color=2829617,timestamp=datetime.datetime.now()).set_author(name=usr["username"],icon_url=usr["profile_icon"])
+    webhook.send(embed=emb)
+    
+if __name__ == "__main__":
+    post_site_log("silabear","Banned user","Banned user `Diamond` for: `being dumb`")

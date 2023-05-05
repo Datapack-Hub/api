@@ -26,7 +26,8 @@ def reset(table: str):
     """)
 
     if table == "projects":
-        connection.execute("insert into projects values ('datapack', 1, 'Realistic Item Drops', 'Drops Realsitc short', 'actually very long description', 'https://cdn.discordapp.com/attachments/723984082853298297/1076083669409730590/IMG_2434.png', 'realistic-item-drops', 'draft', 0, '[\"utility\"]', 0, 0, 'google.com');")
+        connection.execute("insert into projects values ('datapack', 1, 'Realistic Item Drops', 'Drops Realsitc short', 'actually very long description', 'https://cdn.discordapp.com/attachments/723984082853298297/1076083669409730590/IMG_2434.png', 'realistic-item-drops', 'live', 0, '[\"utility\"]', 0, 0, 'google.com');")
+
 
     # User data
     connection.execute("""create table IF NOT EXISTS users (
@@ -55,18 +56,10 @@ def reset(table: str):
     );
     """)
 
-    # Log data
-    connection.execute("""create table if not exists mod_logs(
-        user INT NOT NULL,
-        username STRING NOT NULL,
-        action STRING NOT NULL,
-        time INT NOT NULL
-    )
-    """)
-
     # save and exit
     connection.commit()
     connection.close()
     
 if __name__ == "__main__":
+    
     reset("no-drop")
