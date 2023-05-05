@@ -91,6 +91,7 @@ def get_user_id(id):
             if usr["role"] == "admin":
                 conn.execute(f"UPDATE users SET role = '{dat['role']}' where rowid = {id}")
                 conn.execute(f"insert into mod_logs values ({usr['id']}, '{usr['username']}', 'Edited user {dat['id']}',{int( time.time() )})")
+                util.post_site_log(usr["username"],"Edited user",f"Edited user data of {dat['username']}")
         except sqlite3.Error as er: 
             return er, 400
         conn.commit()
@@ -217,45 +218,3 @@ def user_projects(username):
             "count":len(out),
             "result":out
         }
-        
-@user.route("/<string:username>/edit", methods=["POST"])
-def edit(username: str):
-    t = request.headers.get("Authorization")
-    user = util.get_user.from_username(username)
-    
-    if t:
-        loggedin = util.authenticate(t)
-        if loggedin == 32:
-            return "Make sure authorization is basic!", 400
-        elif loggedin == 33:
-            return "Token expired!",429
-        
-        banned = util.get_user_ban_data(user["id"])
-        if banned != None:
-            return {
-                "banned":True,
-                "reason":banned["reason"],
-                "expires":banned["expires"]
-            }, 403
-        
-        if loggedin["id"] == user["id"]:
-            # User is logged in 
-            data = request.get_json()
-            
-            if data["bio"]:
-                conn = sqlite3.connect(config.DATA + "data.db")
-                conn.execute(f"UPDATE users SET bio = '{data['bio']}' WHERE username = '{username}'")
-                conn.commit()
-                conn.close()
-        
-            if data["username"]:
-                conn = sqlite3.connect(config.DATA + "data.db")
-                conn.execute(f"UPDATE users SET username = '{data['username']}' WHERE username = '{username}'")
-                conn.commit()
-                conn.close()
-            
-            return "pretend it worked", 200
-        else:
-            return "You do not have perms!", 403
-    else:
-        return "You must log in!", 401
