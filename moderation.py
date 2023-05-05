@@ -60,6 +60,8 @@ def console():
     # Check user authentication status
     if not util.get_user.from_token(request.headers.get("Authorization")[6:]):
         return "hey u! sign in again plz (i am not hax)", 429
+    
+    util.post_site_log(util.get_user.from_token(request.headers.get("Authorization")[6:])["username"],"Ran console command",f"Ran the console command: `{data['command']}`")
         
     if cmd == "sql":
         # Check auth
@@ -78,7 +80,7 @@ def console():
             return "SQL Error: " + (' '.join(error.args)), 400
         else:
             return "Processed SQL command!", 200
-        
+            
     elif cmd == "select":
         if not auth(request.headers.get("Authorization"), ["admin", "developer"]):
             return "You do not have permission to run this command!"
@@ -158,10 +160,7 @@ def logout(id):
     except:
         return "Failed", 500
     else:
-        conn = sqlite3.connect(config.DATA + "data.db")
-        conn.execute(f"insert into mod_logs values ({util.get_user.from_token(request.headers.get('Authorization')[6:])['id']}, '{util.get_user.from_token(request.headers.get('Authorization')[6:])['username']}', 'Logged user out: {id}',{int( time.time() )})")
-        conn.commit()
-        conn.close()
+        util.post_site_log(util.get_user.from_token(request.headers.get("Authorization")[6:])["username"],"Logged user out",f"Logged out user`{id}`")
         return "Success!", 200
 
 @mod.route("/ban/<int:id>",methods=["post", "delete"])
@@ -177,11 +176,9 @@ def ban(id):
         except sqlite3.Error as er:
             return " ".join(er.args)
         else:
-            # log
-            
-            conn.execute(f"insert into mod_logs values ({util.get_user.from_token(request.headers.get('Authorization')[6:])['id']}, '{util.get_user.from_token(request.headers.get('Authorization')[6:])['username']}', 'Banned user {dat['id']}',{int( time.time() )})")
             conn.commit()
             conn.close()
+            util.post_site_log(util.get_user.from_token(request.headers.get("Authorization")[6:])["username"],"Banned User",f"Banned user `{util.get_user.from_id(id)}` for reason `{dat['message']}`")
             return "worked fine"
     else:
         conn = sqlite3.connect(config.DATA + "data.db")
@@ -190,9 +187,9 @@ def ban(id):
         except sqlite3.Error as er:
             return " ".join(er.args)
         else:
-            conn.execute(f"insert into mod_logs values ({util.get_user.from_token(request.headers.get('Authorization')[6:])['id']}, '{util.get_user.from_token(request.headers.get('Authorization')[6:])['username']}', 'Unbanned user {id}',{int( time.time() )})")
             conn.commit()
             conn.close()
+            util.post_site_log(util.get_user.from_token(request.headers.get("Authorization")[6:])["username"],"Banned User",f"Banned user `{util.get_user.from_id(id)}` for reason `{dat['message']}`")
             return "worked fine"
 
 @mod.route("/user/<int:id>")
