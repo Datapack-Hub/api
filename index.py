@@ -4,6 +4,7 @@ import config
 from os.path import exists
 import gen_example_data
 from dotenv import load_dotenv
+from prod import PROD
 
 # Register blueprints
 from user import user
@@ -37,4 +38,5 @@ if not exists(config.DATA + "data.db"):
 
 # Run the app
 if __name__ == "__main__":
-    app.run(debug=True)
+    debug_enabled = PROD == 1
+    app.run(debug=debug_enabled)
