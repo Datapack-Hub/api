@@ -208,6 +208,13 @@ def post_site_log(user: str, action: str, content: str):
         timestamp=datetime.datetime.now(),
     ).set_author(name=usr["username"], icon_url=usr["profile_icon"])
     webhook.send(embed=emb)
+    
+def user_owns_project(user:int, project:int):
+    conn = sqlite3.connect(config.DATA + "data.db")
+    proj = conn.execute(f"select author from projects where rowid = {project}").fetchmany()
+    if len(proj) == 1:
+        return True
+    return False
 
 
 if __name__ == "__main__":
