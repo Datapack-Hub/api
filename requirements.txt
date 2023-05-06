@@ -1,0 +1,6 @@
+aiohttp==3.8.4
+disnake==2.8.1
+Flask==2.3.2
+Flask_Cors==3.0.10
+regex==2023.5.5
+Requests==2.30.0
