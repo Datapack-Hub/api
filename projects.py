@@ -2,7 +2,6 @@
 **Projects API endpoints**
 """
 
-import flask
 from flask_cors import CORS
 from flask import Blueprint, request
 import util
@@ -62,7 +61,7 @@ def search():
 @projects.route("/", methods=["GET"])
 def query():
     page = request.args.get("page", 1)
-    sort = request.args.get("sort", "updated")
+    request.args.get("sort", "updated")
     
     amount = 20*page
     
@@ -198,7 +197,7 @@ def new_project():
         return "Token expired!",429
     
     banned = util.get_user_ban_data(user["id"])
-    if banned != None:
+    if banned is not None:
         return {
             "banned":True,
             "reason":banned["reason"],
@@ -217,7 +216,7 @@ def new_project():
     except:
         return "Missing field", 400
     
-    if not data["type"] in config.valid_types:
+    if data["type"] not in config.valid_types:
         return f"Type {data['type']} is not a valid type! Acceptable content types: {config.valid_types}"
     
     if not re.match(r'^[\w!@$()`.+,"\-\']{3,64}$',data["url"]):
