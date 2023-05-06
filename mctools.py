@@ -2,9 +2,7 @@
 **Generators/Tools API endpoints**
 """
 
-import flask
-from flask import Blueprint, request
-import util
+from flask import Blueprint
 
 mctools = Blueprint("mctools",__name__,url_prefix="/tools")
 
@@ -40,11 +38,8 @@ def tellraw():
      clickevent = ',' + '"clickEvent"' +':{'+'"action":'+ f'"{events[event_input]}"' ',' + '"value"' ":" + f'"{value}"' '}'
    else:
      clickevent = ""
-
-
-
     #Main Command>>>
-   command = f"/tellraw @s " + '{'f'"text":"{text}"{clickevent},"bold":{bold},"italic":{italic},"strikethrough":{strikethrough},"underlined":{underlined},"obfuscated":{obfuscated},"color":"{color}"''}'
+   command = "/tellraw @s " + '{'f'"text":"{text}"{clickevent},"bold":{bold},"italic":{italic},"strikethrough":{strikethrough},"underlined":{underlined},"obfuscated":{obfuscated},"color":"{color}"''}'
 
     #Color Check>>>>
    for x in color_list:

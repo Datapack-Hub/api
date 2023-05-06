@@ -2,12 +2,9 @@
 **User API endpoints**
 """
 
-import flask
-from flask_cors import CORS
 from flask import Blueprint, request
 import sqlite3
 import config
-import math
 import time
 import json
 
@@ -74,7 +71,7 @@ def get_user_id(id):
             return "Token Expired", 498
         
         banned = util.get_user_ban_data(usr["id"])
-        if banned != None:
+        if banned is not None:
             return {
                 "banned":True,
                 "reason":banned["reason"],

@@ -7,8 +7,6 @@ import requests
 import util
 from flask import request
 import config
-import sqlite3
-from datetime import datetime, timedelta
 
 auth = flask.Blueprint("auth",__name__,url_prefix="/auth")
 

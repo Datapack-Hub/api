@@ -1,11 +1,7 @@
 import sqlite3
 import secrets
 import config
-import flask
-from hashlib import sha256
-import requests
 import disnake
-import aiohttp
 import datetime
 
 def authenticate(auth: str):

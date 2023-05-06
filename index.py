@@ -1,10 +1,17 @@
 import flask
-from flask import request
 from flask_cors import CORS
 import config
 from os.path import exists
 import gen_example_data
 from dotenv import load_dotenv
+
+# Register blueprints
+from user import user
+from auth import auth
+from projects import projects
+from moderation import mod
+from notifications import notifs
+from misc import misc
 
 load_dotenv()
 
@@ -15,13 +22,6 @@ CORS(app)
 def main():
     return "I see you discovered our API 👀 why hello there"
 
-# Register blueprints
-from user import user
-from auth import auth
-from projects import projects
-from moderation import mod
-from notifications import notifs
-from misc import misc
 
 app.register_blueprint(user)
 app.register_blueprint(auth)

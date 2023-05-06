@@ -2,15 +2,6 @@
 **Moderation API endpoints**
 """
 
-console_commands = [
-    "sql",
-    "select",
-    "hello",
-    "reset",
-    "notify"
-]
-
-import flask
 from flask_cors import CORS
 from flask import Blueprint, request
 import sqlite3
@@ -20,7 +11,15 @@ import difflib
 import util
 import gen_example_data
 import shlex
-import time
+
+console_commands = [
+    "sql",
+    "select",
+    "hello",
+    "reset",
+    "notify"
+]
+
 
 def auth(token: str, perm_levels: list[str]):
     if not token:

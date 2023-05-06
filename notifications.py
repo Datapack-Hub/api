@@ -2,15 +2,10 @@
 **Notifications API endpoints**
 """
 
-import flask
-from flask_cors import CORS
 from flask import Blueprint, request
 import util
-import json
 import sqlite3
 import config
-import regex as re
-import time
 
 notifs = Blueprint("notifications",__name__,url_prefix="/notifs")
 
@@ -43,7 +38,7 @@ def all():
     
     # Mark as read
     for i in res:
-        if i["read"] == False:
+        if i["read"] is False:
             conn.execute("UPDATE notifs SET read = True WHERE rowid = " + str(i["id"]))
     
     conn.commit()
@@ -99,7 +94,7 @@ def send(target):
     if usr == 33:
         return "Token Expired", 498
 
-    if not (usr["role"] in ["admin","developer","moderator","helper"]):
+    if usr["role"] not in ["admin", "developer", "moderator", "helper"]:
         return "You are not allowed to do this!", 403
 
     notifData = request.get_json(force=True)
@@ -131,7 +126,7 @@ def delete(id):
     if usr["id"] != notif[0]:
         return "Not your notif!", 403
     try:
-        conn.execute(f"DELETE FROM notifs WHERE rowid = " + str(id))
+        conn.execute("DELETE FROM notifs WHERE rowid = " + str(id))
         conn.commit()
     except:
         return "Something bad happened",500
