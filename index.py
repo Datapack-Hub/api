@@ -10,6 +10,7 @@ from prod import PROD
 from user import user
 from auth import auth
 from projects import projects
+from versions import versions
 from moderation import mod
 from notifications import notifs
 from misc import misc
@@ -28,6 +29,7 @@ def main():
 app.register_blueprint(user)
 app.register_blueprint(auth)
 app.register_blueprint(projects)
+app.register_blueprint(versions)
 app.register_blueprint(mod)
 app.register_blueprint(notifs)
 app.register_blueprint(misc)
