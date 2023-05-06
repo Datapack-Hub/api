@@ -96,3 +96,18 @@ def new(project: int):
             conn.execute(f"INSERT INTO versions(name,description,primary_download,minecraft_versions,version_coode,project) VALUES ({data['name']}, {data['description']}, 'coming soon',{','.join(data['minecraft_versions'])}, {data['version_code']}, {str(project)})")
         else:
             conn.execute(f"INSERT INTO versions(name,description,primary_download,resource_pack_download,minecraft_versions,version_coode,project) VALUES ({data['name']}, {data['description']}, 'coming soon','coming soon',{','.join(data['minecraft_versions'])}, {data['version_code']}, {str[project]})")
+    
+    v = conn.execute(f"SELECT * FROM versions WHERE version_code = {data['version_code']}").fetchone()
+    
+    o = {
+            "name":v[0],
+            "description":v[1],
+            "primary_download":v[2],
+            "minecraft_versions":v[4],
+            "version_code":v[5]
+        }
+        
+    if(v[3] != None):
+        o["resource_pack_download"]:v[3]
+        
+    return o
