@@ -18,6 +18,7 @@ load_dotenv()
 app = flask.Flask(__name__)
 CORS(app)
 
+
 @app.route("/")
 def main():
     return "I see you discovered our API 👀 why hello there"

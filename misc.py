@@ -5,7 +5,8 @@
 from flask import Blueprint
 import config
 
-misc = Blueprint("misc",__name__)
+misc = Blueprint("misc", __name__)
+
 
 @misc.route("/rules")
 def rules():
