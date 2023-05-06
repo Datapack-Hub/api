@@ -7,6 +7,9 @@ run.py
 *.cron
 *.sh
 
+# Ruff cahce
+/.ruff_cache
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
