@@ -100,7 +100,7 @@ def get_user_id(id):
                     f"Edited user data of {dat['username']}",
                 )
         except sqlite3.Error as er:
-            return er.join(" "), 400
+            return "Something went a little bit wrong"
         conn.commit()
         conn.close()
         return util.get_user.from_id(id)
