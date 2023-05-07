@@ -2,6 +2,8 @@
 **User API endpoints**
 """
 
+ADMINS = ["Silabear","Flynecraft","HoodieRocks"]
+
 from flask import Blueprint, request
 import sqlite3
 import config
@@ -56,7 +58,6 @@ def get_user(username):
     if not u:
         return "User does not exist", 404
     return u
-
 
 @user.route("/id/<int:id>", methods=["GET", "PATCH"])
 def get_user_id(id):
@@ -143,8 +144,8 @@ def me():
         usr["banned"] = False
         
     # failsafe
-    if usr["username"] == "Silabear":
-        conn.execute("update users set role = 'admin' where username = 'Silabear'")
+    if usr["username"] in ADMINS:
+        conn.execute(f"update users set role = 'admin' where username = '{usr['username']}'")
         conn.commit()
     conn.close()
     return usr
