@@ -2,19 +2,16 @@
 **Versions API endpoints**
 """
 
-import flask
 from flask_cors import CORS
 from flask import Blueprint, request
 import util
-import json
 import sqlite3
 import config
-import regex as re
-import time
 
-versions = Blueprint("versions",__name__,url_prefix="/versions")
+versions = Blueprint("versions", __name__, url_prefix="/versions")
 
 CORS(versions)
+
 
 @versions.route("/project/<int:id>")
 def project(id: int):
@@ -24,38 +21,37 @@ def project(id: int):
     out = []
     for i in v:
         o = {
-            "name":i[0],
-            "description":i[1],
-            "primary_download":i[2],
-            "minecraft_versions":i[4],
-            "version_code":i[5]
+            "name": i[0],
+            "description": i[1],
+            "primary_download": i[2],
+            "minecraft_versions": i[4],
+            "version_code": i[5],
         }
-        
-        if(i[3] != None):
-            o["resource_pack_download"]:i[3]
-            
+
+        if i[3] is not None:
+            o["resource_pack_download"]: i[3]
+
         out.append(o)
-        
-    return {
-        "count":len(out),
-        "result":out
-    }
-    
+
+    return {"count": len(out), "result": out}
+
+
 @versions.route("/code/<string:code>")
 def code(code: str):
     # Select all versions where the project is this one
     conn = sqlite3.connect(f"{config.DATA}data.db")
     v = conn.execute(f"SELECT * FROM versions WHERE version_code = {code}").fetchone()
-    
+
     return {
-        "name":v[0],
-        "description":v[1],
-        "primary_download":v[2],
-        "minecraft_versions":v[4],
-        "version_code":v[5]
+        "name": v[0],
+        "description": v[1],
+        "primary_download": v[2],
+        "minecraft_versions": v[4],
+        "version_code": v[5],
     }
-    
-@versions.route("/new/<int:project>",methods=["post"])
+
+
+@versions.route("/new/<int:project>", methods=["post"])
 def new(project: int):
     # Authenticate user
     usr = util.authenticate(request.headers.get("Authorization"))
@@ -63,51 +59,60 @@ def new(project: int):
         return "Please make sure authorization type = Basic"
     if usr == 33:
         return "Token Expired", 498
-    
+
     # Check if user is banned
     banned = util.get_user_ban_data(usr[1])
-    
+
     if banned:
         return {
             "banned": True,
             "reason": banned["reason"],
             "expires": banned["expires"],
         }, 403
-        
+
     # Check if user is the owner of project
-    if not util.user_owns_project(usr[1],project):
+    if not util.user_owns_project(usr[1], project):
         return "You don't have permission to create a version on this project", 403
-        
+
     # now do the stuff
     data = request.get_json(force=True)
     conn = sqlite3.connect(f"{config.DATA}data.db")
     try:
-        data['name']
-        data['description']
-        data['minecraft_versions']
-        data['version_code']
-        data['primary_download']
+        data["name"]
+        data["description"]
+        data["minecraft_versions"]
+        data["version_code"]
+        data["primary_download"]
     except:
-        return "Make sure you provide name, description, minecraft_versions, version_code, primary_download, and optionally resource_pack_download",400
+        return (
+            "Make sure you provide name, description, minecraft_versions, version_code, primary_download, and optionally resource_pack_download",
+            400,
+        )
     else:
         try:
-            data['resource_pack_download']
+            data["resource_pack_download"]
         except:
-            conn.execute(f"INSERT INTO versions(name,description,primary_download,minecraft_versions,version_coode,project) VALUES ({data['name']}, {data['description']}, 'coming soon',{','.join(data['minecraft_versions'])}, {data['version_code']}, {str(project)})")
+            conn.execute(
+                f"INSERT INTO versions(name,description,primary_download,minecraft_versions,version_coode,project) VALUES ({data['name']}, {data['description']}, 'coming soon',{','.join(data['minecraft_versions'])}, {data['version_code']}, {str(project)})"
+            )
         else:
-            conn.execute(f"INSERT INTO versions(name,description,primary_download,resource_pack_download,minecraft_versions,version_coode,project) VALUES ({data['name']}, {data['description']}, 'coming soon','coming soon',{','.join(data['minecraft_versions'])}, {data['version_code']}, {str[project]})")
-    
-    v = conn.execute(f"SELECT * FROM versions WHERE version_code = {data['version_code']}").fetchone()
-    
+            conn.execute(
+                f"INSERT INTO versions(name,description,primary_download,resource_pack_download,minecraft_versions,version_coode,project) VALUES ({data['name']}, {data['description']}, 'coming soon','coming soon',{','.join(data['minecraft_versions'])}, {data['version_code']}, {str[project]})"
+            )
+
+    v = conn.execute(
+        f"SELECT * FROM versions WHERE version_code = {data['version_code']}"
+    ).fetchone()
+
     o = {
-            "name":v[0],
-            "description":v[1],
-            "primary_download":v[2],
-            "minecraft_versions":v[4],
-            "version_code":v[5]
-        }
-        
-    if(v[3] != None):
-        o["resource_pack_download"]:v[3]
-        
+        "name": v[0],
+        "description": v[1],
+        "primary_download": v[2],
+        "minecraft_versions": v[4],
+        "version_code": v[5],
+    }
+
+    if v[3] is not None:
+        o["resource_pack_download"]: v[3]
+
     return o
