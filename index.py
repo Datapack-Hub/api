@@ -20,14 +20,17 @@ load_dotenv()
 app = flask.Flask(__name__)
 CORS(app)
 
+
 @app.route("/")
 def main():
     return "I see you discovered our API 👀 why hello there"
+
 
 @app.after_request
 def after(resp):
     resp.headers["X-Robots-Tag"] = "noindex"
     return resp
+
 
 app.register_blueprint(user)
 app.register_blueprint(auth)
