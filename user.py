@@ -5,6 +5,7 @@
 ADMINS = ["Silabear","Flynecraft","HoodieRocks"]
 
 from flask import Blueprint, request
+from flask_cors import CORS
 import sqlite3
 import config
 import time
