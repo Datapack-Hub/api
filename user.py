@@ -94,9 +94,6 @@ def get_user_id(id):
                 conn.execute(
                     f"UPDATE users SET role = '{dat['role']}' where rowid = {id}"
                 )
-                conn.execute(
-                    f"insert into mod_logs values ({usr['id']}, '{usr['username']}', 'Edited user {dat['id']}',{int( time.time() )})"
-                )
                 util.post_site_log(
                     usr["username"],
                     "Edited user",
