@@ -15,7 +15,11 @@ import util
 
 user = Blueprint("user", __name__, url_prefix="/user")
 
-CORS(user,supports_credentials=True,methods=["POST","GET","PATCH"])
+@user.after_request
+def after(resp):
+    header = resp.headers
+    header['Access-Control-Allow-Methods'] = "*"
+    return resp
 
 @user.route("/staff/<role>")
 def staff(role):
