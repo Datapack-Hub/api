@@ -44,7 +44,7 @@ def project(id: int):
 def code(id:int, code: str):
     # Select all versions where the project is this one
     conn = sqlite3.connect(f"{config.DATA}data.db")
-    v = conn.execute(f"SELECT * FROM versions WHERE version_code = {code} AND project = {id}").fetchone()
+    v = conn.execute(f"SELECT * FROM versions WHERE version_code = '{code}' AND project = {id}").fetchone()
     
     return {
         "name": v[0],
@@ -101,7 +101,7 @@ def new(project: int):
             rpath = files.upload_file(data["resource_pack_download"],f"project/{project}/{data['version_code']}/{data['filename']}",usr["username"])
             conn.execute(f"INSERT INTO versions(name,description,primary_download,resource_pack_download,minecraft_versions,version_code,project) VALUES ('{data['name']}', '{data['description']}', '{dpath}','{rpath}','{','.join(data['minecraft_versions'])}', '{data['version_code']}', {str(project)})")
     
-    v = conn.execute(f"SELECT * FROM versions WHERE version_code = {data['version_code']}").fetchone()
+    v = conn.execute(f"SELECT * FROM versions WHERE version_code = '{data['version_code']}'").fetchone()
     
     o = {
         "name": v[0],
