@@ -65,7 +65,7 @@ def new(project: int):
         return "Token Expired", 498
 
     # Check if user is banned
-    banned = util.get_user_ban_data(usr[1])
+    banned = util.get_user_ban_data(usr["id"])
 
     if banned:
         return {
