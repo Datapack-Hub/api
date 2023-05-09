@@ -113,5 +113,8 @@ def new(project: int):
 
     if v[3] is not None:
         o["resource_pack_download"]: v[3]
+        
+    conn.commit()
+    conn.close()
 
     return o
