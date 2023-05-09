@@ -75,7 +75,7 @@ def new(project: int):
         }, 403
 
     # Check if user is the owner of project
-    if not util.user_owns_project(usr[1], project):
+    if not util.user_owns_project(usr["id"], project):
         return "You don't have permission to create a version on this project", 403
 
     # now do the stuff
@@ -92,13 +92,13 @@ def new(project: int):
     except:
         return "Make sure you provide name, description, minecraft_versions, version_code, primary_download, filename and optionally resource_pack_download",400
     else:
-        dpath = files.upload_file(data["primary_download"],f"project/{project}/{data['version_code']}/{data['filename']}",usr[0])
+        dpath = files.upload_file(data["primary_download"],f"project/{project}/{data['version_code']}/{data['filename']}",usr["username"])
         try:
             data["resource_pack_download"]
         except:
             conn.execute(f"INSERT INTO versions(name,description,primary_download,minecraft_versions,version_coode,project) VALUES ({data['name']}, {data['description']}, '{dpath}',{','.join(data['minecraft_versions'])}, {data['version_code']}, {str(project)})")
         else:
-            rpath = files.upload_file(data["resource_pack_download"],f"project/{project}/{data['version_code']}/{data['filename']}",usr[0])
+            rpath = files.upload_file(data["resource_pack_download"],f"project/{project}/{data['version_code']}/{data['filename']}",usr["username"])
             conn.execute(f"INSERT INTO versions(name,description,primary_download,resource_pack_download,minecraft_versions,version_coode,project) VALUES ({data['name']}, {data['description']}, '{dpath}','{rpath}',{','.join(data['minecraft_versions'])}, {data['version_code']}, {str[project]})")
     
     v = conn.execute(f"SELECT * FROM versions WHERE version_code = {data['version_code']}").fetchone()
