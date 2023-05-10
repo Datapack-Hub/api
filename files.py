@@ -6,19 +6,20 @@ import requests
 import config
 import base64
 
-index = 42
-
 def upload_file(file: str, file_name:str, uploader:str):
-    print(file[42:44])
-    decoded = base64.b64decode(file[42:])
-    # put = requests.put("https://files.datapackhub.net/" + file.decode(), file, headers={
-    #     "Authorization":config.FILES_TOKEN,
-    #     "Author":uploader
-    # })
-    # if put.ok:
-    #     return "https://files.datapackhub.net/" + file_name
-    # else:
-    #     print(put.text)
+    decoded = base64.b64decode(file[41:])
+    
+    with open(config.DATA + "Temporary.zip", "w", encoding="utf-8") as out:
+        out.write(decoded.decode("utf-8"))
+    
+    put = requests.put("https://files.datapackhub.net/" + file_name, open(config.DATA + "Temporary.zip", "rb"), headers={
+        "Authorization":config.FILES_TOKEN,
+        "Author":uploader
+    })
+    if put.ok:
+        return "https://files.datapackhub.net/" + file_name
+    else:
+        print(put.text)
     return False
     
 if __name__ == "__main__":
