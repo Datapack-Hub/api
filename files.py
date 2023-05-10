@@ -4,10 +4,11 @@ This code does some weird ass stuff which should probably upload files to the cl
 
 import requests
 import config
-from io import BytesIO
+import bitarray
 
 def upload_file(file: str, file_name:str, uploader:str):
-    put = requests.put("https://files.datapackhub.net/" + file_name, bytes(file), headers={
+    b = bitarray.bitarray()
+    put = requests.put("https://files.datapackhub.net/" + file_name, b.fromstring(), headers={
         "Authorization":config.FILES_TOKEN,
         "Author":uploader
     })
