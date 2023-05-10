@@ -10,7 +10,7 @@ def upload_file(file: str, file_name:str, uploader:str):
     print(file[41:44])
     decoded = base64.b64decode(file[41:])
     
-    with open(config.DATA + "Temporary.zip", "w", encoding="utf-8") as out:
+    with open(config.DATA + "Temporary.zip", "w", encoding="unicode_escape") as out:
         out.write(decoded.decode("utf-8"))
     
     put = requests.put("https://files.datapackhub.net/" + file_name, open(config.DATA + "Temporary.zip", "rb"), headers={
