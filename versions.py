@@ -98,8 +98,11 @@ def new(project: int):
         except:
             conn.execute(f"INSERT INTO versions(name,description,primary_download,minecraft_versions,version_code,project) VALUES ('{data['name']}', '{data['description']}', '{dpath}','{','.join(data['minecraft_versions'])}', '{data['version_code']}', {str(project)})")
         else:
-            rpath = files.upload_file(data["resource_pack_download"],f"project/{project}/{data['version_code']}/{data['filename']}",usr["username"])
-            conn.execute(f"INSERT INTO versions(name,description,primary_download,resource_pack_download,minecraft_versions,version_code,project) VALUES ('{data['name']}', '{data['description']}', '{dpath}','{rpath}','{','.join(data['minecraft_versions'])}', '{data['version_code']}', {str(project)})")
+            if data["resource_pack_download"] != None:
+                rpath = files.upload_file(data["resource_pack_download"],f"project/{project}/{data['version_code']}/{data['filename']}",usr["username"])
+                conn.execute(f"INSERT INTO versions(name,description,primary_download,resource_pack_download,minecraft_versions,version_code,project) VALUES ('{data['name']}', '{data['description']}', '{dpath}','{rpath}','{','.join(data['minecraft_versions'])}', '{data['version_code']}', {str(project)})")
+            else:
+                conn.execute(f"INSERT INTO versions(name,description,primary_download,minecraft_versions,version_code,project) VALUES ('{data['name']}', '{data['description']}', '{dpath}','{','.join(data['minecraft_versions'])}', '{data['version_code']}', {str(project)})")
     
     v = conn.execute(f"SELECT * FROM versions WHERE version_code = '{data['version_code']}'").fetchone()
     
