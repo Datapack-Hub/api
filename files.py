@@ -7,7 +7,7 @@ import config
 from io import BytesIO
 
 def upload_file(file, file_name:str, uploader:str):
-    file_like = BytesIO(file.encode())
+    file_like = BytesIO(file)
     put = requests.put("https://files.datapackhub.net/" + file_name, file_like.read(), headers={
         "Authorization":config.FILES_TOKEN,
         "Author":uploader
