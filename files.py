@@ -7,7 +7,6 @@ import config
 import base64
 
 def upload_file(file: str, file_name:str, uploader:str):
-    print(file[41:44])
     file = file.encode("unicode_escape")
     decoded = base64.b64decode(file[41:])
     
