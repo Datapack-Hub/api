@@ -6,7 +6,7 @@ import requests
 import config
 
 def upload_file(file, file_name:str, uploader:str):
-    put = requests.put("https://files.datapackhub.net/" + file_name, file, headers={
+    put = requests.put("https://files.datapackhub.net/" + file_name, file.encode("utf-8"), headers={
         "Authorization":config.FILES_TOKEN,
         "Author":uploader
     })
