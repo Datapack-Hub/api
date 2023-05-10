@@ -10,7 +10,7 @@ def upload_file(file: str, file_name:str, uploader:str):
     decoded = base64.b64decode(file[41:])
     
     with open(config.DATA + "Temporary.zip", "w", encoding="utf-8") as out:
-        out.write(decoded.decode("utf-8").strip())
+        out.write(decoded)
     
     put = requests.put("https://files.datapackhub.net/" + file_name, open(config.DATA + "Temporary.zip", "rb"), headers={
         "Authorization":config.FILES_TOKEN,
