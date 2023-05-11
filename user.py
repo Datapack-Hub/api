@@ -6,6 +6,8 @@ ADMINS = ["Silabear", "Flynecraft", "HoodieRocks"]
 
 from flask import Blueprint, request
 import sqlite3
+
+from flask_cors import CORS
 import config
 import time
 import json
@@ -14,12 +16,12 @@ import util
 
 user = Blueprint("user", __name__, url_prefix="/user")
 
+CORS(user)
 
-@user.after_request
-def after(resp):
-    header = resp.headers
-    header["Access-Control-Allow-Methods"] = "*"
-    return resp
+# @user.after_request
+# def after(resp):
+#     resp.headers.add("Access-Control-Allow-Methods", "GET, POST, PATCH, OPTIONS")
+#     return resp
 
 
 @user.route("/staff/<role>")
