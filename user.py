@@ -17,9 +17,7 @@ user = Blueprint("user", __name__, url_prefix="/user")
 
 @user.after_request
 def after(resp):
-    header = resp.headers
-    header['Access-Control-Allow-Methods'] = "GET, POST, PATCH"
-    header['Allow'] = "GET, POST, PATCH, HEAD, OPTIONS"
+    resp.headers.add("Access-Control-Allow-Methods", "GET, POST, PATCH") 
     return resp
 
 @user.route("/staff/<role>")
