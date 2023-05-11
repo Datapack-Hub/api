@@ -2,10 +2,9 @@
 **User API endpoints**
 """
 
-ADMINS = ["Silabear","Flynecraft","HoodieRocks"]
+ADMINS = ["Silabear", "Flynecraft", "HoodieRocks"]
 
 from flask import Blueprint, request
-from flask_cors import CORS
 import sqlite3
 import config
 import time
@@ -15,11 +14,13 @@ import util
 
 user = Blueprint("user", __name__, url_prefix="/user")
 
+
 @user.after_request
 def after(resp):
     header = resp.headers
-    header['Access-Control-Allow-Methods'] = "*"
+    header["Access-Control-Allow-Methods"] = "*"
     return resp
+
 
 @user.route("/staff/<role>")
 def staff(role):
@@ -55,6 +56,7 @@ def get_user(username):
     if not u:
         return "User does not exist", 404
     return u
+
 
 @user.route("/id/<int:id>", methods=["GET", "PATCH"])
 def get_user_id(id):
@@ -99,7 +101,7 @@ def get_user_id(id):
                     "Edited user",
                     f"Edited user data of {dat['username']}",
                 )
-        except sqlite3.Error as er:
+        except sqlite3.Error:
             return "Something went a little bit wrong"
         conn.commit()
         conn.close()
@@ -136,10 +138,12 @@ def me():
             usr["banData"] = {"message": x[0][2], "expires": expires}
     else:
         usr["banned"] = False
-        
+
     # failsafe
     if usr["username"] in ADMINS:
-        conn.execute(f"update users set role = 'admin' where username = '{usr['username']}'")
+        conn.execute(
+            f"update users set role = 'admin' where username = '{usr['username']}'"
+        )
         conn.commit()
     conn.close()
     return usr
