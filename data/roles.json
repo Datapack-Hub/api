@@ -45,6 +45,12 @@
             "verified":false
         },
         {
+            "name":"donator",
+            "color":"#00ff00",
+            "permissions":[],
+            "verified":"true"
+        },
+        {
             "name":"default",
             "permissions":[],
             "verified":false
