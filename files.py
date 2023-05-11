@@ -18,6 +18,7 @@ def upload_file(file: str, file_name: str, uploader: str):
         "https://files.datapackhub.net/" + file_name,
         open(config.DATA + "Temporary.zip", "rb"),
         headers={"Authorization": config.FILES_TOKEN, "Author": uploader},
+        timeout=300,
     )
     if put.ok:
         return "https://files.datapackhub.net/" + file_name

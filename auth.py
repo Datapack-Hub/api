@@ -25,12 +25,14 @@ def callback():
     access_token = requests.post(
         f"https://github.com/login/oauth/access_token?client_id={config.github.client_id}&client_secret={config.github.client_secret}&code={code}",
         headers={"Accept": "application/json"},
+        timeout=180,
     ).json()["access_token"]
 
     # Get github ID
     github = requests.get(
         "https://api.github.com/user",
         headers={"Authorization": f"Bearer {access_token}"},
+        timeout=120,
     ).json()
 
     # Get DH user

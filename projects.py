@@ -28,6 +28,10 @@ def after(resp):
 def search():
     x = time.time()
     query = request.args.get("query").replace("'", "")
+
+    if len(query) > 75:
+        return
+
     page = request.args.get("page", 1)
     print(query)
 
@@ -232,10 +236,19 @@ def new_project():
     if data["type"] not in config.valid_types:
         return f"Type {data['type']} is not a valid type! Acceptable content types: {config.valid_types}"
 
+    if len(data["title"]) > 50:
+        return "Title exceeds max length!", 400
+
+    if len(data["description"]) > 200:
+        return "Description exceeds max length", 400
+
+    if len(data["body"]) > 2000:
+        return "Description exceeds max length", 400
+
     if not re.match(r'^[\w!@$()`.+,"\-\']{3,64}$', data["url"]):
         return "URL is bad", 400
 
-    # Update databas
+    # Update database
     conn = sqlite3.connect(config.DATA + "data.db")
     conn.execute(
         f"""insert into projects(

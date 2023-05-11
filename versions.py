@@ -94,6 +94,15 @@ def new(project: int):
             400,
         )
     else:
+        if len(data["name"]) > 50:
+            return "Name is too long", 400
+
+        if len(data["description"]) > 2000:
+            return "Description is too long", 400
+
+        if len(data["version_code"]) > 15:
+            return "Version code too long", 400
+
         dpath = files.upload_file(
             data["primary_download"],
             f"project/{project}/{data['version_code']}/{data['filename']}",

@@ -2,7 +2,6 @@
 **User API endpoints**
 """
 
-ADMINS = ["Silabear", "Flynecraft", "HoodieRocks"]
 
 from flask import Blueprint, request
 import sqlite3
@@ -14,6 +13,7 @@ import json
 
 import util
 
+ADMINS = ["Silabear", "Flynecraft", "HoodieRocks"]
 user = Blueprint("user", __name__, url_prefix="/user")
 
 CORS(user)
@@ -89,6 +89,11 @@ def get_user_id(id):
 
         if not (usr["id"] == id or usr["role"] in ["moderator", "admin"]):
             return "You aren't allowed to edit this user!", 403
+
+        if len(dat["username"]) > 32:
+            return "Username too long", 400
+        if len(dat["bio"]) > 500:
+            return "Bio too long", 400
 
         conn = sqlite3.connect(config.DATA + "data.db")
         try:
