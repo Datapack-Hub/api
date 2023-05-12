@@ -219,8 +219,10 @@ def user_owns_project(user: int, project: int):
         return True
     return False
 
+
 def sanatise(query: str):
-    return query.replace("'","''").replace("%","").replace(";",r"\;")
+    return query.replace("'", "''").replace("%", "").replace(";", r"\;")
+
 
 if __name__ == "__main__":
     post_site_log("silabear", "Banned user", "Banned user `Diamond` for: `being dumb`")
