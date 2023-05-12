@@ -28,7 +28,7 @@ def project(id: int):
             "minecraft_versions": i[4],
             "version_code": i[5],
         }
-
+        print(i)
         if i[3] != None:
             o["resource_pack_download"]: i[3]
 
