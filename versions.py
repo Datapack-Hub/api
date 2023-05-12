@@ -29,7 +29,7 @@ def project(id: int):
             "version_code": i[5],
         }
 
-        if i[3] is not None:
+        if i[3] != None:
             o["resource_pack_download"]: i[3]
 
         out.append(o)
