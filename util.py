@@ -46,7 +46,7 @@ class get_user:
 
         # Select
         u = conn.execute(
-            f"select username, rowid, role, bio, profile_icon from users where lower(username) = '{uname.lower()}'"
+            f"select username, rowid, role, bio, profile_icon from users where lower(username) = '{sanatise(uname.lower())}'"
         ).fetchone()
 
         if not u:
@@ -109,7 +109,7 @@ class get_user:
 
         # Select
         u = conn.execute(
-            f"select username, rowid, role, bio, profile_icon from users where token = '{token}'"
+            f"select username, rowid, role, bio, profile_icon from users where token = '{sanatise(token)}'"
         ).fetchone()
 
         if not u:
@@ -219,6 +219,8 @@ def user_owns_project(user: int, project: int):
         return True
     return False
 
+def sanatise(query: str):
+    return query.replace("'","''").replace("%","").replace(";",r"\;")
 
 if __name__ == "__main__":
     post_site_log("silabear", "Banned user", "Banned user `Diamond` for: `being dumb`")

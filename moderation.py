@@ -197,7 +197,7 @@ def ban(id):
         conn = sqlite3.connect(config.DATA + "data.db")
         try:
             conn.execute(
-                f"insert into banned_users values ({dat['id']}, {dat['expires']}, '{dat['message']}')"
+                f"insert into banned_users values ({dat['id']}, {dat['expires']}, '{util.sanatise(dat['message'])}')"
             )
         except sqlite3.Error as er:
             return " ".join(er.args)
