@@ -98,7 +98,9 @@ def get_user_id(id):
             conn.execute(
                 f"UPDATE users SET username = '{util.sanatise(dat['username'])}' where rowid = {id}"
             )
-            conn.execute(f"UPDATE users SET bio = '{util.sanatise(dat['bio'])}' where rowid = {id}")
+            conn.execute(
+                f"UPDATE users SET bio = '{util.sanatise(dat['bio'])}' where rowid = {id}"
+            )
             if usr["role"] == "admin":
                 conn.execute(
                     f"UPDATE users SET role = '{util.sanatise(dat['role'])}' where rowid = {id}"
