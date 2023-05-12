@@ -69,7 +69,7 @@ def query():
     page = request.args.get("page", 1)
     request.args.get("sort", "updated")
 
-    amount = 20 * page
+    amount = 20 * int(page)
 
     # SQL stuff
     conn = sqlite3.connect(config.DATA + "data.db")
@@ -79,7 +79,7 @@ def query():
 
     out = []
 
-    for item in r[-20:]:
+    for item in r[page - 1 * 20 : page * 20 - 1]:
         out.append(
             {
                 "type": item[0],
