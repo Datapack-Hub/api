@@ -29,8 +29,9 @@ def project(id: int):
             "version_code": i[5],
         }
         print(i)
+        
         if i[3] != None:
-            o["resource_pack_download"]: i[3]
+            o["resource_pack_download"] = i[3]
 
         out.append(o)
 
@@ -44,14 +45,19 @@ def code(id: int, code: str):
     v = conn.execute(
         f"SELECT * FROM versions WHERE version_code = '{code}' AND project = {id}"
     ).fetchone()
+    
+    o = {
+            "name": v[0],
+            "description": v[1],
+            "primary_download": v[2],
+            "minecraft_versions": v[4],
+            "version_code": v[5],
+        }
+    
+    if v[3] != None:
+        o["resource_pack_download"] = v[3]
 
-    return {
-        "name": v[0],
-        "description": v[1],
-        "primary_download": v[2],
-        "minecraft_versions": v[4],
-        "version_code": v[5],
-    }
+    return o
 
 
 @versions.route("/new/<int:project>", methods=["post"])
