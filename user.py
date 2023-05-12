@@ -30,7 +30,7 @@ def staff(role):
     if role == "default":
         return "Role has to be staff role", 400
     list = conn.execute(
-        f"select username, rowid, role, bio, profile_icon from users where role = '{role}'"
+        f"select username, rowid, role, bio, profile_icon from users where role = '{util.sanatise(role)}'"
     ).fetchall()
     finale = []
     for i in list:
@@ -98,12 +98,12 @@ def get_user_id(id):
         conn = sqlite3.connect(config.DATA + "data.db")
         try:
             conn.execute(
-                f"UPDATE users SET username = '{dat['username']}' where rowid = {id}"
+                f"UPDATE users SET username = '{util.sanatise(dat['username'])}' where rowid = {id}"
             )
-            conn.execute(f"UPDATE users SET bio = '{dat['bio']}' where rowid = {id}")
+            conn.execute(f"UPDATE users SET bio = '{util.sanatise(dat['bio'])}' where rowid = {id}")
             if usr["role"] == "admin":
                 conn.execute(
-                    f"UPDATE users SET role = '{dat['role']}' where rowid = {id}"
+                    f"UPDATE users SET role = '{util.sanatise(dat['role'])}' where rowid = {id}"
                 )
                 util.post_site_log(
                     usr["username"],
@@ -151,7 +151,7 @@ def me():
     # failsafe
     if usr["username"] in ADMINS:
         conn.execute(
-            f"update users set role = 'admin' where username = '{usr['username']}'"
+            f"update users set role = 'admin' where username = '{util.sanatise(usr['username'])}'"
         )
         conn.commit()
     conn.close()

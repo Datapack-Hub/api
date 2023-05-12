@@ -37,11 +37,8 @@ def search():
 
     conn = sqlite3.connect(config.DATA + "data.db")
     r = conn.execute(
-        f"select type, author, title, icon, url, description, rowid, category, uploaded, updated from projects where trim(title) LIKE '%{query}%'"
+        f"select type, author, title, icon, url, description, rowid, category, uploaded, updated from projects where trim(title) LIKE '%{util.sanatise(query)}%'"
     ).fetchall()
-    print(
-        f"select type, author, title, icon, url, description, rowid, category, uploaded, updated from projects where trim(title) LIKE '%{query}%'"
-    )
 
     out = []
 
@@ -168,7 +165,7 @@ def get_project(slug: str):
 
     # gimme dat project and gtfo
     proj = conn.execute(
-        f"select type, author, title, icon, url, description, rowid, category, status, uploaded, updated, body from projects where url = '{slug}'"
+        f"select type, author, title, icon, url, description, rowid, category, status, uploaded, updated, body from projects where url = '{util.sanatise(slug)}'"
     ).fetchone()
     conn.close()
 
@@ -262,13 +259,13 @@ def new_project():
                  status,
                  uploaded,
                  updated) values (
-                    '{data['type']}', 
+                    '{util.sanatise(data['type'])}', 
                     {user['id']}, 
-                    '{data['title']}', 
-                    '{data['description']}', 
-                    '{data['body']}',
-                    '{data['category']}', 
-                    '{data['url']}', 
+                    '{util.sanatise(data['title'])}', 
+                    '{util.sanatise(data['description'])}', 
+                    '{util.sanatise(data['body'])}',
+                    '{util.sanatise(data['category'])}', 
+                    '{util.sanatise(data['url'])}', 
                     'draft',
                     {str(int( time.time() ))},
                     {str(int( time.time() ))})"""
