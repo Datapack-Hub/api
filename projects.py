@@ -37,7 +37,7 @@ def search():
 
     conn = sqlite3.connect(config.DATA + "data.db")
     r = conn.execute(
-        f"select type, author, title, icon, url, description, rowid, category, uploaded, updated from projects where trim(title) LIKE '%{util.sanatise(query)}%'"
+        f"select type, author, title, icon, url, description, rowid, category, uploaded, updated from projects where trim(title) LIKE '%{util.sanitise(query)}%'"
     ).fetchall()
 
     out = []
@@ -150,7 +150,7 @@ def get_proj(id):
 
 @projects.route("/get/<string:slug>")
 def get_project(slug: str):
-    # connect to the thingy thingy
+    # connect to the thingy
     conn = sqlite3.connect(config.DATA + "data.db")
 
     # do we need auth? no
@@ -167,22 +167,22 @@ def get_project(slug: str):
 
     # gimme dat project and gtfo
     proj = conn.execute(
-        f"select type, author, title, icon, url, description, rowid, category, status, uploaded, updated, body from projects where url = '{util.sanatise(slug)}'"
+        f"select type, author, title, icon, url, description, rowid, category, status, uploaded, updated, body from projects where url = '{util.sanitise(slug)}'"
     ).fetchone()
     conn.close()
 
-    # hey u didnt give me a project, hate u
+    # hey u didn't give me a project, hate u
     if not proj:
         return "Not found", 404
 
-    # shh im a spy
+    # shhh im a spy
     if proj[8] != "live":
         if not this_user:
             return "Not found", 404
         if not proj[1] == this_user["id"]:
             return "Not found", 404
 
-    # alr fine i give up take the project
+    # alr fine I give up take the project
     return {
         "type": proj[0],
         "author": proj[1],
@@ -261,13 +261,13 @@ def new_project():
                  status,
                  uploaded,
                  updated) values (
-                    '{util.sanatise(data['type'])}', 
+                    '{util.sanitise(data['type'])}', 
                     {user['id']}, 
-                    '{util.sanatise(data['title'])}', 
-                    '{util.sanatise(data['description'])}', 
-                    '{util.sanatise(data['body'])}',
-                    '{util.sanatise(data['category'])}', 
-                    '{util.sanatise(data['url'])}', 
+                    '{util.sanitise(data['title'])}', 
+                    '{util.sanitise(data['description'])}', 
+                    '{util.sanitise(data['body'])}',
+                    '{util.sanitise(data['category'])}', 
+                    '{util.sanitise(data['url'])}', 
                     'draft',
                     {str(int( time.time() ))},
                     {str(int( time.time() ))})"""

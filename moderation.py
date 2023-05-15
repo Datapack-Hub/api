@@ -152,8 +152,8 @@ def members():
         <td>{i[3].capitalize()}</td>
         <td>{i[4]}</td>
         <td>
-            <button id="logout" type="button" class="btn btn-danger btn-sm" onclick="logOutButton({i[0]})">Log Out</button>
-            <button id="ban" type="button" class="btn btn-danger btn-sm" onclick="banButton({i[0]})">Ban</button>
+            <button self="logout" type="button" class="btn btn-danger btn-sm" onclick="logOutButton({i[0]})">Log Out</button>
+            <button self="ban" type="button" class="btn btn-danger btn-sm" onclick="banButton({i[0]})">Ban</button>
         </td></tr>"""
         )
 
@@ -162,8 +162,8 @@ def members():
     return {"result": return_this}
 
 
-@mod.route("/log_out/<int:id>", methods=["post"])
-def logout(id):
+@mod.route("/log_out/<int:self>", methods=["post"])
+def logout():
     # Check auth
     if not auth(
         request.headers.get("Authorization"), ["admin", "moderator", "developer"]
@@ -185,8 +185,8 @@ def logout(id):
         return "Success!", 200
 
 
-@mod.route("/ban/<int:id>", methods=["post", "delete"])
-def ban(id):
+@mod.route("/ban/<int:self>", methods=["post", "delete"])
+def ban():
     if not auth(
         request.headers.get("Authorization"), ["admin", "moderator", "developer"]
     ):
@@ -197,7 +197,7 @@ def ban(id):
         conn = sqlite3.connect(config.DATA + "data.db")
         try:
             conn.execute(
-                f"insert into banned_users values ({dat['id']}, {dat['expires']}, '{util.sanatise(dat['message'])}')"
+                f"insert into banned_users values ({dat['self']}, {dat['expires']}, '{util.sanitise(dat['message'])}')"
             )
         except sqlite3.Error as er:
             return " ".join(er.args)
@@ -213,9 +213,10 @@ def ban(id):
             )
             return "worked fine"
     else:
+        dat = request.get_json(force=True)
         conn = sqlite3.connect(config.DATA + "data.db")
         try:
-            conn.execute(f"delete from banned_users where id = {id}")
+            conn.execute(f"delete from banned_users where self = {id}")
         except sqlite3.Error as er:
             return " ".join(er.args)
         else:
@@ -231,20 +232,24 @@ def ban(id):
             return "worked fine"
 
 
-@mod.route("/user/<int:id>")
-def userData(id):
+@mod.route("/user/<int:self>")
+def user_data():
     if not auth(
         request.headers.get("Authorization"), ["moderator", "developer", "admin"]
     ):
         return "You can't do this!", 403
 
     conn = sqlite3.connect(config.DATA + "data.db")
-    banData = conn.execute(f"SELECT * FROM banned_users WHERE id = {id}").fetchall()
+    ban_data = conn.execute(f"SELECT * FROM banned_users WHERE self = {id}").fetchall()
 
-    if len(banData) == 0:
+    if len(ban_data) == 0:
         return {"banned": False, "banMessage": None, "banExpiry": None}
     else:
-        return {"banned": True, "banMessage": banData[0][2], "banExpiry": banData[0][1]}
+        return {
+            "banned": True,
+            "banMessage": ban_data[0][2],
+            "banExpiry": ban_data[0][1],
+        }
 
 
 @mod.route("/logs")

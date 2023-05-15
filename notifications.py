@@ -102,12 +102,12 @@ def send(target):
     if usr["role"] not in ["admin", "developer", "moderator", "helper"]:
         return "You are not allowed to do this!", 403
 
-    notifData = request.get_json(force=True)
+    notif_data = request.get_json(force=True)
 
     conn = sqlite3.connect(config.DATA + "data.db")
     try:
         conn.execute(
-            f"INSERT INTO notifs VALUES ('{util.sanatise(notifData['message'])}', '{util.sanatise(notifData['description'])}', False, {target}, '{util.sanatise(notifData['type'])}')"
+            f"INSERT INTO notifs VALUES ('{util.sanitise(notif_data['message'])}', '{util.sanitise(notif_data['description'])}', False, {target}, '{util.sanitise(notif_data['type'])}')"
         )
     except sqlite3.Error as er:
         return "There was a proble: " " ".join(er.args), 500
@@ -117,7 +117,7 @@ def send(target):
     util.post_site_log(
         usr["username"],
         "Sent a notification",
-        f"Sent a `{notifData['type']}` notification to `{target}`",
+        f"Sent a `{notif_data['type']}` notification to `{target}`",
     )
 
     return "Successfully warned user!", 200

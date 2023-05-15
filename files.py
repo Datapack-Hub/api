@@ -1,5 +1,5 @@
 """
-This code does some weird ass stuff which should probably upload files to the cloudflare... dont ask me
+This code does some weird ass stuff which should probably upload files to the cloudflare... don't ask me
 """
 
 import requests
