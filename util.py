@@ -41,12 +41,12 @@ def authenticate(auth: str):
 
 
 class get_user:
-    def from_username(uname: str):
+    def from_username(self: str):
         conn = sqlite3.connect(config.DATA + "data.db")
 
         # Select
         u = conn.execute(
-            f"select username, rowid, role, bio, profile_icon from users where lower(username) = '{sanatise(uname.lower())}'"
+            f"select username, rowid, role, bio, profile_icon from users where lower(username) = '{sanitise(self.lower())}'"
         ).fetchone()
 
         if not u:
@@ -62,12 +62,12 @@ class get_user:
             "profile_icon": u[4],
         }
 
-    def from_id(id: int):
+    def from_id(self: int):
         conn = sqlite3.connect(config.DATA + "data.db")
 
         # Select
         u = conn.execute(
-            f"select username, rowid, role, bio, profile_icon from users where rowid = {id}"
+            f"select username, rowid, role, bio, profile_icon from users where rowid = {self}"
         ).fetchone()
 
         if not u:
@@ -83,12 +83,12 @@ class get_user:
             "profile_icon": u[4],
         }
 
-    def from_github_id(id: int):
+    def from_github_id(self: int):
         conn = sqlite3.connect(config.DATA + "data.db")
 
         # Select
         u = conn.execute(
-            f"select username, rowid, role, bio, profile_icon from users where github_id = {id}"
+            f"select username, rowid, role, bio, profile_icon from users where github_id = {self}"
         ).fetchone()
 
         if not u:
@@ -109,7 +109,7 @@ class get_user:
 
         # Select
         u = conn.execute(
-            f"select username, rowid, role, bio, profile_icon from users where token = '{sanatise(token)}'"
+            f"select username, rowid, role, bio, profile_icon from users where token = '{sanitise(token)}'"
         ).fetchone()
 
         if not u:
@@ -193,7 +193,7 @@ def log_user_out(id: int):
     return "Success!"
 
 
-def update_user(username: str):
+def update_user():
     pass
 
 
@@ -210,7 +210,7 @@ def post_site_log(user: str, action: str, content: str):
     webhook.send(embed=emb)
 
 
-def user_owns_project(user: int, project: int):
+def user_owns_project(project: int):
     conn = sqlite3.connect(config.DATA + "data.db")
     proj = conn.execute(
         f"select author from projects where rowid = {project}"
@@ -220,7 +220,7 @@ def user_owns_project(user: int, project: int):
     return False
 
 
-def sanatise(query: str):
+def sanitise(query: str):
     return query.replace("'", "''").replace("%", "").replace(";", r"\;")
 
 
