@@ -160,8 +160,6 @@ def get_project(slug: str):
     # this is an accurate representation of minecraft 1.15
     # auth:
     this_user = util.authenticate(request.headers.get("Authorization"))
-    if this_user == 31:
-        return "uhhhhhh, oh no", 400
     if this_user == 32:
         return "Make sure authorization is basic!", 400
     elif this_user == 33:
@@ -179,7 +177,7 @@ def get_project(slug: str):
 
     # shhh im a spy
     if proj[8] != "live":
-        if not this_user:
+        if this_user == 31:
             return "Not found", 404
         if not proj[1] == this_user["id"]:
             return "Not found", 404
