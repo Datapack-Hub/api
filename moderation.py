@@ -232,15 +232,15 @@ def ban():
             return "worked fine"
 
 
-@mod.route("/user/<int:self>")
-def user_data():
+@mod.route("/user/<int:id>")
+def user_data(id):
     if not auth(
         request.headers.get("Authorization"), ["moderator", "developer", "admin"]
     ):
         return "You can't do this!", 403
 
     conn = sqlite3.connect(config.DATA + "data.db")
-    ban_data = conn.execute(f"SELECT * FROM banned_users WHERE self = {id}").fetchall()
+    ban_data = conn.execute(f"SELECT * FROM banned_users WHERE id = {id}").fetchall()
 
     if len(ban_data) == 0:
         return {"banned": False, "banMessage": None, "banExpiry": None}
