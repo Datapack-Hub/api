@@ -10,6 +10,8 @@ import sqlite3
 import config
 import regex as re
 import time
+import files
+import secrets
 
 projects = Blueprint("projects", __name__, url_prefix="/projects")
 
@@ -246,32 +248,68 @@ def new_project():
 
     if not re.match(r'^[\w!@$()`.+,"\-\']{3,64}$', data["url"]):
         return "URL is bad", 400
+    
+    if "icon" in data:
+        icon = files.upload_file(
+            data["icon"],
+            f"icons/{str(secrets.randbelow(999999))}.png",
+            user["username"],
+        )
 
     # Update database
     conn = sqlite3.connect(config.DATA + "data.db")
-    conn.execute(
-        f"""insert into projects(
-                 type, 
-                 author, 
-                 title, 
-                 description, 
-                 body,
-                 category, 
-                 url, 
-                 status,
-                 uploaded,
-                 updated) values (
-                    '{util.sanitise(data['type'])}', 
-                    {user['id']}, 
-                    '{util.sanitise(data['title'])}', 
-                    '{util.sanitise(data['description'])}', 
-                    '{util.sanitise(data['body'])}',
-                    '{util.sanitise(data['category'])}', 
-                    '{util.sanitise(data['url'])}', 
-                    'draft',
-                    {str(int( time.time() ))},
-                    {str(int( time.time() ))})"""
-    )
+    
+    if "icon" in data:
+        conn.execute(
+            f"""insert into projects(
+                    type, 
+                    author, 
+                    title, 
+                    description, 
+                    body,
+                    category, 
+                    url, 
+                    status,
+                    uploaded,
+                    updated,
+                    icon) values (
+                        '{util.sanitise(data['type'])}', 
+                        {user['id']}, 
+                        '{util.sanitise(data['title'])}', 
+                        '{util.sanitise(data['description'])}', 
+                        '{util.sanitise(data['body'])}',
+                        '{util.sanitise(data['category'])}', 
+                        '{util.sanitise(data['url'])}', 
+                        'draft',
+                        {str(int( time.time() ))},
+                        {str(int( time.time() ))},
+                        {icon})"""
+        )
+    else:
+        conn.execute(
+            f"""insert into projects(
+                    type, 
+                    author, 
+                    title, 
+                    description, 
+                    body,
+                    category, 
+                    url, 
+                    status,
+                    uploaded,
+                    updated) values (
+                        '{util.sanitise(data['type'])}', 
+                        {user['id']}, 
+                        '{util.sanitise(data['title'])}', 
+                        '{util.sanitise(data['description'])}', 
+                        '{util.sanitise(data['body'])}',
+                        '{util.sanitise(data['category'])}', 
+                        '{util.sanitise(data['url'])}', 
+                        'draft',
+                        {str(int( time.time() ))},
+                        {str(int( time.time() ))})"""
+        )
+        
     conn.commit()
     conn.close()
 
