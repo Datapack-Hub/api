@@ -38,7 +38,7 @@ def project(id: int):
     return {"count": len(out), "result": out}
 
 @versions.route("/project/url/<string:id>")
-def project(id: str):
+def project_from_str(id: str):
     conn = sqlite3.connect(f"{config.DATA}data.db")
     # Get the project
     p = conn.execute(f"SELECT rowid FROM projects WHERE url = {util.sanitise(id)};").fetchall()
