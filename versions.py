@@ -41,7 +41,7 @@ def project(id: int):
 def project_from_str(id: str):
     conn = sqlite3.connect(f"{config.DATA}data.db")
     # Get the project
-    p = conn.execute(f"SELECT rowid FROM projects WHERE url = {util.sanitise(id)};").fetchall()
+    p = conn.execute(f"SELECT rowid FROM projects WHERE url = '{util.sanitise(id)}';").fetchall()
     if len(p) == 0:
         return "Project not found", 404
     
