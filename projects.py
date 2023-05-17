@@ -246,7 +246,7 @@ def new_project():
 
     if not re.match(r'^[\w!@$()`.+,"\-\']{3,64}$', data["url"]):
         return "URL is bad", 400
-    
+
     if "icon" in data:
         icon = files.upload_file(
             data["icon"],
@@ -256,7 +256,7 @@ def new_project():
 
     # Update database
     conn = sqlite3.connect(config.DATA + "data.db")
-    
+
     if "icon" in data:
         conn.execute(
             f"""insert into projects(
@@ -307,7 +307,7 @@ def new_project():
                         {str(int( time.time() ))},
                         {str(int( time.time() ))})"""
         )
-        
+
     conn.commit()
     conn.close()
 
