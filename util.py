@@ -214,7 +214,7 @@ def user_owns_project(project: int, author: int):
     conn = sqlite3.connect(config.DATA + "data.db")
     proj = conn.execute(
         f"select rowid from projects where rowid = {str(project)} and author = {str(author)}"
-    ).fetchmany()
+    ).fetchall()
     if len(proj) == 1:
         return True
     return False
