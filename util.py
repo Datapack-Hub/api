@@ -210,10 +210,10 @@ def post_site_log(user: str, action: str, content: str):
     webhook.send(embed=emb)
 
 
-def user_owns_project(project: int):
+def user_owns_project(project: int, author: int):
     conn = sqlite3.connect(config.DATA + "data.db")
     proj = conn.execute(
-        f"select author from projects where rowid = {project}"
+        f"select rowid from projects where rowid = {str(project)} and author = {str(author)}"
     ).fetchmany()
     if len(proj) == 1:
         return True
@@ -222,7 +222,6 @@ def user_owns_project(project: int):
 
 def sanitise(query: str):
     return query.replace("'", "''").replace("%", "").replace(";", r"\;")
-
 
 if __name__ == "__main__":
     post_site_log("silabear", "Banned user", "Banned user `Diamond` for: `being dumb`")
