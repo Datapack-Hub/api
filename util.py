@@ -223,5 +223,6 @@ def user_owns_project(project: int, author: int):
 def sanitise(query: str):
     return query.replace("'", "''").replace("%", "").replace(";", r"\;")
 
+
 if __name__ == "__main__":
     post_site_log("silabear", "Banned user", "Banned user `Diamond` for: `being dumb`")

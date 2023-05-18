@@ -37,14 +37,17 @@ def project(id: int):
 
     return {"count": len(out), "result": out}
 
+
 @versions.route("/project/url/<string:id>")
 def project_from_str(id: str):
     conn = sqlite3.connect(f"{config.DATA}data.db")
     # Get the project
-    p = conn.execute(f"SELECT rowid FROM projects WHERE url = '{util.sanitise(id)}';").fetchall()
+    p = conn.execute(
+        f"SELECT rowid FROM projects WHERE url = '{util.sanitise(id)}';"
+    ).fetchall()
     if len(p) == 0:
         return "Project not found", 404
-    
+
     # Select all versions where the project is this one
     v = conn.execute(f"SELECT * FROM versions WHERE project = {p[0][0]}").fetchall()
     out = []
@@ -64,6 +67,7 @@ def project_from_str(id: str):
         out.append(o)
 
     return {"count": len(out), "result": out}
+
 
 @versions.route("/project/<int:id>/<string:code>")
 def code(id: int, code: str):
