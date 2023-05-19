@@ -8,6 +8,7 @@ import util
 import sqlite3
 import config
 import files
+from werkzeug.exceptions import BadRequestKeyError
 
 versions = Blueprint("versions", __name__, url_prefix="/versions")
 
@@ -125,6 +126,8 @@ def new(project: int):
         data["version_code"]
         data["primary_download"]
         data["filename"]
+    except BadRequestKeyError as ex:
+        return "Error: " + " ".join(ex.args)
     except:
         return (
             "Make sure you provide name, description, minecraft_versions, version_code, primary_download, filename and optionally resource_pack_download",
