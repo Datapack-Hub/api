@@ -337,6 +337,7 @@ def new_project():
 
     return "done", 200
 
+
 @projects.route("/edit/<int:id>", methods=["POST"])
 def edit(id: int):
     # Check authentication
@@ -358,7 +359,7 @@ def edit(id: int):
             "reason": banned["reason"],
             "expires": banned["expires"],
         }, 403
-        
+
     if not util.user_owns_project(project=id, author=user["id"]):
         return "You don't have permission to edit this project.", 403
 
@@ -413,7 +414,7 @@ def edit(id: int):
             )
     except:
         conn.rollback()
-        return "An SQL error occurred.",500
+        return "An SQL error occurred.", 500
 
     conn.commit()
     conn.close()
