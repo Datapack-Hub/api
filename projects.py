@@ -336,3 +336,86 @@ def new_project():
     conn.close()
 
     return "done", 200
+
+@projects.route("/edit/<int:id>", methods=["POST"])
+def edit(id: int):
+    # Check authentication
+    tok = request.headers.get("Authorization")
+
+    if not tok:
+        return "Not authenticated! You gotta log in first :P", 401
+
+    user = util.authenticate(tok)
+    if user == 32:
+        return "Make sure authorization is basic!", 400
+    elif user == 33:
+        return "Token expired!", 429
+
+    banned = util.get_user_ban_data(user["id"])
+    if banned is not None:
+        return {
+            "banned": True,
+            "reason": banned["reason"],
+            "expires": banned["expires"],
+        }, 403
+        
+    if not util.user_owns_project(project=id, author=user["id"]):
+        return "You don't have permission to edit this project.", 403
+
+    data = request.get_json(force=True)
+
+    try:
+        data["title"]
+        data["description"]
+        data["body"]
+        data["category"]
+    except:
+        return "Missing field", 400
+
+    if len(data["title"]) > 50:
+        return "Title exceeds max length!", 400
+
+    if len(data["description"]) > 200:
+        return "Description exceeds max length", 400
+
+    if len(data["body"]) > 2000:
+        return "Body exceeds max length", 400
+
+    if "icon" in data:
+        icon = files.upload_file(
+            data["icon"],
+            f"icons/{str(secrets.randbelow(999999))}.png",
+            user["username"],
+        )
+
+    # Update database
+    conn = sqlite3.connect(config.DATA + "data.db")
+
+    try:
+        if "icon" in data:
+            conn.execute(
+                f"""update projects set
+                title = '{util.sanitise(data["title"])},
+                description = '{util.sanitise(data["description"])}',
+                body = '{util.sanitise(data["body"])}',
+                category = '{util.sanitise(data["category"])}',
+                icon = '{icon}' 
+                where rowid = {id}"""
+            )
+        else:
+            conn.execute(
+                f"""update projects set
+                title = '{util.sanitise(data["title"])},
+                description = '{util.sanitise(data["description"])}',
+                body = '{util.sanitise(data["body"])}',
+                category = '{util.sanitise(data["category"])}' 
+                where rowid = {id}"""
+            )
+    except:
+        conn.rollback()
+        return "An SQL error occurred.",500
+
+    conn.commit()
+    conn.close()
+
+    return "done", 200
