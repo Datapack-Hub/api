@@ -196,7 +196,24 @@ def get_project(slug: str):
         "updated": proj[10],
         "body": proj[11],
     }
-
+    
+@projects.route("/random")
+def random():
+    conn = sqlite3.connect(config.DATA + "data.db"
+    proj = conn.execute("SELECT type, author, title, icon, url, description, rowid, category, status, uploaded, updated, body FROM projects where status = 'live' ORDER BY RANDOM() LIMIT 1").fetchone()
+    return {
+        "type": proj[0],
+        "author": proj[1],
+        "title": proj[2],
+        "icon": proj[3],
+        "url": proj[4],
+        "description": proj[5],
+        "ID": proj[6],
+        "category": proj[7],
+        "uploaded": proj[9],
+        "updated": proj[10],
+        "body": proj[11],
+    }
 
 @projects.route("/create", methods=["POST"])
 def new_project():
