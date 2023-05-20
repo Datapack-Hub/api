@@ -201,6 +201,7 @@ def get_project(slug: str):
 def random():
     conn = sqlite3.connect(config.DATA + "data.db"
     proj = conn.execute("SELECT type, author, title, icon, url, description, rowid, category, status, uploaded, updated, body FROM projects where status = 'live' ORDER BY RANDOM() LIMIT 1").fetchone()
+    conn.close()
     return {
         "type": proj[0],
         "author": proj[1],
