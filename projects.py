@@ -396,7 +396,7 @@ def edit(id: int):
         if "icon" in data:
             conn.execute(
                 f"""update projects set
-                title = '{util.sanitise(data["title"])},
+                title = '{util.sanitise(data["title"])}',
                 description = '{util.sanitise(data["description"])}',
                 body = '{util.sanitise(data["body"])}',
                 category = '{util.sanitise(data["category"])}',
@@ -406,7 +406,7 @@ def edit(id: int):
         else:
             conn.execute(
                 f"""update projects set
-                title = '{util.sanitise(data["title"])},
+                title = '{util.sanitise(data["title"])}',
                 description = '{util.sanitise(data["description"])}',
                 body = '{util.sanitise(data["body"])}',
                 category = '{util.sanitise(data["category"])}' 
