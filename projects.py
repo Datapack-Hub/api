@@ -12,6 +12,7 @@ import regex as re
 import time
 import files
 import secrets
+import traceback
 
 projects = Blueprint("projects", __name__, url_prefix="/projects")
 
@@ -414,7 +415,8 @@ def edit(id: int):
             )
     except:
         conn.rollback()
-        return "An SQL error occurred.", 500
+        util.post_error("Error updating project",traceback.format_exc())
+        return "Something went wrong.", 500
 
     conn.commit()
     conn.close()
