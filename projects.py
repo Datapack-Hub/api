@@ -358,7 +358,10 @@ def edit(id: int):
             "expires": banned["expires"],
         }, 403
 
-    if not (util.user_owns_project(project=id, author=user["id"]) or user["role"] in ["admin","moderator"]):
+    if not (
+        util.user_owns_project(project=id, author=user["id"])
+        or user["role"] in ["admin", "moderator"]
+    ):
         return "You don't have permission to edit this project. ", 403
 
     data = request.get_json(force=True)
@@ -409,13 +412,15 @@ def edit(id: int):
             )
     except:
         conn.rollback()
-        util.post_error("Error updating project",traceback.format_exc())
+        util.post_error("Error updating project", traceback.format_exc())
         return "Something went wrong.", 500
 
     conn.commit()
     conn.close()
-    
-    if(user["role"] in ["admin","moderator"]):
-        util.post_site_log(user["username"],"Edited project",f"Edited the project {data['title']}")
+
+    if user["role"] in ["admin", "moderator"]:
+        util.post_site_log(
+            user["username"], "Edited project", f"Edited the project {data['title']}"
+        )
 
     return "done", 200
