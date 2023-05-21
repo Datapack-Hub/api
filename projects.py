@@ -415,7 +415,7 @@ def edit(id: int):
             )
     except:
         conn.rollback()
-        util.post_error("Error updating project",traceback.format_exc())
+        util.post_error("Error updating project", traceback.format_exc())
         return "Something went wrong.", 500
 
     conn.commit()

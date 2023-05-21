@@ -208,7 +208,8 @@ def post_site_log(user: str, action: str, content: str):
         timestamp=datetime.datetime.now(),
     ).set_author(name=usr["username"], icon_url=usr["profile_icon"])
     webhook.send(embed=emb)
-    
+
+
 def post_error(title: str, message: str):
     webhook = disnake.SyncWebhook.from_url(config.MOD_LOGS)
     emb = disnake.Embed(
