@@ -40,7 +40,7 @@ def search():
 
     conn = sqlite3.connect(config.DATA + "data.db")
     r = conn.execute(
-        f"select type, author, title, icon, url, description, rowid, category, uploaded, updated from projects where trim(title) LIKE '%{util.sanitise(query)}%'"
+        f"select type, author, title, icon, url, description, rowid, category, uploaded, updated from projects where status = 'live' and trim(title) LIKE '%{util.sanitise(query)}%'"
     ).fetchall()
 
     out = []
