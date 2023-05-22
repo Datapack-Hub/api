@@ -273,3 +273,61 @@ def logs():
         y.append({"username": i[0], "action": i[1], "time": i[2]})
 
     return {"result": y}
+
+@mod.route("/queue/<string:type>")
+def queue(type: str):
+    if not auth(
+        request.headers.get("Authorization"),
+        ["moderator", "admin"],
+    ):
+        return "You can't do this!", 403
+    
+    conn = sqlite3.connect(config.DATA + "data.db")
+    
+    if type == "publish":
+        r = conn.execute(
+            f"select type, author, title, icon, url, description, rowid, status from projects where status = 'publish_queue'"
+        ).fetchall()
+
+        # Form array
+        out = []
+        for item in r:
+            out.append(
+                {
+                    "type": item[0],
+                    "author": item[1],
+                    "title": item[2],
+                    "icon": item[3],
+                    "url": item[4],
+                    "description": item[5],
+                    "ID": item[6],
+                    "status": item[7],
+                }
+            )
+    elif type == "review":
+        r = conn.execute(
+            f"select type, author, title, icon, url, description, rowid, status from projects where status = 'review_queue'"
+        ).fetchall()
+
+        # Form array
+        out = []
+        for item in r:
+            out.append(
+                {
+                    "type": item[0],
+                    "author": item[1],
+                    "title": item[2],
+                    "icon": item[3],
+                    "url": item[4],
+                    "description": item[5],
+                    "ID": item[6],
+                    "status": item[7],
+                }
+            )
+    
+    conn.close()
+    
+    return {
+        "count":len(out),
+        "projects":out
+    }
