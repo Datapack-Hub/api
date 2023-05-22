@@ -441,7 +441,7 @@ def publish(id):
 
     conn = sqlite3.connect(config.DATA + "data.db")
     proj = conn.execute(
-        "select author, status from projects where rowid = " + id
+        "select author, status from projects where rowid = " + str(id)
     ).fetchall()
 
     if len(proj) == 0:
