@@ -142,11 +142,20 @@ def new(project: int):
 
         if len(data["version_code"]) > 15:
             return "Version code too long", 400
+        
+        if "squash" in data:
+            if data["squash"] == True:
+                sq = True
+            else:
+                sq = False
+        else:
+            sq = False
 
         dpath = files.upload_file(
             data["primary_download"],
             f"project/{project}/{data['version_code']}/{data['filename']}",
             usr["username"],
+            sq
         )
         try:
             data["resource_pack_download"]
