@@ -274,6 +274,7 @@ def logs():
 
     return {"result": y}
 
+
 @mod.route("/queue/<string:type>")
 def queue(type: str):
     if not auth(
@@ -281,9 +282,9 @@ def queue(type: str):
         ["moderator", "admin"],
     ):
         return "You can't do this!", 403
-    
+
     conn = sqlite3.connect(config.DATA + "data.db")
-    
+
     if type == "publish":
         r = conn.execute(
             f"select type, author, title, icon, url, description, rowid, status from projects where status = 'publish_queue'"
@@ -324,10 +325,7 @@ def queue(type: str):
                     "status": item[7],
                 }
             )
-    
+
     conn.close()
-    
-    return {
-        "count":len(out),
-        "projects":out
-    }
+
+    return {"count": len(out), "projects": out}
