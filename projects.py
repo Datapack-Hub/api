@@ -425,6 +425,7 @@ def edit(id: int):
 
     return "done", 200
 
+
 @projects.route("/id/<int:id>/publish")
 def publish(id):
     # todo

@@ -8,13 +8,14 @@ import base64
 from zipfile import ZipFile
 import os
 
+
 def upload_file(file: str, file_name: str, uploader: str, squash: bool = False):
     file = file.encode("unicode_escape")
     decoded = base64.b64decode(file[41:])
 
     with open(config.DATA + "Temporary.zip", "wb") as out:
         out.write(decoded)
-        
+
     if squash:
         with ZipFile(config.DATA + "Temporary.zip", "r") as zip_ref:
             zip_ref.extractall(config.DATA + "Temporary")
@@ -26,7 +27,7 @@ def upload_file(file: str, file_name: str, uploader: str, squash: bool = False):
         headers={"Authorization": config.FILES_TOKEN, "Author": uploader},
         timeout=300,
     )
-    
+
     if put.ok:
         return "https://files.datapackhub.net/" + file_name
     else:
