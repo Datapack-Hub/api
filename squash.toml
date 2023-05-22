@@ -1,0 +1,9 @@
+# Lines that start with # are comments, and PackSquash ignores them.
+# You can also start a comment in the middle of a line with #, that
+# spans until the end of the line
+
+# Global options
+pack_directory = '/var/DatapackHub/Temporary'
+output_file_path = '/var/DatapackHub/Temporary.zip'
+
+allow_mods = ['OptiFine', 'Minecraft Transit Railway 3']
