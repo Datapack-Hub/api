@@ -426,7 +426,7 @@ def edit(id: int):
     return "done", 200
 
 
-@projects.route("/id/<int:id>/publish")
+@projects.route("/id/<int:id>/publish", methods=["POST"])
 def publish(id):
     tok = request.headers.get("Authorization")
 
