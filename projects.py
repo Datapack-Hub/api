@@ -455,19 +455,19 @@ def publish(id):
     # now onto the fun stuff >:)
     if proj[1] == "unpublished":
         conn.execute("update projects set status = 'publish_queue' where rowid = " + id)
-        
+
         conn.commit()
         conn.close()
         return "The project is now in the publish queue.", 200
     elif proj[1] == "draft":
         conn.execute("update projects set status = 'live' where rowid = " + id)
-        
+
         conn.commit()
         conn.close()
         return "The project is now live.", 200
     elif proj[1] == "disabled":
         conn.execute("update projects set status = 'review_queue' where rowid = " + id)
-        
+
         conn.commit()
         conn.close()
         return "The project is now in the review queue.", 200
