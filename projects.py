@@ -428,5 +428,40 @@ def edit(id: int):
 
 @projects.route("/id/<int:id>/publish")
 def publish(id):
-    # todo
-    pass
+    tok = request.headers.get("Authorization")
+
+    if not tok:
+        return "Not authenticated! You gotta log in first :P", 401
+
+    user = util.authenticate(tok)
+    if user == 32:
+        return "Make sure authorization is basic!", 400
+    elif user == 33:
+        return "Token expired!", 429
+    
+    conn = sqlite3.connect(config.DATA + "data.db")
+    proj = conn.execute("select author, status from projects where rowid = " + id).fetchall()
+    
+    if len(proj) == 0:
+        return "Project not found.", 404
+    
+    proj = proj[0]
+    
+    if proj[0] != user["id"]:
+        return "Not your project.", 403
+    
+    # now onto the fun stuff >:)
+    if proj[1] == "unpublished":
+        conn.execute("update projects set status = 'publish_queue' where rowid = " + id)
+    elif proj[1] == "draft":
+        conn.execute("update projects set status = 'live' where rowid = " + id)
+    elif proj[1] == "disabled":
+        conn.execute("update projects set status = 'review_queue' where rowid = " + id)
+    else:
+        return "This project is not in a valid state to be published!", 400
+    
+    conn.commit()
+    conn.close()
+    
+    return "done!", 200
+    
