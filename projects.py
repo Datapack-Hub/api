@@ -454,7 +454,9 @@ def publish(id):
 
     # now onto the fun stuff >:)
     if proj[1] == "unpublished":
-        conn.execute("update projects set status = 'publish_queue' where rowid = " + str(id))
+        conn.execute(
+            "update projects set status = 'publish_queue' where rowid = " + str(id)
+        )
 
         conn.commit()
         conn.close()
