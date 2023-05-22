@@ -142,7 +142,7 @@ def new(project: int):
 
         if len(data["version_code"]) > 15:
             return "Version code too long", 400
-        
+
         if "squash" in data:
             if data["squash"] is True:
                 sq = True
@@ -155,7 +155,7 @@ def new(project: int):
             data["primary_download"],
             f"project/{project}/{data['version_code']}/{data['filename']}",
             usr["username"],
-            sq
+            sq,
         )
         try:
             data["resource_pack_download"]
