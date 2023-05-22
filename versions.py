@@ -144,7 +144,7 @@ def new(project: int):
             return "Version code too long", 400
         
         if "squash" in data:
-            if data["squash"] == True:
+            if data["squash"] is True:
                 sq = True
             else:
                 sq = False
