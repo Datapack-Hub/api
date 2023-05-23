@@ -286,7 +286,7 @@ def queue(type: str):
     
     if type == "publish":
         r = conn.execute(
-            f"select type, author, title, icon, url, description, rowid, status from projects where status = 'publish_queue'"
+            "select type, author, title, icon, url, description, rowid, status from projects where status = 'publish_queue'"
         ).fetchall()
 
         # Form array
@@ -306,7 +306,7 @@ def queue(type: str):
             )
     elif type == "review":
         r = conn.execute(
-            f"select type, author, title, icon, url, description, rowid, status from projects where status = 'review_queue'"
+            "select type, author, title, icon, url, description, rowid, status from projects where status = 'review_queue'"
         ).fetchall()
 
         # Form array
