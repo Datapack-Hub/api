@@ -348,7 +348,7 @@ def change_status(proj: int):
 
     conn = sqlite3.connect(config.DATA + "data.db")
     project = conn.execute(
-        "select rowid, status from project where rowid = " + str(proj)
+        "select rowid, status from projects where rowid = " + str(proj)
     ).fetchall()
 
     if len(project) == 0:
