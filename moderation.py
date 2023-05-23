@@ -274,7 +274,6 @@ def logs():
 
     return {"result": y}
 
-
 @mod.route("/queue/<string:type>")
 def queue(type: str):
     if not auth(
@@ -282,9 +281,9 @@ def queue(type: str):
         ["moderator", "admin"],
     ):
         return "You can't do this!", 403
-
+    
     conn = sqlite3.connect(config.DATA + "data.db")
-
+    
     if type == "publish":
         r = conn.execute(
             f"select type, author, title, icon, url, description, rowid, status from projects where status = 'publish_queue'"
@@ -325,7 +324,60 @@ def queue(type: str):
                     "status": item[7],
                 }
             )
-
+    
     conn.close()
-
-    return {"count": len(out), "projects": out}
+    
+    return {
+        "count":len(out),
+        "projects":out
+    }
+    
+@mod.route("/project/<int:proj>/action", methods = ["PATCH"])
+def change_status(proj: int):
+    if not auth(
+        request.headers.get("Authorization"),
+        ["moderator", "admin"],
+    ):
+        return "You can't do this!", 403
+    
+    data = request.get_json(force=True)
+    
+    try:
+        data["action"]
+    except:
+        return "action is missing", 400
+    
+    conn = sqlite3.connect(config.DATA + "data.db")
+    project = conn.execute("select rowid, status from project where rowid = " + proj).fetchall()
+    
+    if len(project) == 0:
+        conn.close()
+        return "project not found", 404
+        
+    if data["action"] == "publish":
+        conn.execute("update projects set status = 'live' where rowid = " + proj)
+        conn.commit()
+        conn.close()
+        return "yep i did the thing", 200
+    elif data["action"] == "delete":
+        pass
+    elif data["action"] == "disable":
+        try:
+            data["message"]
+        except:
+            return "message is missing, its a disable", 400
+        else:
+            pass
+        pass
+    elif data["action"] == "write_note":
+        try:
+            data["message"]
+        except:
+            return "message is missing, its a freaking write note action", 400
+        else:
+            pass
+        pass
+    else:
+        return "non existent action lmao xd xd", 400
+    
+    return "uh", 500
