@@ -376,7 +376,9 @@ def change_status(proj: int):
         except:
             return "message is missing, its a freaking write note action", 400
         else:
-            conn.execute(f"update projects set mod_message = '{util.sanitise(data['message'])}' where rowid = {str(proj)}")
+            conn.execute(
+                f"update projects set mod_message = '{util.sanitise(data['message'])}' where rowid = {str(proj)}"
+            )
             conn.commit()
             conn.close()
             return "Added message", 200
@@ -384,6 +386,7 @@ def change_status(proj: int):
         return "non existent action lmao xd xd", 400
 
     return "uh", 500
+
 
 @mod.route("/project/<int:proj>/dismiss_message", methods=["DELETE"])
 def dismiss(proj: int):
@@ -393,28 +396,29 @@ def dismiss(proj: int):
         return "Please make sure authorization type = Basic"
     if user == 33:
         return "Token Expired", 498
-    
+
     # Get project.
     conn = sqlite3.connect(config.DATA + "data.db")
     project = conn.execute(
-        "select rowid, status, author, mod_message from projects where rowid = " + str(proj)
+        "select rowid, status, author, mod_message from projects where rowid = "
+        + str(proj)
     ).fetchall()
 
     # Check existence of project.
     if len(project) == 0:
         conn.close()
         return "project not found", 404
-    
+
     project = project[0]
-    
+
     # Check if user owns project.
     if project[2] != user["id"]:
         return "You don't own this project!", 403
-    
+
     # Check status of project
     if project[1] == "disabled":
         return "While the project is disabled, you can't delete the message", 400
-    
+
     # Delete message
     conn.execute("update projects set mod_message = null where rowid = " + str(proj))
     conn.commit()
