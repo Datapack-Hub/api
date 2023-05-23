@@ -348,14 +348,14 @@ def change_status(proj: int):
         return "action is missing", 400
     
     conn = sqlite3.connect(config.DATA + "data.db")
-    project = conn.execute("select rowid, status from project where rowid = " + proj).fetchall()
+    project = conn.execute("select rowid, status from project where rowid = " + str(proj)).fetchall()
     
     if len(project) == 0:
         conn.close()
         return "project not found", 404
         
     if data["action"] == "publish":
-        conn.execute("update projects set status = 'live' where rowid = " + proj)
+        conn.execute("update projects set status = 'live' where rowid = " + str(proj))
         conn.commit()
         conn.close()
         return "yep i did the thing", 200
