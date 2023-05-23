@@ -183,7 +183,7 @@ def get_project(slug: str):
             return "Not found", 404
         if not proj[1] == this_user["id"]:
             return "Not found", 404
-        
+
     project_data = {
         "type": proj[0],
         "author": proj[1],
@@ -198,7 +198,7 @@ def get_project(slug: str):
         "updated": proj[10],
         "body": proj[11],
     }
-        
+
     if proj[1] == this_user["id"]:
         project_data["mod_message"] = proj[12]
 
