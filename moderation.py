@@ -327,7 +327,7 @@ def change_status(proj: int):
     project = conn.execute(
         "select rowid, status, title, author from projects where rowid = " + str(proj)
     ).fetchall()
-    
+
     project = project[0]
 
     if len(project) == 0:
@@ -340,9 +340,13 @@ def change_status(proj: int):
         conn.close()
         return "yep i did the thing", 200
     elif data["action"] == "delete":
-        conn.execute("update projects set status = 'deleted' where rowid = " + str(proj))
+        conn.execute(
+            "update projects set status = 'deleted' where rowid = " + str(proj)
+        )
         if "message" in data:
-            conn.execute(f"INSERT INTO notifs VALUES ('Project {project[2]} deleted', '{util.sanitise(data['message'])}', False, {project[3]}, 'important')")
+            conn.execute(
+                f"INSERT INTO notifs VALUES ('Project {project[2]} deleted', '{util.sanitise(data['message'])}', False, {project[3]}, 'important')"
+            )
         conn.commit()
         conn.close()
         return "deleted project"
