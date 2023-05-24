@@ -252,29 +252,6 @@ def user_data(id):
         }
 
 
-@mod.route("/logs")
-def logs():
-    if not auth(
-        request.headers.get("Authorization"),
-        ["helper", "moderator", "developer", "admin"],
-    ):
-        return "You can't do this!", 403
-
-    page = request.args.get("page", 1)
-
-    conn = sqlite3.connect(config.DATA + "data.db")
-    x = conn.execute("select username, action, time from mod_logs").fetchall()
-    if int(page) > 1:
-        x = x[((int(page) - 1) * 30) - 1 : ((int(page)) * 30) - 1]
-    else:
-        x = x[0:29]
-    y = []
-    for i in x:
-        y.append({"username": i[0], "action": i[1], "time": i[2]})
-
-    return {"result": y}
-
-
 @mod.route("/queue/<string:type>")
 def queue(type: str):
     if not auth(
@@ -348,8 +325,10 @@ def change_status(proj: int):
 
     conn = sqlite3.connect(config.DATA + "data.db")
     project = conn.execute(
-        "select rowid, status from projects where rowid = " + str(proj)
+        "select rowid, status, title, author from projects where rowid = " + str(proj)
     ).fetchall()
+    
+    project = project[0]
 
     if len(project) == 0:
         conn.close()
@@ -361,7 +340,12 @@ def change_status(proj: int):
         conn.close()
         return "yep i did the thing", 200
     elif data["action"] == "delete":
-        pass
+        conn.execute("update projects set status = 'deleted' where rowid = " + str(proj))
+        if "message" in data:
+            conn.execute(f"INSERT INTO notifs VALUES ('Project {project[2]} deleted', '{util.sanitise(data['message'])}', False, {project[3]}, 'important')")
+        conn.commit()
+        conn.close()
+        return "deleted project"
     elif data["action"] == "disable":
         try:
             data["message"]
