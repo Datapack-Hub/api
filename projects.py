@@ -181,7 +181,7 @@ def get_project(slug: str):
     if proj[8] != "live":
         if this_user == 31:
             return "Not found", 404
-        if not proj[1] == this_user["id"]:
+        if not (proj[1] == this_user["id"]) or  not (this_user["role"] in ["moderator","admin"]):
             return "Not found", 404
 
     project_data = {
