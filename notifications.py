@@ -82,6 +82,8 @@ def unread():
                 "type": i[4],
             }
         )
+        if i[3] is False:
+            conn.execute("UPDATE notifs SET read = True WHERE rowid = " + str(i[0]))
 
     return {"count": len(res), "result": res}
 
