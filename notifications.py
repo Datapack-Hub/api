@@ -84,6 +84,9 @@ def unread():
         )
         if i[3] is False:
             conn.execute("UPDATE notifs SET read = True WHERE rowid = " + str(i[0]))
+            
+    conn.commit()
+    conn.close()
 
     return {"count": len(res), "result": res}
 
