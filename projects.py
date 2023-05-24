@@ -198,9 +198,10 @@ def get_project(slug: str):
         "updated": proj[10],
         "body": proj[11],
     }
-
-    if proj[1] == this_user["id"] or this_user["role"] in ["admin", "moderator"]:
-        project_data["mod_message"] = proj[12]
+    
+    if this_user != 31:
+        if proj[1] == this_user["id"] or this_user["role"] in ["admin", "moderator"]:
+            project_data["mod_message"] = proj[12]
 
     # alr fine I give up take the project
     return project_data
