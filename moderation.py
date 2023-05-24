@@ -356,8 +356,10 @@ def change_status(proj: int):
         except:
             return "message is missing, its a disable", 400
         else:
-            pass
-        pass
+            conn.execute(f"update projects set status = 'disabled', mod_message = '{util.sanitise(data['message'])}' where rowid = " + str(proj))
+            conn.commit()
+            conn.close()
+            return "disabled the project lmao xd xd", 200
     elif data["action"] == "write_note":
         try:
             data["message"]
