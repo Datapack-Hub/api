@@ -40,6 +40,9 @@ name: Lint and Format
      - name: Run black 
        run: | 
          black . 
+     - name: Bonus Pull
+       run: |
+         git pull
      - uses: stefanzweifel/git-auto-commit-action@v4 
        with: 
          commit_message: Apply formatting 
