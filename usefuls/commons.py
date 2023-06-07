@@ -6,9 +6,9 @@ class User:
     username: str
     role: str
     bio: str
-    github_id: int
     profile_icon: str
-    token: str
+    token: str = None
+    github_id: int = None
 
 @dataclass
 class Notification:
