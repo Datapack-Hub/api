@@ -1,20 +1,20 @@
 name: Lint and Format 
   
- on: 
+on: 
    push: 
      branches: 
        - main 
    workflow_dispatch: 
   
- permissions: 
+permissions: 
    contents: write 
   
- concurrency: 
+concurrency: 
    group: build-and-test 
    # If this is enabled it will cancel current running and start latest 
    cancel-in-progress: true 
   
- jobs: 
+jobs: 
    format: 
      runs-on: ubuntu-latest 
      steps: 
@@ -22,7 +22,9 @@ name: Lint and Format
        uses: actions/checkout@v3.5.2 
        with:  
          ref: ${{ github.head_ref }} 
-  
+     - name: Bonus Pull
+       run: |
+         git pull
      - name: Setup Python 
        uses: actions/setup-python@v4.6.0 
        with: 
@@ -40,9 +42,9 @@ name: Lint and Format
      - name: Run black 
        run: | 
          black . 
-     - name: Bonus Pull
-       run: |
-         git pull
+
+
+
      - uses: stefanzweifel/git-auto-commit-action@v4 
        with: 
          commit_message: Apply formatting 
