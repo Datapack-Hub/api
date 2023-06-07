@@ -26,6 +26,7 @@ def after(resp):
     # Other headers can be added here if needed
     return resp
 
+
 @projects.route("/search", methods=["GET"])
 def search():
     x = time.time()
@@ -99,6 +100,7 @@ def query():
 
     return {"count": len(out), "result": out}
 
+
 @projects.route("/count")
 def amount_of_projects():
     with open("./example_data.json", "r") as fp:
@@ -106,6 +108,7 @@ def amount_of_projects():
         amount = len(x)
         fp.close()
     return str(amount)
+
 
 @projects.route("/id/<int:id>")
 def get_proj(id):
@@ -177,9 +180,7 @@ def get_project(slug: str):
     if proj[8] != "live":
         if this_user == 31:
             return "Not found", 404
-        if not (
-            proj[1] == this_user.id or this_user.role in ["moderator", "admin"]
-        ):
+        if not (proj[1] == this_user.id or this_user.role in ["moderator", "admin"]):
             return "Not found", 404
 
     project_data = {
@@ -428,6 +429,7 @@ def edit(id: int):
         )
 
     return "done", 200
+
 
 @projects.route("/id/<int:id>/publish", methods=["POST"])
 def publish(id):

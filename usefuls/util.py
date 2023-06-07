@@ -5,6 +5,7 @@ import disnake
 import datetime
 from usefuls.commons import *
 
+
 def authenticate(auth: str):
     """
     `dict` - If success returns user details\n
@@ -31,7 +32,7 @@ def authenticate(auth: str):
         return 33
     conn.close()
 
-    return User(u[1],u[0],u[2],u[3],profile_icon=u[4])
+    return User(u[1], u[0], u[2], u[3], profile_icon=u[4])
 
 
 class get_user:
@@ -48,7 +49,7 @@ class get_user:
 
         conn.close()
 
-        return User(u[1],u[0],u[2],u[3],profile_icon=u[4])
+        return User(u[1], u[0], u[2], u[3], profile_icon=u[4])
 
     def from_id(self: int):
         conn = sqlite3.connect(config.DATA + "data.db")
@@ -63,7 +64,7 @@ class get_user:
 
         conn.close()
 
-        return User(u[1],u[0],u[2],u[3],profile_icon=u[4])
+        return User(u[1], u[0], u[2], u[3], profile_icon=u[4])
 
     def from_github_id(self: int):
         conn = sqlite3.connect(config.DATA + "data.db")
@@ -78,7 +79,7 @@ class get_user:
 
         conn.close()
 
-        return User(u[1],u[0],u[2],u[3],profile_icon=u[4])
+        return User(u[1], u[0], u[2], u[3], profile_icon=u[4])
 
     def from_token(token: str):
         conn = sqlite3.connect(config.DATA + "data.db")
@@ -94,7 +95,7 @@ class get_user:
 
         conn.close()
 
-        return User(u[1],u[0],u[2],u[3],profile_icon=u[4])
+        return User(u[1], u[0], u[2], u[3], profile_icon=u[4])
 
 
 def get_user_token(github_id: int):
@@ -161,6 +162,7 @@ def log_user_out(id: int):
     conn.close()
 
     return "Success!"
+
 
 def post_site_log(user: str, action: str, content: str):
     usr = get_user.from_username(user)

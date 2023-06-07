@@ -14,11 +14,14 @@ versions = Blueprint("versions", __name__, url_prefix="/versions")
 
 CORS(versions)
 
+
 @versions.route("/project/<int:id>")
 def project(id: int):
     # Select all versions where the project is this one
     conn = sqlite3.connect(f"{config.DATA}data.db")
-    v = conn.execute(f"SELECT * FROM versions WHERE project = {str(id)} ORDER BY rowid DESC").fetchall()
+    v = conn.execute(
+        f"SELECT * FROM versions WHERE project = {str(id)} ORDER BY rowid DESC"
+    ).fetchall()
     out = []
     for i in v:
         o = {
@@ -49,7 +52,9 @@ def project_from_str(id: str):
         return "Project not found", 404
 
     # Select all versions where the project is this one
-    v = conn.execute(f"SELECT * FROM versions WHERE project = {p[0][0]} ORDER BY rowid DESC").fetchall()
+    v = conn.execute(
+        f"SELECT * FROM versions WHERE project = {p[0][0]} ORDER BY rowid DESC"
+    ).fetchall()
     out = []
     for i in v:
         o = {

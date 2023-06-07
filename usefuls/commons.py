@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 
+
 @dataclass
 class User:
     id: int
@@ -10,6 +11,7 @@ class User:
     token: str = None
     github_id: int = None
 
+
 @dataclass
 class Notification:
     id: int
@@ -18,7 +20,8 @@ class Notification:
     read: bool
     type: int
     user: str
-    
+
+
 @dataclass
 class Project:
     id: int
@@ -33,7 +36,8 @@ class Project:
     uploaded: int
     updated: int
     type: str = "datapack"
-    
+
+
 @dataclass
 class Version:
     id: int

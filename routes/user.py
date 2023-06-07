@@ -59,10 +59,10 @@ def get_user(username):
         return "User does not exist", 404
     return {
         "username": u.username,
-        "id":u.id,
-        "role":u.role,
-        "bio":u.bio,
-        "profile_icon":u.profile_icon
+        "id": u.id,
+        "role": u.role,
+        "bio": u.bio,
+        "profile_icon": u.profile_icon,
     }
 
 
@@ -75,10 +75,10 @@ def get_user_id(id):
             return "User does not exist", 404
         return {
             "username": u.username,
-            "id":u.id,
-            "role":u.role,
-            "bio":u.bio,
-            "profile_icon":u.profile_icon
+            "id": u.id,
+            "role": u.role,
+            "bio": u.bio,
+            "profile_icon": u.profile_icon,
         }
     elif request.method == "PATCH":
         dat = request.get_json(force=True)
@@ -140,14 +140,14 @@ def me():
         return "Please make sure authorization type = Basic"
     if usr == 33:
         return "Token Expired", 498
-    
+
     # User Data
     userdata = {
         "username": usr.username,
-        "id":usr.id,
-        "role":usr.role,
-        "bio":usr.bio,
-        "profile_icon":usr.profile_icon
+        "id": usr.id,
+        "role": usr.role,
+        "bio": usr.bio,
+        "profile_icon": usr.profile_icon,
     }
 
     # banned?
@@ -176,10 +176,11 @@ def me():
     conn.close()
     return userdata
 
+
 @user.route("/<string:username>/projects")
 def user_projects(username):
     conn = sqlite3.connect(config.DATA + "data.db")
-    
+
     # Check if user is authenticated
     t = request.headers.get("Authorization")
     user = util.get_user.from_username(username)
