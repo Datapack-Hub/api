@@ -1,6 +1,5 @@
 from prod import PROD
 
-
 MOD_LOGS = "https://discord.com/api/webhooks/1102975443746959460/KTC6Ep2qfvnKXfmcr3lazHD2rT8NdFiJkx20H7ataxOVjQlbWJgSwiaRRVwsPY9fpCVT"
 FILES_TOKEN = "torsoHowardzetta6"
 
