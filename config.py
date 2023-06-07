@@ -1,3 +1,7 @@
+# Note: this is highly unsafe, please move this to somewhere else before publicizing
+# Also change the values if you don't wipe the commit history
+# Yours truly, -Cobble
+
 from prod import PROD
 
 MOD_LOGS = "https://discord.com/api/webhooks/1102975443746959460/KTC6Ep2qfvnKXfmcr3lazHD2rT8NdFiJkx20H7ataxOVjQlbWJgSwiaRRVwsPY9fpCVT"
