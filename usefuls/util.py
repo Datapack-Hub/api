@@ -3,7 +3,7 @@ import secrets
 import config
 import disnake
 import datetime
-from commons import *
+from usefuls.commons import *
 
 def authenticate(auth: str):
     """
