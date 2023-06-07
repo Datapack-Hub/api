@@ -3,23 +3,19 @@ from flask_cors import CORS
 import config
 from os.path import exists
 import gen_example_data
-from dotenv import load_dotenv
 from prod import PROD
 
 # Register blueprints
-from user import user
-from auth import auth
-from projects import projects
-from versions import versions
-from moderation import mod
-from notifications import notifs
-from misc import misc
-
-load_dotenv()
+from routes.user import user
+from routes.auth import auth
+from routes.projects import projects
+from routes.versions import versions
+from routes.moderation import mod
+from routes.notifications import notifs
+from routes.misc import misc
 
 app = flask.Flask(__name__)
 CORS(app)
-
 
 @app.route("/")
 def main():

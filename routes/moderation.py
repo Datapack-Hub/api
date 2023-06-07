@@ -8,7 +8,7 @@ import sqlite3
 import config
 import json
 import difflib
-import util
+import usefuls.util as util
 import gen_example_data
 import shlex
 
@@ -24,7 +24,7 @@ def auth(token: str, perm_levels: list[str]):
     if user == 33:
         return 33
 
-    if user["role"] not in perm_levels:
+    if user.role not in perm_levels:
         return False
     return True
 
@@ -101,9 +101,7 @@ def console():
         return "Beep boop! Hi!"
     elif cmd == "reset":
         if (
-            util.get_user.from_token(request.headers.get("Authorization")[6:])[
-                "username"
-            ]
+            util.get_user.from_token(request.headers.get("Authorization")[6:]).username
             != "Silabear"
         ):
             return "Only Silabear can run this command!", 403
@@ -128,40 +126,6 @@ def console():
         conn.close()
         return "Notified the user!"
 
-
-@mod.route("/get_members")
-def members():
-    # Check auth
-    if not auth(request.headers.get("Authorization"), ["admin"]):
-        return 403
-
-    conn = sqlite3.connect(config.DATA + "data.db")
-
-    data = conn.execute(
-        "SELECT rowid, username, profile_icon, role, github_id FROM users"
-    ).fetchall()
-
-    return_this = ""
-
-    for i in data:
-        return_this = (
-            return_this
-            + f"""<tr>
-        <th scope="row">{i[0]}</th>
-        <td><img class="smol" src="{i[2]}" />{i[1]}</td>
-        <td>{i[3].capitalize()}</td>
-        <td>{i[4]}</td>
-        <td>
-            <button self="logout" type="button" class="btn btn-danger btn-sm" onclick="logOutButton({i[0]})">Log Out</button>
-            <button self="ban" type="button" class="btn btn-danger btn-sm" onclick="banButton({i[0]})">Ban</button>
-        </td></tr>"""
-        )
-
-        print(return_this)
-
-    return {"result": return_this}
-
-
 @mod.route("/log_out/<int:self>", methods=["post"])
 def logout():
     # Check auth
@@ -176,9 +140,7 @@ def logout():
         return "Failed", 500
     else:
         util.post_site_log(
-            util.get_user.from_token(request.headers.get("Authorization")[6:])[
-                "username"
-            ],
+            util.get_user.from_token(request.headers.get("Authorization")[6:]).username,
             "Logged user out",
             f"Logged out user`{id}`",
         )
@@ -205,9 +167,7 @@ def ban():
             conn.commit()
             conn.close()
             util.post_site_log(
-                util.get_user.from_token(request.headers.get("Authorization")[6:])[
-                    "username"
-                ],
+                util.get_user.from_token(request.headers.get("Authorization")[6:]).username,
                 "Banned User",
                 f"Banned user `{util.get_user.from_id(id)}` for reason `{dat['message']}`",
             )
@@ -223,14 +183,11 @@ def ban():
             conn.commit()
             conn.close()
             util.post_site_log(
-                util.get_user.from_token(request.headers.get("Authorization")[6:])[
-                    "username"
-                ],
+                util.get_user.from_token(request.headers.get("Authorization")[6:]).username,
                 "Banned User",
                 f"Banned user `{util.get_user.from_id(id)}` for reason `{dat['message']}`",
             )
             return "worked fine"
-
 
 @mod.route("/user/<int:id>")
 def user_data(id):
@@ -405,7 +362,7 @@ def dismiss(proj: int):
     project = project[0]
 
     # Check if user owns project.
-    if project[2] != user["id"]:
+    if project[2] != user.id:
         return "You don't own this project!", 403
 
     # Check status of project

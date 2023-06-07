@@ -3,7 +3,7 @@
 """
 
 from flask import Blueprint, request
-import util
+import usefuls.util as util
 import sqlite3
 import config
 
@@ -25,7 +25,7 @@ def all():
 
     conn = sqlite3.connect(config.DATA + "data.db")
     notifs = conn.execute(
-        f"select rowid, message, description, read, type from notifs where user = {usr['id']} order by rowid desc limit 20"
+        f"select rowid, message, description, read, type from notifs where user = {usr.id} order by rowid desc limit 20"
     ).fetchall()
 
     res = []
@@ -67,7 +67,7 @@ def unread():
 
     conn = sqlite3.connect(config.DATA + "data.db")
     notifs = conn.execute(
-        f"select rowid, message, description, read, type from notifs where user = {usr['id']} and read = 0 order by rowid desc"
+        f"select rowid, message, description, read, type from notifs where user = {usr.id} and read = 0 order by rowid desc"
     ).fetchall()
 
     res = []
@@ -97,14 +97,12 @@ def send(target):
         return "Authorization required", 401
 
     usr = util.authenticate(request.headers.get("Authorization"))
-
     if usr == 32:
         return "Please make sure authorization type = Basic"
-
     if usr == 33:
         return "Token Expired", 498
 
-    if usr["role"] not in ["admin", "developer", "moderator", "helper"]:
+    if usr.role not in ["admin", "developer", "moderator", "helper"]:
         return "You are not allowed to do this!", 403
 
     notif_data = request.get_json(force=True)
@@ -115,12 +113,13 @@ def send(target):
             f"INSERT INTO notifs VALUES ('{util.sanitise(notif_data['message'])}', '{util.sanitise(notif_data['description'])}', False, {target}, '{util.sanitise(notif_data['type'])}')"
         )
     except sqlite3.Error as er:
-        return "There was a proble: " " ".join(er.args), 500
+        return "There was a problem: " " ".join(er.args), 500
+    
     conn.commit()
     conn.close()
 
     util.post_site_log(
-        usr["username"],
+        usr.username,
         "Sent a notification",
         f"Sent a `{notif_data['type']}` notification to `{target}`",
     )
@@ -140,7 +139,7 @@ def delete(id):
     conn = sqlite3.connect(config.DATA + "data.db")
     notif = conn.execute("SELECT user FROM notifs WHERE rowid = " + str(id)).fetchone()
 
-    if usr["id"] != notif[0]:
+    if usr.id != notif[0]:
         return "Not your notif!", 403
     try:
         conn.execute("DELETE FROM notifs WHERE rowid = " + str(id))
