@@ -35,7 +35,7 @@ jobs:
           black . 
       - uses: stefanzweifel/git-auto-commit-action@v4.16.0
         with:
-          commit-message: "Apply formatting"
+          commit_message: "Apply formatting"
   lint:
     runs-on: ubuntu-latest
     steps:
@@ -59,7 +59,7 @@ jobs:
           ruff . --fix --exit-zero  
       - uses: stefanzweifel/git-auto-commit-action@v4.16.0
         with:
-          commit-message: "Apply linting"
+          commit_message: "Apply linting"
   bandit:
     runs-on: ubuntu-latest
     steps:
