@@ -57,7 +57,13 @@ def get_user(username):
     u = util.get_user.from_username(username)
     if not u:
         return "User does not exist", 404
-    return u
+    return {
+        "username": u.username,
+        "id":u.id,
+        "role":u.role,
+        "bio":u.bio,
+        "profile_icon":u.profile_icon
+    }
 
 
 @user.route("/id/<int:id>", methods=["GET", "PATCH"])
@@ -67,7 +73,13 @@ def get_user_id(id):
         u = util.get_user.from_id(id)
         if not u:
             return "User does not exist", 404
-        return u
+        return {
+            "username": u.username,
+            "id":u.id,
+            "role":u.role,
+            "bio":u.bio,
+            "profile_icon":u.profile_icon
+        }
     elif request.method == "PATCH":
         dat = request.get_json(force=True)
 
@@ -114,7 +126,7 @@ def get_user_id(id):
             return "Something went a little bit wrong"
         conn.commit()
         conn.close()
-        return util.get_user.from_id(id)
+        return "done!"
 
 
 @user.route("/me")
