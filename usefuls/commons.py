@@ -22,7 +22,6 @@ class Notification:
 @dataclass
 class Project:
     id: int
-    type: str = "datapack"
     author: int
     title: str
     description: str
@@ -33,6 +32,7 @@ class Project:
     category: str
     uploaded: int
     updated: int
+    type: str = "datapack"
     
 @dataclass
 class Version:
