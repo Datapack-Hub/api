@@ -33,11 +33,9 @@ jobs:
       - name: Run black
         run: |
           black . 
-      - name: Commit
-        run: |
-          git add .
-          git commit -m "Applied formatting"
-          git push
+      - uses: stefanzweifel/git-auto-commit-action@v4.16.0
+        with:
+          commit-message: "Apply formatting"
   lint:
     runs-on: ubuntu-latest
     steps:
@@ -59,11 +57,9 @@ jobs:
       - name: Run ruff
         run: |
           ruff . --fix --exit-zero  
-      - name: Commit
-        run: |
-          git add .
-          git commit -m "Applied formatting"
-          git push
+      - uses: stefanzweifel/git-auto-commit-action@v4.16.0
+        with:
+          commit-message: "Apply linting"
   bandit:
     runs-on: ubuntu-latest
     steps:
