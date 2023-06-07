@@ -126,6 +126,7 @@ def console():
         conn.close()
         return "Notified the user!"
 
+
 @mod.route("/log_out/<int:self>", methods=["post"])
 def logout():
     # Check auth
@@ -167,7 +168,9 @@ def ban():
             conn.commit()
             conn.close()
             util.post_site_log(
-                util.get_user.from_token(request.headers.get("Authorization")[6:]).username,
+                util.get_user.from_token(
+                    request.headers.get("Authorization")[6:]
+                ).username,
                 "Banned User",
                 f"Banned user `{util.get_user.from_id(id)}` for reason `{dat['message']}`",
             )
@@ -183,11 +186,14 @@ def ban():
             conn.commit()
             conn.close()
             util.post_site_log(
-                util.get_user.from_token(request.headers.get("Authorization")[6:]).username,
+                util.get_user.from_token(
+                    request.headers.get("Authorization")[6:]
+                ).username,
                 "Banned User",
                 f"Banned user `{util.get_user.from_id(id)}` for reason `{dat['message']}`",
             )
             return "worked fine"
+
 
 @mod.route("/user/<int:id>")
 def user_data(id):
