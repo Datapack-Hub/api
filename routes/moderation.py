@@ -126,7 +126,6 @@ def console():
         conn.close()
         return "Notified the user!"
 
-
 @mod.route("/log_out/<int:self>", methods=["post"])
 def logout():
     # Check auth
@@ -148,8 +147,8 @@ def logout():
         return "Success!", 200
 
 
-@mod.route("/ban/<int:self>", methods=["post", "delete"])
-def ban():
+@mod.route("/ban/<int:user>", methods=["post", "delete"])
+def ban(user: int):
     if not auth(
         request.headers.get("Authorization"), ["admin", "moderator", "developer"]
     ):
@@ -160,7 +159,7 @@ def ban():
         conn = sqlite3.connect(config.DATA + "data.db")
         try:
             conn.execute(
-                f"insert into banned_users values ({dat['self']}, {dat['expires']}, '{util.sanitise(dat['message'])}')"
+                f"insert into banned_users values ({user}, {dat['expires']}, '{util.sanitise(dat['message'])}')"
             )
         except sqlite3.Error as er:
             return " ".join(er.args)
@@ -168,9 +167,7 @@ def ban():
             conn.commit()
             conn.close()
             util.post_site_log(
-                util.get_user.from_token(
-                    request.headers.get("Authorization")[6:]
-                ).username,
+                util.get_user.from_token(request.headers.get("Authorization")[6:]).username,
                 "Banned User",
                 f"Banned user `{util.get_user.from_id(id)}` for reason `{dat['message']}`",
             )
@@ -186,14 +183,11 @@ def ban():
             conn.commit()
             conn.close()
             util.post_site_log(
-                util.get_user.from_token(
-                    request.headers.get("Authorization")[6:]
-                ).username,
+                util.get_user.from_token(request.headers.get("Authorization")[6:]).username,
                 "Banned User",
                 f"Banned user `{util.get_user.from_id(id)}` for reason `{dat['message']}`",
             )
             return "worked fine"
-
 
 @mod.route("/user/<int:id>")
 def user_data(id):
