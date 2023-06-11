@@ -186,7 +186,9 @@ def ban(user: int):
             conn.commit()
             conn.close()
             util.post_site_log(
-                util.get_user.from_token(request.headers.get("Authorization")[6:]).username,
+                util.get_user.from_token(
+                    request.headers.get("Authorization")[6:]
+                ).username,
                 "Unbanned User",
                 f"Unbanned user `{util.get_user.from_id(user)}` for reason `{dat['message']}`",
             )
