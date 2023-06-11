@@ -50,10 +50,9 @@ def search():
     for item in r[page - 1 * 20 : page * 20 - 1]:
         latest_version = conn.execute(
             f"SELECT * FROM versions WHERE project = {item[6]} ORDER BY rowid DESC"
-        ).fetchall()[0]
-
-        out.append(
-            {
+        ).fetchall()
+        
+        temp = {
                 "type": item[0],
                 "author": item[1],
                 "title": item[2],
@@ -62,13 +61,18 @@ def search():
                 "description": item[5],
                 "ID": item[6],
                 "category": item[7],
-                "latest_version": {
-                    "name": latest_version[0],
-                    "description": latest_version[1],
-                    "minecraft_versions": latest_version[4],
-                    "version_code": latest_version[5],
-                },
             }
+        
+        if len(latest_version) != 0:
+            temp["latest_version"] = {
+                "name": latest_version[0][0],
+                "description": latest_version[0][1],
+                "minecraft_versions": latest_version[0][4],
+                "version_code": latest_version[0][5],
+            }
+
+        out.append(
+            temp
         )
 
     conn.close()
@@ -95,10 +99,9 @@ def query():
     for item in r[page - 1 * 20 : page * 20 - 1]:
         latest_version = conn.execute(
             f"SELECT * FROM versions WHERE project = {item[6]} ORDER BY rowid DESC"
-        ).fetchall()[0]
-
-        out.append(
-            {
+        ).fetchall()
+        
+        temp = {
                 "type": item[0],
                 "author": item[1],
                 "title": item[2],
@@ -106,14 +109,19 @@ def query():
                 "url": item[4],
                 "description": item[5],
                 "ID": item[6],
-                "category": item[7],
-                "latest_version": {
-                    "name": latest_version[0],
-                    "description": latest_version[1],
-                    "minecraft_versions": latest_version[4],
-                    "version_code": latest_version[5],
-                },
+                "category": item[7]
             }
+        
+        if len(latest_version) != 0:
+            temp["latest_version"] = {
+                "name": latest_version[0][0],
+                "description": latest_version[0][1],
+                "minecraft_versions": latest_version[0][4],
+                "version_code": latest_version[0][5],
+            }
+
+        out.append(
+            temp
         )
 
     conn.close()
@@ -146,12 +154,8 @@ def get_proj(id):
 
     latest_version = conn.execute(
         f"SELECT * FROM versions WHERE project = {id} ORDER BY rowid DESC"
-    ).fetchall()[0]
-
-    latest_version = conn.execute(
-        f"SELECT * FROM versions WHERE project = {id} ORDER BY rowid DESC"
-    ).fetchall()[0]
-
+    ).fetchall()
+    
     conn.close()
 
     if not proj:
@@ -163,7 +167,7 @@ def get_proj(id):
         if not proj[1] == this_user.id:
             return "Not found", 404
 
-    return {
+    temp = {
         "type": proj[0],
         "author": proj[1],
         "title": proj[2],
@@ -175,14 +179,18 @@ def get_proj(id):
         "status": proj[8],
         "uploaded": proj[9],
         "updated": proj[10],
-        "body": proj[11],
-        "latest_version": {
-            "name": latest_version[0],
-            "description": latest_version[1],
-            "minecraft_versions": latest_version[4],
-            "version_code": latest_version[5],
-        },
+        "body": proj[11]
     }
+    
+    if len(latest_version) != 0:
+        temp["latest_version"] = {
+            "name": latest_version[0][0],
+            "description": latest_version[0][1],
+            "minecraft_versions": latest_version[0][4],
+            "version_code": latest_version[0][5],
+        }
+    
+    return temp
 
 
 @projects.route("/get/<string:slug>")
@@ -207,7 +215,7 @@ def get_project(slug: str):
 
     latest_version = conn.execute(
         f"SELECT * FROM versions WHERE project = {proj[6]} ORDER BY rowid DESC"
-    ).fetchall()[0]
+    ).fetchall()
 
     conn.close()
 
@@ -234,18 +242,20 @@ def get_project(slug: str):
         "status": proj[8],
         "uploaded": proj[9],
         "updated": proj[10],
-        "body": proj[11],
-        "latest_version": {
-            "name": latest_version[0],
-            "description": latest_version[1],
-            "minecraft_versions": latest_version[4],
-            "version_code": latest_version[5],
-        },
+        "body": proj[11]
     }
 
     if this_user != 31:
         if proj[1] == this_user.id or this_user.id in ["admin", "moderator"]:
             project_data["mod_message"] = proj[12]
+            
+    if len(latest_version) != 0:
+        project_data["latest_version"] = {
+            "name": latest_version[0][0],
+            "description": latest_version[0][1],
+            "minecraft_versions": latest_version[0][4],
+            "version_code": latest_version[0][5],
+        }
 
     # alr fine I give up take the project
     return project_data
@@ -260,10 +270,11 @@ def random():
 
     latest_version = conn.execute(
         f"SELECT * FROM versions WHERE project = {proj[6]} ORDER BY rowid DESC"
-    ).fetchall()[0]
+    ).fetchall()
 
     conn.close()
-    return {
+    
+    temp = {
         "type": proj[0],
         "author": proj[1],
         "title": proj[2],
@@ -275,13 +286,17 @@ def random():
         "uploaded": proj[9],
         "updated": proj[10],
         "body": proj[11],
-        "latest_version": {
-            "name": latest_version[0],
-            "description": latest_version[1],
-            "minecraft_versions": latest_version[4],
-            "version_code": latest_version[5],
-        },
     }
+    
+    if len(latest_version) != 0:
+        temp["minecraft_versions"] = {
+            "name": latest_version[0][0],
+            "description": latest_version[0][1],
+            "minecraft_versions": latest_version[0][4],
+            "version_code": latest_version[0][5],
+        }
+        
+    return temp
 
 
 @projects.route("/create", methods=["POST"])
