@@ -203,18 +203,18 @@ def user_projects(username):
                 latest_version = conn.execute(
                     f"SELECT * FROM versions WHERE project = {item[6]} ORDER BY rowid DESC"
                 ).fetchall()
-                
+
                 temp = {
-                        "type": item[0],
-                        "author": item[1],
-                        "title": item[2],
-                        "icon": item[3],
-                        "url": item[4],
-                        "description": item[5],
-                        "ID": item[6],
-                        "status": item[7],
-                    }
-                
+                    "type": item[0],
+                    "author": item[1],
+                    "title": item[2],
+                    "icon": item[3],
+                    "url": item[4],
+                    "description": item[5],
+                    "ID": item[6],
+                    "status": item[7],
+                }
+
                 if len(latest_version) != 0:
                     temp["latest_version"] = {
                         "name": latest_version[0][0],
@@ -222,10 +222,8 @@ def user_projects(username):
                         "minecraft_versions": latest_version[0][4],
                         "version_code": latest_version[0][5],
                     }
-                
-                out.append(
-                    temp
-                )
+
+                out.append(temp)
 
             conn.close()
 
