@@ -200,8 +200,11 @@ def user_projects(username):
             # Form array
             out = []
             for item in r:
-                out.append(
-                    {
+                latest_version = conn.execute(
+                    f"SELECT * FROM versions WHERE project = {item[6]} ORDER BY rowid DESC"
+                ).fetchall()
+                
+                temp = {
                         "type": item[0],
                         "author": item[1],
                         "title": item[2],
@@ -211,6 +214,17 @@ def user_projects(username):
                         "ID": item[6],
                         "status": item[7],
                     }
+                
+                if len(latest_version) != 0:
+                    temp["latest_version"] = {
+                        "name": latest_version[0][0],
+                        "description": latest_version[0][1],
+                        "minecraft_versions": latest_version[0][4],
+                        "version_code": latest_version[0][5],
+                    }
+                
+                out.append(
+                    temp
                 )
 
             conn.close()
