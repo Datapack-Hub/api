@@ -22,8 +22,6 @@ def authenticate(auth: str):
 
     conn = sqlite3.connect(config.DATA + "data.db")
 
-    print(token)
-
     u = conn.execute(
         f"select username, rowid, role, bio, profile_icon from users where token = '{token}'"
     ).fetchone()
