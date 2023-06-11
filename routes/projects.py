@@ -51,18 +51,18 @@ def search():
         latest_version = conn.execute(
             f"SELECT * FROM versions WHERE project = {item[6]} ORDER BY rowid DESC"
         ).fetchall()
-        
+
         temp = {
-                "type": item[0],
-                "author": item[1],
-                "title": item[2],
-                "icon": item[3],
-                "url": item[4],
-                "description": item[5],
-                "ID": item[6],
-                "category": item[7],
-            }
-        
+            "type": item[0],
+            "author": item[1],
+            "title": item[2],
+            "icon": item[3],
+            "url": item[4],
+            "description": item[5],
+            "ID": item[6],
+            "category": item[7],
+        }
+
         if len(latest_version) != 0:
             temp["latest_version"] = {
                 "name": latest_version[0][0],
@@ -71,9 +71,7 @@ def search():
                 "version_code": latest_version[0][5],
             }
 
-        out.append(
-            temp
-        )
+        out.append(temp)
 
     conn.close()
 
@@ -100,18 +98,18 @@ def query():
         latest_version = conn.execute(
             f"SELECT * FROM versions WHERE project = {item[6]} ORDER BY rowid DESC"
         ).fetchall()
-        
+
         temp = {
-                "type": item[0],
-                "author": item[1],
-                "title": item[2],
-                "icon": item[3],
-                "url": item[4],
-                "description": item[5],
-                "ID": item[6],
-                "category": item[7]
-            }
-        
+            "type": item[0],
+            "author": item[1],
+            "title": item[2],
+            "icon": item[3],
+            "url": item[4],
+            "description": item[5],
+            "ID": item[6],
+            "category": item[7],
+        }
+
         if len(latest_version) != 0:
             temp["latest_version"] = {
                 "name": latest_version[0][0],
@@ -120,9 +118,7 @@ def query():
                 "version_code": latest_version[0][5],
             }
 
-        out.append(
-            temp
-        )
+        out.append(temp)
 
     conn.close()
 
@@ -155,7 +151,7 @@ def get_proj(id):
     latest_version = conn.execute(
         f"SELECT * FROM versions WHERE project = {id} ORDER BY rowid DESC"
     ).fetchall()
-    
+
     conn.close()
 
     if not proj:
@@ -179,9 +175,9 @@ def get_proj(id):
         "status": proj[8],
         "uploaded": proj[9],
         "updated": proj[10],
-        "body": proj[11]
+        "body": proj[11],
     }
-    
+
     if len(latest_version) != 0:
         temp["latest_version"] = {
             "name": latest_version[0][0],
@@ -189,7 +185,7 @@ def get_proj(id):
             "minecraft_versions": latest_version[0][4],
             "version_code": latest_version[0][5],
         }
-    
+
     return temp
 
 
@@ -242,13 +238,13 @@ def get_project(slug: str):
         "status": proj[8],
         "uploaded": proj[9],
         "updated": proj[10],
-        "body": proj[11]
+        "body": proj[11],
     }
 
     if this_user != 31:
         if proj[1] == this_user.id or this_user.id in ["admin", "moderator"]:
             project_data["mod_message"] = proj[12]
-            
+
     if len(latest_version) != 0:
         project_data["latest_version"] = {
             "name": latest_version[0][0],
@@ -273,7 +269,7 @@ def random():
     ).fetchall()
 
     conn.close()
-    
+
     temp = {
         "type": proj[0],
         "author": proj[1],
@@ -287,7 +283,7 @@ def random():
         "updated": proj[10],
         "body": proj[11],
     }
-    
+
     if len(latest_version) != 0:
         temp["minecraft_versions"] = {
             "name": latest_version[0][0],
@@ -295,7 +291,7 @@ def random():
             "minecraft_versions": latest_version[0][4],
             "version_code": latest_version[0][5],
         }
-        
+
     return temp
 
 
