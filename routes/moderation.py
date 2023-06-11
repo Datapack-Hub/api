@@ -172,25 +172,23 @@ def ban(user: int):
                     request.headers.get("Authorization")[6:]
                 ).username,
                 "Banned User",
-                f"Banned user `{util.get_user.from_id(id)}` for reason `{dat['message']}`",
+                f"Banned user `{util.get_user.from_id(user)}` for reason `{dat['message']}`",
             )
             return "worked fine"
     else:
         dat = request.get_json(force=True)
         conn = sqlite3.connect(config.DATA + "data.db")
         try:
-            conn.execute(f"delete from banned_users where self = {id}")
+            conn.execute(f"delete from banned_users where self = {user}")
         except sqlite3.Error as er:
             return " ".join(er.args)
         else:
             conn.commit()
             conn.close()
             util.post_site_log(
-                util.get_user.from_token(
-                    request.headers.get("Authorization")[6:]
-                ).username,
-                "Banned User",
-                f"Banned user `{util.get_user.from_id(id)}` for reason `{dat['message']}`",
+                util.get_user.from_token(request.headers.get("Authorization")[6:]).username,
+                "Unbanned User",
+                f"Unbanned user `{util.get_user.from_id(user)}` for reason `{dat['message']}`",
             )
             return "worked fine"
 
