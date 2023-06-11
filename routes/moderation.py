@@ -57,7 +57,7 @@ def console():
         return "hey u! sign in again plz (i am not hax)", 429
 
     util.post_site_log(
-        util.get_user.from_token(request.headers.get("Authorization")).username,
+        util.get_user.from_token(request.headers.get("Authorization")[6:]).username,
         "Ran console command",
         f"Ran the console command: `{data['command']}`",
     )
