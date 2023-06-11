@@ -48,6 +48,10 @@ def search():
     print(r)
 
     for item in r[page - 1 * 20 : page * 20 - 1]:
+        latest_version = conn.execute(
+            f"SELECT * FROM versions WHERE project = {item[6]} ORDER BY rowid DESC"
+        ).fetchall()[0]
+        
         out.append(
             {
                 "type": item[0],
@@ -58,6 +62,13 @@ def search():
                 "description": item[5],
                 "ID": item[6],
                 "category": item[7],
+                "latest_version":{
+                    "name": latest_version[0],
+                    "description": latest_version[1],
+                    "primary_download": latest_version[2],
+                    "minecraft_versions": latest_version[4],
+                    "version_code": latest_version[5],
+                }
             }
         )
 
@@ -83,6 +94,10 @@ def query():
     out = []
 
     for item in r[page - 1 * 20 : page * 20 - 1]:
+        latest_version = conn.execute(
+            f"SELECT * FROM versions WHERE project = {item[6]} ORDER BY rowid DESC"
+        ).fetchall()[0]
+        
         out.append(
             {
                 "type": item[0],
@@ -93,6 +108,13 @@ def query():
                 "description": item[5],
                 "ID": item[6],
                 "category": item[7],
+                "latest_version":{
+                    "name": latest_version[0],
+                    "description": latest_version[1],
+                    "primary_download": latest_version[2],
+                    "minecraft_versions": latest_version[4],
+                    "version_code": latest_version[5],
+                }
             }
         )
 
@@ -123,6 +145,10 @@ def get_proj(id):
     proj = conn.execute(
         f"select type, author, title, icon, url, description, rowid, category, status, uploaded, updated, body from projects where rowid = {id}"
     ).fetchone()
+    
+    latest_version = conn.execute(
+        f"SELECT * FROM versions WHERE project = {id} ORDER BY rowid DESC"
+    ).fetchall()[0]
 
     conn.close()
 
@@ -148,6 +174,13 @@ def get_proj(id):
         "uploaded": proj[9],
         "updated": proj[10],
         "body": proj[11],
+        "latest_version":{
+            "name": latest_version[0],
+            "description": latest_version[1],
+            "primary_download": latest_version[2],
+            "minecraft_versions": latest_version[4],
+            "version_code": latest_version[5],
+        }
     }
 
 
@@ -170,6 +203,11 @@ def get_project(slug: str):
     proj = conn.execute(
         f"select type, author, title, icon, url, description, rowid, category, status, uploaded, updated, body, mod_message from projects where url = '{util.sanitise(slug)}'"
     ).fetchone()
+    
+    latest_version = conn.execute(
+        f"SELECT * FROM versions WHERE project = {proj[6]} ORDER BY rowid DESC"
+    ).fetchall()[0]
+    
     conn.close()
 
     # hey u didn't give me a project, hate u
@@ -196,6 +234,13 @@ def get_project(slug: str):
         "uploaded": proj[9],
         "updated": proj[10],
         "body": proj[11],
+        "latest_version":{
+            "name": latest_version[0],
+            "description": latest_version[1],
+            "primary_download": latest_version[2],
+            "minecraft_versions": latest_version[4],
+            "version_code": latest_version[5],
+        }
     }
 
     if this_user != 31:
@@ -212,6 +257,11 @@ def random():
     proj = conn.execute(
         "SELECT type, author, title, icon, url, description, rowid, category, status, uploaded, updated, body FROM projects where status = 'live' ORDER BY RANDOM() LIMIT 1"
     ).fetchone()
+    
+    latest_version = conn.execute(
+        f"SELECT * FROM versions WHERE project = {proj[6]} ORDER BY rowid DESC"
+    ).fetchall()[0]
+    
     conn.close()
     return {
         "type": proj[0],
@@ -225,6 +275,13 @@ def random():
         "uploaded": proj[9],
         "updated": proj[10],
         "body": proj[11],
+        "latest_version":{
+            "name": latest_version[0],
+            "description": latest_version[1],
+            "primary_download": latest_version[2],
+            "minecraft_versions": latest_version[4],
+            "version_code": latest_version[5],
+        }
     }
 
 
