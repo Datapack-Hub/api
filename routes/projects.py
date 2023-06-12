@@ -549,6 +549,7 @@ def publish(id):
     else:
         return "This project is not in a valid state to be published!", 400
 
+
 @projects.route("/id/<int:id>/draft", methods=["POST"])
 def draft(id):
     tok = request.headers.get("Authorization")
@@ -576,15 +577,14 @@ def draft(id):
 
     # now onto the fun stuff >:)
     if proj[1] == "live":
-        conn.execute(
-            "update projects set status = 'draft' where rowid = " + str(id)
-        )
+        conn.execute("update projects set status = 'draft' where rowid = " + str(id))
 
         conn.commit()
         conn.close()
         return "The project is now drafted.", 200
     else:
         return "This project is not in a valid state to be drafted!", 400
+
 
 @projects.route("/id/<int:id>/report", methods=["POST"])
 def draft(id):
@@ -605,7 +605,7 @@ def draft(id):
 
     if len(proj) == 0:
         return "Project not found.", 404
-    
+
     report_data = request.get_json(force=True)
 
     # now onto the fun stuff >:)
@@ -614,7 +614,9 @@ def draft(id):
     except:
         return "Please provide a `message` field."
     else:
-        conn.execute(f"insert into reports values ('{util.sanitise(report_data['message']), {user.id}, {id}}')")
+        conn.execute(
+            f"insert into reports values ('{util.sanitise(report_data['message']), {user.id}, {id}}')"
+        )
         conn.commit()
         conn.close()
         return "didded", 200
