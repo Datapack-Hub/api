@@ -549,6 +549,7 @@ def publish(id):
     else:
         return "This project is not in a valid state to be published!", 400
 
+
 @projects.route("/id/<int:id>/draft", methods=["POST"])
 def draft(id):
     tok = request.headers.get("Authorization")
@@ -576,9 +577,7 @@ def draft(id):
 
     # now onto the fun stuff >:)
     if proj[1] == "unpublished":
-        conn.execute(
-            "update projects set status = 'draft' where rowid = " + str(id)
-        )
+        conn.execute("update projects set status = 'draft' where rowid = " + str(id))
 
         conn.commit()
         conn.close()
