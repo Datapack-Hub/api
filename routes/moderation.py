@@ -245,7 +245,7 @@ def queue(type: str):
                     "status": item[7],
                 }
             )
-            
+
         conn.close()
         return {"count": len(out), "projects": out}
     elif type == "review":
@@ -268,7 +268,7 @@ def queue(type: str):
                     "status": item[7],
                 }
             )
-            
+
         conn.close()
         return {"count": len(out), "projects": out}
     elif type == "report":
