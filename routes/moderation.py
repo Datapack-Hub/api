@@ -294,7 +294,7 @@ def queue(type: str):
 
     conn.close()
 
-    return {"count": len(out), "projects": out}
+    return {"count": len(out), "reports": out}
 
 
 @mod.route("/project/<int:proj>/action", methods=["PATCH"])
