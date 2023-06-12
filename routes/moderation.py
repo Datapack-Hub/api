@@ -266,9 +266,7 @@ def queue(type: str):
                 }
             )
     elif type == "report":
-        r = conn.execute(
-            "select * from reports"
-        ).fetchall()
+        r = conn.execute("select * from reports").fetchall()
 
         # Form array
         out = []
@@ -276,12 +274,12 @@ def queue(type: str):
             proj = conn.execute(
                 f"select type, author, title, icon, url, description, rowid, status from projects where rowid = {item[2]}"
             ).fetchone()
-            
+
             out.append(
                 {
-                    "message":item[0],
-                    "reporter":item[1],
-                    "project":{
+                    "message": item[0],
+                    "reporter": item[1],
+                    "project": {
                         "type": proj[0],
                         "author": proj[1],
                         "title": proj[2],
@@ -290,7 +288,7 @@ def queue(type: str):
                         "description": proj[5],
                         "ID": proj[6],
                         "status": proj[7],
-                    }
+                    },
                 }
             )
 

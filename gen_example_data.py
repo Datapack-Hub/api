@@ -76,7 +76,7 @@ def reset(table: str):
     );
     """
     )
-    
+
     # Report Data
     connection.execute(
         """create table if not exists reports(
