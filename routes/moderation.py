@@ -245,7 +245,7 @@ def queue(type: str):
                     "status": item[7],
                 }
             )
-            
+
         conn.close()
         return {"count": len(out), "projects": out}
     elif type == "review":
@@ -268,7 +268,7 @@ def queue(type: str):
                     "status": item[7],
                 }
             )
-            
+
         conn.close()
         return {"count": len(out), "projects": out}
     elif type == "report":
@@ -280,7 +280,7 @@ def queue(type: str):
             proj = conn.execute(
                 f"select type, author, title, icon, url, description, rowid, status from projects where rowid = {item[2]}"
             ).fetchone()
-            
+
             usr = util.get_user.from_id(item[1])
 
             out.append(
