@@ -245,6 +245,9 @@ def queue(type: str):
                     "status": item[7],
                 }
             )
+            
+        conn.close()
+        return {"count": len(out), "projects": out}
     elif type == "review":
         r = conn.execute(
             "select type, author, title, icon, url, description, rowid, status from projects where status = 'review_queue'"
@@ -265,6 +268,9 @@ def queue(type: str):
                     "status": item[7],
                 }
             )
+            
+        conn.close()
+        return {"count": len(out), "projects": out}
     elif type == "report":
         r = conn.execute("select * from reports").fetchall()
 
@@ -293,7 +299,6 @@ def queue(type: str):
             )
 
         conn.close()
-
         return {"count": len(out), "reports": out}
 
 
