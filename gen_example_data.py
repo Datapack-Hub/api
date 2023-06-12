@@ -76,6 +76,16 @@ def reset(table: str):
     );
     """
     )
+    
+    # Report Data
+    connection.execute(
+        """create table if not exists reports(
+        message STRING NOT NULL,
+        reporter INT NOT NULL,
+        project INT NOT NULL
+    );
+    """
+    )
 
     # save and exit
     connection.commit()

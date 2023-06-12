@@ -549,7 +549,6 @@ def publish(id):
     else:
         return "This project is not in a valid state to be published!", 400
 
-
 @projects.route("/id/<int:id>/draft", methods=["POST"])
 def draft(id):
     tok = request.headers.get("Authorization")
@@ -577,10 +576,45 @@ def draft(id):
 
     # now onto the fun stuff >:)
     if proj[1] == "live":
-        conn.execute("update projects set status = 'draft' where rowid = " + str(id))
+        conn.execute(
+            "update projects set status = 'draft' where rowid = " + str(id)
+        )
 
         conn.commit()
         conn.close()
         return "The project is now drafted.", 200
     else:
         return "This project is not in a valid state to be drafted!", 400
+
+@projects.route("/id/<int:id>/report", methods=["POST"])
+def draft(id):
+    tok = request.headers.get("Authorization")
+    if not tok:
+        return "Not authenticated! You gotta log in first :P", 401
+
+    user = util.authenticate(tok)
+    if user == 32:
+        return "Make sure authorization is basic!", 400
+    elif user == 33:
+        return "Token expired!", 429
+
+    conn = sqlite3.connect(config.DATA + "data.db")
+    proj = conn.execute(
+        "select author from projects where rowid = " + str(id)
+    ).fetchall()
+
+    if len(proj) == 0:
+        return "Project not found.", 404
+    
+    report_data = request.get_json(force=True)
+
+    # now onto the fun stuff >:)
+    try:
+        report_data["message"]
+    except:
+        return "Please provide a `message` field."
+    else:
+        conn.execute(f"insert into reports values ('{util.sanitise(report_data['message']), {user.id}, {id}}')")
+        conn.commit()
+        conn.close()
+        return "didded", 200
