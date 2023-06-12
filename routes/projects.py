@@ -587,7 +587,7 @@ def draft(id):
 
 
 @projects.route("/id/<int:id>/report", methods=["POST"])
-def draft(id):
+def report(id):
     tok = request.headers.get("Authorization")
     if not tok:
         return "Not authenticated! You gotta log in first :P", 401
