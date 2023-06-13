@@ -444,7 +444,7 @@ def remove_report(id: int):
     if len(rep) == 0:
         return "Report not found", 404
 
-    conn.execute(f"delete from reports whrere rowid = {str(id)}")
+    conn.execute(f"delete from reports where rowid = {str(id)}")
     conn.commit()
     conn.close()
 
