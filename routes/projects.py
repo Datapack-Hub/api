@@ -157,10 +157,10 @@ def get_proj(id):
     if not proj:
         return "Not found", 404
 
-    if proj[8] != "live":
+    if proj[8] == "disabled" or proj[8] == "draft" or proj[8] == "unpublished" or proj[8] == "review_queue" or proj[8] == "publish_queue":
         if not this_user:
             return "Not found", 404
-        if not proj[1] == this_user.id:
+        if proj[1] != this_user.id and not (this_user.role in ["admin","moderator"]):
             return "Not found", 404
 
     temp = {
@@ -219,11 +219,10 @@ def get_project(slug: str):
     if not proj:
         return "Not found", 404
 
-    # shhh im a spy
-    if proj[8] != "live":
-        if this_user == 31:
+    if proj[8] == "disabled" or proj[8] == "draft" or proj[8] == "unpublished" or proj[8] == "review_queue" or proj[8] == "publish_queue":
+        if not this_user:
             return "Not found", 404
-        if not (proj[1] == this_user.id or this_user.role in ["moderator", "admin"]):
+        if proj[1] != this_user.id and not (this_user.role in ["admin","moderator"]):
             return "Not found", 404
 
     project_data = {
