@@ -626,7 +626,7 @@ def report(id):
         return "Please provide a `message` field."
     else:
         conn.execute(
-            f"insert into reports values ('{util.sanitise(report_data['message']), {user.id}, {id}}')"
+            f"insert into reports values ('{util.sanitise(report_data['message'])}', {user.id}, {id})"
         )
         conn.commit()
         conn.close()
