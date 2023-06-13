@@ -353,9 +353,7 @@ def change_status(proj: int):
         conn.close()
         return "deleted project"
     elif data["action"] == "restore":
-        conn.execute(
-            "update projects set status = 'live' where rowid = " + str(proj)
-        )
+        conn.execute("update projects set status = 'live' where rowid = " + str(proj))
         if "message" in data:
             conn.execute(
                 f"INSERT INTO notifs VALUES ('Project {project[2]} restored', 'Your project, {project[2]}, was restored by moderators.', False, {project[3]}, 'important')"
