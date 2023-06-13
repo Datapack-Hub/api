@@ -286,7 +286,7 @@ def queue(type: str):
             out.append(
                 {
                     "message": item[0],
-                    "id":item[4],
+                    "id": item[4],
                     "reporter": {
                         "username": usr.username,
                         "id": usr.id,
@@ -430,6 +430,7 @@ def dismiss(proj: int):
     conn.close()
     return "did it", 200
 
+
 @mod.route("/remove_report/<int:id>")
 def remove_report(id: int):
     if not auth(
@@ -437,15 +438,15 @@ def remove_report(id: int):
         ["moderator", "admin"],
     ):
         return "You can't do this!", 403
-    
+
     conn = sqlite3.connect(config.DATA + "data.db")
-    
+
     rep = conn.execute(f"select rowid from reports where rowid = {str(id)}").fetchall()
     if len(rep) == 0:
         return "Report not found", 404
-    
+
     conn.execute(f"delete from reports whrere rowid = {str(id)}")
     conn.commit()
     conn.close()
-    
+
     return "report removed", 200
