@@ -286,7 +286,7 @@ def queue(type: str):
             out.append(
                 {
                     "message": item[0],
-                    "id": item[4],
+                    "id": item[3],
                     "reporter": {
                         "username": usr.username,
                         "id": usr.id,
@@ -429,7 +429,6 @@ def dismiss(proj: int):
     conn.commit()
     conn.close()
     return "did it", 200
-
 
 @mod.route("/remove_report/<int:id>", methods=["delete"])
 def remove_report(id: int):
