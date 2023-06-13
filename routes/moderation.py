@@ -272,7 +272,7 @@ def queue(type: str):
         conn.close()
         return {"count": len(out), "projects": out}
     elif type == "report":
-        r = conn.execute("select * from reports").fetchall()
+        r = conn.execute("select *, rowid from reports").fetchall()
 
         # Form array
         out = []
@@ -286,6 +286,7 @@ def queue(type: str):
             out.append(
                 {
                     "message": item[0],
+                    "id":item[4]
                     "reporter": {
                         "username": usr.username,
                         "id": usr.id,
@@ -428,3 +429,5 @@ def dismiss(proj: int):
     conn.commit()
     conn.close()
     return "did it", 200
+
+@mod.route("/remove_report/<id:int>")
