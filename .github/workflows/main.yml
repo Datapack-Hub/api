@@ -15,8 +15,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3.5.2
-        with:
-          ref: '${{ github.head_ref }}'
+
+
       - name: Bonus Pull
         run: |
           git pull
