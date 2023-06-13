@@ -430,7 +430,7 @@ def dismiss(proj: int):
     conn.close()
     return "did it", 200
 
-@mod.route("/remove_report/<int:id>")
+@mod.route("/remove_report/<int:id>", methods=["delete"])
 def remove_report(id: int):
     if not auth(
         request.headers.get("Authorization"),
