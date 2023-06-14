@@ -386,7 +386,7 @@ def new_project():
                         'draft',
                         {str(int( time.time() ))},
                         {str(int( time.time() ))},
-                        {icon})"""
+                        '{icon}')"""
         )
     else:
         conn.execute(
