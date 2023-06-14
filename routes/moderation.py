@@ -157,9 +157,10 @@ def ban(user: int):
         return "Not allowed.", 403
     if request.method == "POST":
         # get time
+        dat = request.get_json(force=True)
         current = time.time()
         expiry = current + (86400 * dat["expires"])
-        dat = request.get_json(force=True)
+        
         conn = sqlite3.connect(config.DATA + "data.db")
         try:
             conn.execute(
