@@ -11,6 +11,7 @@ import difflib
 import usefuls.util as util
 import gen_example_data
 import shlex
+import time
 
 console_commands = ["sql", "select", "hello", "reset", "notify"]
 
@@ -155,12 +156,14 @@ def ban(user: int):
     ):
         return "Not allowed.", 403
     if request.method == "POST":
+        # get time
+        current = time.time()
+        expiry = current + (86400 * dat["expires"])
         dat = request.get_json(force=True)
-
         conn = sqlite3.connect(config.DATA + "data.db")
         try:
             conn.execute(
-                f"insert into banned_users values ({user}, {dat['expires']}, '{util.sanitise(dat['message'])}')"
+                f"insert into banned_users values ({user}, {expiry}, '{util.sanitise(dat['message'])}')"
             )
         except sqlite3.Error as er:
             return " ".join(er.args)
