@@ -160,7 +160,7 @@ def ban(user: int):
         dat = request.get_json(force=True)
         current = time.time()
         expiry = current + (86400 * dat["expires"])
-        
+
         conn = sqlite3.connect(config.DATA + "data.db")
         try:
             conn.execute(
