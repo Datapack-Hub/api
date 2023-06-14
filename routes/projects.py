@@ -383,7 +383,7 @@ def new_project():
                         '{util.sanitise(data['body'])}',
                         '{util.sanitise(data['category'])}', 
                         '{util.sanitise(data['url'])}', 
-                        'draft',
+                        'unpublished',
                         {str(int( time.time() ))},
                         {str(int( time.time() ))},
                         '{icon}')"""
