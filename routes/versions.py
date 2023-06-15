@@ -78,10 +78,11 @@ def code(id: int, code: str):
         usr = util.authenticate(request.headers.get("Authorization"))
         if usr == 31:
             return "You need to be signed in!"
-        if usr == 32:
+        elif usr == 32:
             return "Make sure authorization is basic!", 400
         elif usr == 33:
             return "Token expired!", 429
+        
         if util.user_owns_project(id, usr.id):
             conn = sqlite3.connect(f"{config.DATA}data.db")
             try:
@@ -90,10 +91,14 @@ def code(id: int, code: str):
                 ).fetchone()
             except:
                 return "There was an error deleting that version!", 500
+            else:
+                conn.commit()
+                conn.close()
+                return "didded",200
         else:
-            return "Not your version! :P"
-
-        return "everything went wrong, you broke it all", 500
+            return "Not your version! :P", 403
+        
+        return "everything went wrong, you broke it all",500
     else:
         # Select all versions where the project is this one
         conn = sqlite3.connect(f"{config.DATA}data.db")
