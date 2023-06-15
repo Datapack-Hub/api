@@ -22,14 +22,17 @@ from routes.misc import misc
 app = flask.Flask(__name__)
 CORS(app)
 
+
 @app.route("/")
 def main():
     return "I see you discovered our API 👀 why hello there"
+
 
 @app.after_request
 def after(resp):
     resp.headers["X-Robots-Tag"] = "noindex"
     return resp
+
 
 app.register_blueprint(user)
 app.register_blueprint(auth)
@@ -42,18 +45,22 @@ app.register_blueprint(misc)
 # Database things
 if not exists(config.DATA + "data.db"):
     gen_example_data.reset()
-    
+
+
 # Backups
 def backup():
     put = requests.put(
         "https://backups.datapackhub.net/" + date.today(),
         open(config.DATA + "data.db", "rb"),
-        headers={"Authorization": config.BACKUPS_TOKEN,},
+        headers={
+            "Authorization": config.BACKUPS_TOKEN,
+        },
         timeout=300,
     )
-    
+
     if not put.ok:
         print("It didn't work.")
+
 
 schedule.every().day.do(backup)
 
