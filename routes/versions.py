@@ -63,7 +63,6 @@ def project_from_str(id: str):
             "minecraft_versions": i[4],
             "version_code": i[5],
         }
-        print(i)
 
         if i[3] is not None:
             o["resource_pack_download"] = i[3]
@@ -154,7 +153,7 @@ def new(project: int):
         else:
             sq = False
 
-        dpath = files.upload_file(
+        dpath = files.upload_zipfile(
             data["primary_download"],
             f"project/{project}/{data['version_code']}/{data['filename']}",
             usr.username,
@@ -168,7 +167,7 @@ def new(project: int):
             )
         else:
             if data["resource_pack_download"] is not None:
-                rpath = files.upload_file(
+                rpath = files.upload_zipfile(
                     data["resource_pack_download"],
                     f"project/{project}/{data['version_code']}/{data['filename']}",
                     usr.username,

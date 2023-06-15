@@ -31,7 +31,6 @@ def project(id: int):
             "minecraft_versions": i[4],
             "version_code": i[5],
         }
-        print(i)
 
         if i[3] is not None:
             o["resource_pack_download"] = i[3]
@@ -64,7 +63,6 @@ def project_from_str(id: str):
             "minecraft_versions": i[4],
             "version_code": i[5],
         }
-        print(i)
 
         if i[3] is not None:
             o["resource_pack_download"] = i[3]
