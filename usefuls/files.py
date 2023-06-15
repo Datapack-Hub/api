@@ -42,6 +42,8 @@ def upload_file(file: str, file_name: str, uploader: str):
 
     with open(config.DATA + "tempfile", "wb") as out:
         out.write(decoded)
+        if out.tell() > 255999:
+            return "File too big." 
         out.close()
 
     put = requests.put(
