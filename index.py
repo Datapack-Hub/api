@@ -48,25 +48,25 @@ if not exists(config.DATA + "data.db"):
 
 
 # Backups
-def backup():
-    put = requests.put(
-        "https://backups.datapackhub.net/" + date.today(),
-        open(config.DATA + "data.db", "rb"),
-        headers={
-            "Authorization": config.BACKUPS_TOKEN,
-        },
-        timeout=300,
-    )
+# def backup():
+#     put = requests.put(
+#         "https://backups.datapackhub.net/" + date.today(),
+#         open(config.DATA + "data.db", "rb"),
+#         headers={
+#             "Authorization": config.BACKUPS_TOKEN,
+#         },
+#         timeout=300,
+#     )
 
-    if not put.ok:
-        print("It didn't work.")
+#     if not put.ok:
+#         print("It didn't work.")
 
 
-schedule.every().day.do(backup)
+# schedule.every().day.do(backup)
 
-while True:
-    schedule.run_pending()
-    time.sleep(1)
+# while True:
+#     schedule.run_pending()
+#     time.sleep(1)
 
 # Run the app
 if __name__ == "__main__":
