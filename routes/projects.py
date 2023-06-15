@@ -250,7 +250,7 @@ def get_project(slug: str):
     }
 
     if this_user != 31:
-        if proj[1] == this_user.id or this_user.id in ["admin", "moderator"]:
+        if proj[1] == this_user.id or this_user.role in ["admin", "moderator"]:
             project_data["mod_message"] = proj[12]
 
     if len(latest_version) != 0:
