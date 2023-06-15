@@ -72,26 +72,45 @@ def project_from_str(id: str):
     return {"count": len(out), "result": out}
 
 
-@versions.route("/project/<int:id>/<string:code>")
+@versions.route("/project/<int:id>/<string:code>", methods=["GET", "DELETE"])
 def code(id: int, code: str):
-    # Select all versions where the project is this one
-    conn = sqlite3.connect(f"{config.DATA}data.db")
-    v = conn.execute(
-        f"SELECT * FROM versions WHERE version_code = '{code}' AND project = {id} ORDER BY rowid DESC"
-    ).fetchone()
+    if request.method == "DELETE":
+        usr = util.authenticate(request.headers.get("Authorization"))
+        if usr == 31:
+            return "You need to be signed in!"
+        if usr == 32:
+            return "Make sure authorization is basic!", 400
+        elif usr == 33:
+            return "Token expired!", 429
+        if util.user_owns_project(id,usr.id):
+            conn = sqlite3.connect(f"{config.DATA}data.db")
+            try:
+                conn.execute(
+                    f"DELETE FROM versions WHERE version_code = '{code}' AND project = {id}"
+                ).fetchone()
+            except:
+                return "There was an error deleting that version!", 500
+        else:
+            return "Not your version! :P"
+    else:
+        # Select all versions where the project is this one
+        conn = sqlite3.connect(f"{config.DATA}data.db")
+        v = conn.execute(
+            f"SELECT * FROM versions WHERE version_code = '{code}' AND project = {id} ORDER BY rowid DESC"
+        ).fetchone()
 
-    o = {
-        "name": v[0],
-        "description": v[1],
-        "primary_download": v[2],
-        "minecraft_versions": v[4],
-        "version_code": v[5],
-    }
+        o = {
+            "name": v[0],
+            "description": v[1],
+            "primary_download": v[2],
+            "minecraft_versions": v[4],
+            "version_code": v[5],
+        }
 
-    if v[3] is not None:
-        o["resource_pack_download"] = v[3]
+        if v[3] is not None:
+            o["resource_pack_download"] = v[3]
 
-    return o
+        return o
 
 
 @versions.route("/new/<int:project>", methods=["post"])
