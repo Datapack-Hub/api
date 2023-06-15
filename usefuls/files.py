@@ -37,8 +37,8 @@ def upload_zipfile(file: str, file_name: str, uploader: str, squash: bool = Fals
 
 def upload_file(file: str, file_name: str, uploader: str):
     file = file.encode("unicode_escape")
+    print(file.split(",")[1])
     decoded = base64.b64decode(file.split(",")[1])
-    print(decoded)
 
     with open(config.DATA + "tempfile", "wb") as out:
         out.write(decoded)
