@@ -82,7 +82,7 @@ def code(id: int, code: str):
             return "Make sure authorization is basic!", 400
         elif usr == 33:
             return "Token expired!", 429
-        if util.user_owns_project(id,usr.id):
+        if util.user_owns_project(id, usr.id):
             conn = sqlite3.connect(f"{config.DATA}data.db")
             try:
                 conn.execute(
