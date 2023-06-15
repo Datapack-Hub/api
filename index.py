@@ -1,9 +1,5 @@
 import flask
 from flask_cors import CORS
-import schedule
-import requests
-from datetime import date
-import time
 
 import config
 from os.path import exists
