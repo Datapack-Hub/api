@@ -45,8 +45,6 @@ if not exists(config.DATA + "data.db"):
     
 # Backups
 def backup():
-    with open(config.DATA + "data.db")
-    
     put = requests.put(
         "https://backups.datapackhub.net/" + date.today(),
         open(config.DATA + "data.db", "rb"),
