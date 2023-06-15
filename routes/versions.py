@@ -92,8 +92,8 @@ def code(id: int, code: str):
                 return "There was an error deleting that version!", 500
         else:
             return "Not your version! :P"
-        
-        return "everything went wrong, you broke it all",500
+
+        return "everything went wrong, you broke it all", 500
     else:
         # Select all versions where the project is this one
         conn = sqlite3.connect(f"{config.DATA}data.db")
