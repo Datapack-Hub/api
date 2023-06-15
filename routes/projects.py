@@ -36,7 +36,6 @@ def search():
         return
 
     page = request.args.get("page", 1)
-    print(query)
 
     conn = sqlite3.connect(config.DATA + "data.db")
     r = conn.execute(
@@ -44,8 +43,6 @@ def search():
     ).fetchall()
 
     out = []
-
-    print(r)
 
     for item in r[page - 1 * 20 : page * 20 - 1]:
         latest_version = conn.execute(

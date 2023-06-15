@@ -89,7 +89,6 @@ def console():
 
         # Run SQLITE command
         try:
-            print(sql_command)
             conn = sqlite3.connect(config.DATA + "data.db")
             out = conn.execute(sql_command).fetchall()
             conn.commit()

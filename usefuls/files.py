@@ -9,7 +9,7 @@ from zipfile import ZipFile
 import os
 
 
-def upload_file(file: str, file_name: str, uploader: str, squash: bool = False):
+def upload_zipfile(file: str, file_name: str, uploader: str, squash: bool = False):
     file = file.encode("unicode_escape")
     decoded = base64.b64decode(file[41:])
 
@@ -34,9 +34,28 @@ def upload_file(file: str, file_name: str, uploader: str, squash: bool = False):
         print(put.text)
     return False
 
+def upload_file(file: str, file_name: str, uploader: str):
+    file = file.encode("unicode_escape")
+    decoded = base64.b64decode(file[41:])
+
+    with open(config.DATA + "tempfile", "wb") as out:
+        out.write(decoded)
+        out.close()
+
+    put = requests.put(
+        "https://files.datapackhub.net/" + file_name,
+        open(config.DATA + "tempfile", "rb"),
+        headers={"Authorization": config.FILES_TOKEN, "Author": uploader},
+        timeout=300,
+    )
+
+    if put.ok:
+        return "https://files.datapackhub.net/" + file_name
+    return "Error Uploading", 500
+
 
 if __name__ == "__main__":
-    upload_file(
+    upload_zipfile(
         open("D:\Datapack Hub testing zips\Datapack.zip", "rb"),
         "Datapack.zip",
         "Silabear",
