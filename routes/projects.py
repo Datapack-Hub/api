@@ -122,15 +122,6 @@ def query():
     return {"count": len(out), "result": out}
 
 
-@projects.route("/count")
-def amount_of_projects():
-    with open("./example_data.json", "r") as fp:
-        x = json.loads(fp.read())
-        amount = len(x)
-        fp.close()
-    return str(amount)
-
-
 @projects.route("/id/<int:id>")
 def get_proj(id):
     conn = sqlite3.connect(config.DATA + "data.db")
@@ -354,7 +345,7 @@ def new_project():
     if not re.match(r'^[\w!@$()`.+,"\-\']{3,64}$', data["url"]):
         return "URL is bad", 400
 
-    if "icon" in data:
+    if "icon" in data and data["icon"]:
         icon = files.upload_file(
             data["icon"],
             f"icons/{str(secrets.randbelow(999999))}.png",
@@ -364,7 +355,7 @@ def new_project():
     # Update database
     conn = sqlite3.connect(config.DATA + "data.db")
 
-    if "icon" in data:
+    if "icon" in data and data["icon"]:
         conn.execute(
             f"""insert into projects(
                     type, 
@@ -465,7 +456,7 @@ def edit(id: int):
     if len(data["description"]) > 200:
         return "Description exceeds max length", 400
 
-    if "icon" in data:
+    if "icon" in data and data["icon"]:
         icon = files.upload_file(
             data["icon"],
             f"icons/{str(secrets.randbelow(999999))}.png",
@@ -476,7 +467,7 @@ def edit(id: int):
     conn = sqlite3.connect(config.DATA + "data.db")
 
     try:
-        if "icon" in data:
+        if "icon" in data and data["icon"]:
             conn.execute(
                 f"""update projects set
                 title = '{util.sanitise(data["title"])}',
