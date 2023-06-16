@@ -267,40 +267,45 @@ def get_project(slug: str):
 
 @projects.route("/random")
 def random():
+    count = request.args.get("count", 1)
+    
     conn = sqlite3.connect(config.DATA + "data.db")
     proj = conn.execute(
-        "SELECT type, author, title, icon, url, description, rowid, category, status, uploaded, updated, body FROM projects where status = 'live' ORDER BY RANDOM() LIMIT 1"
-    ).fetchone()
-
-    latest_version = conn.execute(
-        f"SELECT * FROM versions WHERE project = {proj[6]} ORDER BY rowid DESC"
+        f"SELECT type, author, title, icon, url, description, rowid, category, status, uploaded, updated, body FROM projects where status = 'live' ORDER BY RANDOM() LIMIT {util.sanitise(count)}"
     ).fetchall()
+    
+    out = []
+    for i in proj:
+        latest_version = conn.execute(
+            f"SELECT * FROM versions WHERE project = {i[6]} ORDER BY rowid DESC"
+        ).fetchall()
 
-    conn.close()
-
-    temp = {
-        "type": proj[0],
-        "author": proj[1],
-        "title": proj[2],
-        "icon": proj[3],
-        "url": proj[4],
-        "description": proj[5],
-        "ID": proj[6],
-        "category": proj[7],
-        "uploaded": proj[9],
-        "updated": proj[10],
-        "body": proj[11],
-    }
-
-    if len(latest_version) != 0:
-        temp["minecraft_versions"] = {
-            "name": latest_version[0][0],
-            "description": latest_version[0][1],
-            "minecraft_versions": latest_version[0][4],
-            "version_code": latest_version[0][5],
+        temp = {
+            "type": i[0],
+            "author": i[1],
+            "title": i[2],
+            "icon": i[3],
+            "url": i[4],
+            "description": i[5],
+            "ID": i[6],
+            "category": i[7],
+            "uploaded": i[9],
+            "updated": i[10],
+            "body": i[11],
         }
 
-    return temp
+        if len(latest_version) != 0:
+            temp["minecraft_versions"] = {
+                "name": latest_version[0][0],
+                "description": latest_version[0][1],
+                "minecraft_versions": latest_version[0][4],
+                "version_code": latest_version[0][5],
+            }
+            
+        out.append(temp)
+    
+    conn.close()
+    return {"count":count,"result":out}
 
 
 @projects.route("/create", methods=["POST"])
