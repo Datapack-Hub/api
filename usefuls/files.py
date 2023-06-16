@@ -10,8 +10,9 @@ import os
 
 
 def upload_zipfile(file: str, file_name: str, uploader: str, squash: bool = False):
+    file = file.split(",")[1]
     file = file.encode("unicode_escape")
-    decoded = base64.b64decode(file[41:])
+    decoded = base64.b64decode(file)
 
     with open(config.DATA + "Temporary.zip", "wb") as out:
         out.write(decoded)
@@ -25,7 +26,6 @@ def upload_zipfile(file: str, file_name: str, uploader: str, squash: bool = Fals
         "https://files.datapackhub.net/" + file_name,
         open(config.DATA + "Temporary.zip", "rb"),
         headers={"Authorization": config.FILES_TOKEN, "Author": uploader},
-        timeout=300,
     )
 
     if put.ok:
