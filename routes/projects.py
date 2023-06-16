@@ -82,12 +82,10 @@ def query():
     page = int(page)
     request.args.get("sort", "updated")
 
-    amount = 20 * int(page)
-
     # SQL stuff
     conn = sqlite3.connect(config.DATA + "data.db")
     r = conn.execute(
-        f"select type, author, title, icon, url, description, rowid, category, uploaded, updated from projects where status = 'live' limit {amount}"
+        f"select type, author, title, icon, url, description, rowid, category, uploaded, updated from projects where status = 'live'"
     ).fetchall()
 
     out = []
@@ -119,7 +117,7 @@ def query():
         out.append(temp)
 
     conn.close()
-
+    
     return {"count": len(out), "result": out, "pages": str(math.ceil(len(r) / 20))}
 
 
