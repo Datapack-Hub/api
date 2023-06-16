@@ -268,12 +268,12 @@ def get_project(slug: str):
 @projects.route("/random")
 def random():
     count = request.args.get("count", 1)
-    
+
     conn = sqlite3.connect(config.DATA + "data.db")
     proj = conn.execute(
         f"SELECT type, author, title, icon, url, description, rowid, category, status, uploaded, updated, body FROM projects where status = 'live' ORDER BY RANDOM() LIMIT {util.sanitise(count)}"
     ).fetchall()
-    
+
     out = []
     for i in proj:
         latest_version = conn.execute(
@@ -301,11 +301,11 @@ def random():
                 "minecraft_versions": latest_version[0][4],
                 "version_code": latest_version[0][5],
             }
-            
+
         out.append(temp)
-    
+
     conn.close()
-    return {"count":count,"result":out}
+    return {"count": count, "result": out}
 
 
 @projects.route("/create", methods=["POST"])
