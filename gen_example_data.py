@@ -25,11 +25,6 @@ def reset(table: str):
     """
     )
 
-    if table == "projects":
-        connection.execute(
-            "insert into projects values ('datapack', 1, 'Realistic Item Drops', 'Drops Realsitc short', 'actually very long description', 'https://cdn.discordapp.com/attachments/723984082853298297/1076083669409730590/IMG_2434.png', 'realistic-item-drops', 'live', 0, '[\"utility\"]', 0, 0);"
-        )
-
     # Versions Data
     connection.execute(
         """create table if not exists versions(
