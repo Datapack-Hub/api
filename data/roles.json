@@ -51,6 +51,11 @@
             "verified":"true"
         },
         {
+            "name":"beta access",
+            "permissions":[],
+            "verified":false
+        },
+        {
             "name":"default",
             "permissions":[],
             "verified":false
