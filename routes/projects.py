@@ -117,7 +117,7 @@ def query():
         out.append(temp)
 
     conn.close()
-    
+
     return {"count": len(out), "result": out, "pages": str(math.ceil(len(r) / 20))}
 
 
