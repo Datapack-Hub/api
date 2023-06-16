@@ -5,7 +5,6 @@
 from flask_cors import CORS
 from flask import Blueprint, request
 import usefuls.util as util
-import json
 import sqlite3
 import config
 import regex as re
