@@ -85,7 +85,7 @@ def query():
     # SQL stuff
     conn = sqlite3.connect(config.DATA + "data.db")
     r = conn.execute(
-        f"select type, author, title, icon, url, description, rowid, category, uploaded, updated from projects where status = 'live'"
+        "select type, author, title, icon, url, description, rowid, category, uploaded, updated from projects where status = 'live'"
     ).fetchall()
 
     out = []
