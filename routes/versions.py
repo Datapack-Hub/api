@@ -179,7 +179,7 @@ def new(project: int):
         else:
             sq = False
 
-        print("got here")    
+        print("got here")
         dpath = files.upload_zipfile(
             data["primary_download"],
             f"project/{project}/{data['version_code']}/{data['filename']}",
@@ -221,8 +221,8 @@ def new(project: int):
 
     if v[3] is not None:
         o["resource_pack_download"]: v[3]
-        
-    print("gotted here")    
+
+    print("gotted here")
 
     conn.commit()
     conn.close()
