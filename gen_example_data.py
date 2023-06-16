@@ -21,7 +21,8 @@ def reset(table: str):
         status STRING NOT NULL DEFAULT "draft", 
         category STRING NOT NULL,
         uploaded INT NOT NULL,
-        updated INT NOT NULL);
+        updated INT NOT NULL,
+        mod_message STRING);
     """
     )
 
