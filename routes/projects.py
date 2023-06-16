@@ -298,6 +298,13 @@ def random():
     return {"count": count, "result": out}
 
 
+@projects.route("/count")
+def count():
+    conn = sqlite3.connect(config.DATA + "data.db")
+    x = conn.execute("select * from projects where status = 'live'").fetchall().__len__()
+    conn.close()
+    return {"count":x}
+
 @projects.route("/create", methods=["POST"])
 def new_project():
     # Check authentication
