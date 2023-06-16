@@ -78,6 +78,7 @@ def search():
 @projects.route("/", methods=["GET"])
 def query():
     page = request.args.get("page", 1)
+    page = int(page)
     request.args.get("sort", "updated")
 
     amount = 20 * int(page)
@@ -90,7 +91,7 @@ def query():
 
     out = []
 
-    for item in r[page - 1 * 20 : page * 20 - 1]:
+    for item in r[(page - 1) * 20 : page * 20 - 1]:
         latest_version = conn.execute(
             f"SELECT * FROM versions WHERE project = {item[6]} ORDER BY rowid DESC"
         ).fetchall()
