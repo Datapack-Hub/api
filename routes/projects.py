@@ -120,7 +120,7 @@ def query():
 
     conn.close()
 
-    return {"count": len(out), "result": out, "pages": str(math.ceil(len(r)))}
+    return {"count": len(out), "result": out, "pages": str(math.ceil(len(r) / 20))}
 
 
 @projects.route("/id/<int:id>")
