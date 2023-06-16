@@ -12,6 +12,7 @@ import time
 import usefuls.files as files
 import secrets
 import traceback
+import math
 
 projects = Blueprint("projects", __name__, url_prefix="/projects")
 
@@ -119,7 +120,7 @@ def query():
 
     conn.close()
 
-    return {"count": len(out), "result": out}
+    return {"count": len(out), "result": out, "pages": str(math.ceil(len(r)))}
 
 
 @projects.route("/id/<int:id>")
