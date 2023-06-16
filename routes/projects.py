@@ -301,9 +301,14 @@ def random():
 @projects.route("/count")
 def count():
     conn = sqlite3.connect(config.DATA + "data.db")
-    x = conn.execute("select * from projects where status = 'live'").fetchall().__len__()
+    x = (
+        conn.execute("select * from projects where status = 'live'")
+        .fetchall()
+        .__len__()
+    )
     conn.close()
-    return {"count":x}
+    return {"count": x}
+
 
 @projects.route("/create", methods=["POST"])
 def new_project():
