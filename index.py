@@ -1,5 +1,6 @@
 import flask
 from flask_cors import CORS
+from flask_compress import Compress
 
 import config
 from os.path import exists
@@ -17,6 +18,7 @@ from routes.misc import misc
 
 app = flask.Flask(__name__)
 CORS(app)
+Compress(app)
 
 
 @app.route("/")
