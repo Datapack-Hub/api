@@ -193,7 +193,7 @@ def new(project: int):
                 f"INSERT INTO versions(name,description,primary_download,minecraft_versions,version_code,project) VALUES ('{data['name']}', '{data['description']}', '{dpath}','{','.join(data['minecraft_versions'])}', '{data['version_code']}', {str(project)})"
             )
         else:
-            if data["resource_pack_download"] is not None:
+            if (data["resource_pack_download"] is not None) and (data["resource_pack_download"] is not ""):
                 rpath = files.upload_zipfile(
                     data["resource_pack_download"],
                     f"project/{project}/{data['version_code']}/{data['filename']}",
