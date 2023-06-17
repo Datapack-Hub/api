@@ -31,6 +31,8 @@ def after(resp):
 def search():
     x = time.time()
     query = request.args.get("query").replace("'", "")
+    page = request.args.get("page", 1)
+    page = int(page)
 
     if len(query) > 75:
         return
@@ -44,7 +46,7 @@ def search():
 
     out = []
 
-    for item in r[page - 1 * 20 : page * 20 - 1]:
+    for item in r[(page - 1) * 20 : page * 20 - 1]:
         latest_version = conn.execute(
             f"SELECT * FROM versions WHERE project = {item[6]} ORDER BY rowid DESC"
         ).fetchall()
@@ -73,7 +75,7 @@ def search():
     conn.close()
 
     y = time.time()
-    return {"count": len(out), "time": y - x, "result": out}
+    return {"count": len(out), "time": y - x, "result": out, "pages": str(math.ceil(len(r) / 20))}
 
 
 @projects.route("/", methods=["GET"])
