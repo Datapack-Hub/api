@@ -75,7 +75,12 @@ def search():
     conn.close()
 
     y = time.time()
-    return {"count": len(out), "time": y - x, "result": out, "pages": str(math.ceil(len(r) / 20))}
+    return {
+        "count": len(out),
+        "time": y - x,
+        "result": out,
+        "pages": str(math.ceil(len(r) / 20)),
+    }
 
 
 @projects.route("/", methods=["GET"])
