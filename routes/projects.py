@@ -292,7 +292,7 @@ def random():
         }
 
         if len(latest_version) != 0:
-            temp["minecraft_versions"] = {
+            temp["latest_version"] = {
                 "name": latest_version[0][0],
                 "description": latest_version[0][1],
                 "minecraft_versions": latest_version[0][4],
