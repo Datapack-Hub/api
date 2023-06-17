@@ -68,7 +68,7 @@ def reset(table: str):
         description STRING NOT NULL,
         read BOOL NOT NULL,
         type STRING NOT NULL,
-        project INT NOT NULL
+        user INT NOT NULL
     );
     """
     )
