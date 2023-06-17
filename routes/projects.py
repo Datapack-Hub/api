@@ -666,7 +666,7 @@ def remove(id):
 
     proj = proj[0]
 
-    if proj[0] != user.id and not (user.role in ["admin", "moderator"]):
+    if proj[0] != user.id and user.role not in ["admin", "moderator"]:
         return "Not your project.", 403
 
     # now onto the fun stuff >:)
