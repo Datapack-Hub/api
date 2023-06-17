@@ -108,7 +108,7 @@ def send(target):
     conn = sqlite3.connect(config.DATA + "data.db")
     try:
         conn.execute(
-            f"INSERT INTO notifs VALUES ('{util.sanitise(notif_data['message'])}', '{util.sanitise(notif_data['description'])}', False, {target}, '{util.sanitise(notif_data['type'])}')"
+            f"INSERT INTO notifs VALUES ('{util.sanitise(notif_data['message'])}', '{util.sanitise(notif_data['description'])}', False,  '{util.sanitise(notif_data['type'])}', {target})"
         )
     except sqlite3.Error as er:
         return "There was a problem: " " ".join(er.args), 500

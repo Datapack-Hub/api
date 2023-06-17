@@ -342,6 +342,9 @@ def change_status(proj: int):
 
     if data["action"] == "publish":
         conn.execute("update projects set status = 'live' where rowid = " + str(proj))
+        conn.execute(
+            f"INSERT INTO notifs VALUES ('Published {project[2]}', 'Your project, {project[2]}, was published by a staff member.', False, 'default', {project[3]})"
+        )
         conn.commit()
         conn.close()
         return "yep i did the thing", 200
@@ -351,17 +354,16 @@ def change_status(proj: int):
         )
         if "message" in data:
             conn.execute(
-                f"INSERT INTO notifs VALUES ('Project {project[2]} deleted', '{util.sanitise(data['message'])}', False, {project[3]}, 'important')"
+                f"INSERT INTO notifs VALUES ('Project {project[2]} deleted', 'Your project was deleted for the following reason: {util.sanitise(data['message'])}', False, 'important', {project[3]})"
             )
         conn.commit()
         conn.close()
         return "deleted project"
     elif data["action"] == "restore":
         conn.execute("update projects set status = 'live' where rowid = " + str(proj))
-        if "message" in data:
-            conn.execute(
-                f"INSERT INTO notifs VALUES ('Project {project[2]} restored', 'Your project, {project[2]}, was restored by moderators.', False, {project[3]}, 'important')"
-            )
+        conn.execute(
+            f"INSERT INTO notifs VALUES ('Project {project[2]} restored', 'Your project, {project[2]}, was restored by staff.', False, 'important', {project[3]})"
+        )
         conn.commit()
         conn.close()
         return "restored project"
@@ -375,6 +377,9 @@ def change_status(proj: int):
                 f"update projects set status = 'disabled', mod_message = '{util.sanitise(data['message'])}' where rowid = "
                 + str(proj)
             )
+            conn.execute(
+                f"INSERT INTO notifs VALUES ('Project {project[2]} disabled', 'Your project, {project[2]}, was disabled. You need to make changes and then submit it for review. Reason: {util.sanitise(data['message'])}', False, 'important', {project[3]})"
+            )
             conn.commit()
             conn.close()
             return "disabled the project lmao xd xd", 200
@@ -386,6 +391,9 @@ def change_status(proj: int):
         else:
             conn.execute(
                 f"update projects set mod_message = '{util.sanitise(data['message'])}' where rowid = {str(proj)}"
+            )
+            conn.execute(
+                f"INSERT INTO notifs VALUES ('New Mod Message', 'A moderator left a message on your project {project[2]}.', False, 'important', {project[3]})"
             )
             conn.commit()
             conn.close()
