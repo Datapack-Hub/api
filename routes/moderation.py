@@ -12,8 +12,10 @@ import usefuls.util as util
 import gen_example_data
 import shlex
 import time
+import requests
+from datetime import date
 
-console_commands = ["sql", "select", "hello", "reset", "notify", "user"]
+console_commands = ["sql", "select", "hello", "reset", "notify", "user", "backup"]
 
 
 def auth(token: str, perm_levels: list[str]):
@@ -126,6 +128,22 @@ def console():
             return "Only Silabear can run this command!", 403
         gen_example_data.reset(args[0])
         return "Reset the database."
+    elif cmd == "backup":
+        if not auth(request.headers.get("Authorization"), ["admin"]):
+            return "You do not have permission to run this command!"
+        put = requests.put(
+            "https://backups.datapackhub.net/" + date.today().strftime("%d.%m.%Y"),
+            open(config.DATA + "data.db", "rb"),
+            headers={
+                "Authorization": config.BACKUPS_TOKEN,
+            },
+            timeout=300,
+        )
+
+        if not put.ok:
+            return("It didn't work.")
+        
+        return "Backed up the database!"
     elif cmd == "notify":
         if not auth(
             request.headers.get("Authorization"),

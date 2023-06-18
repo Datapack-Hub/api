@@ -1,6 +1,7 @@
 import flask
 from flask_cors import CORS
 from flask_compress import Compress
+from datetime import date
 
 import config
 from os.path import exists
@@ -43,28 +44,6 @@ app.register_blueprint(misc)
 # Database things
 if not exists(config.DATA + "data.db"):
     gen_example_data.reset()
-
-
-# Backups
-# def backup():
-#     put = requests.put(
-#         "https://backups.datapackhub.net/" + date.today(),
-#         open(config.DATA + "data.db", "rb"),
-#         headers={
-#             "Authorization": config.BACKUPS_TOKEN,
-#         },
-#         timeout=300,
-#     )
-
-#     if not put.ok:
-#         print("It didn't work.")
-
-
-# schedule.every().day.do(backup)
-
-# while True:
-#     schedule.run_pending()
-#     time.sleep(1)
 
 # Run the app
 if __name__ == "__main__":
