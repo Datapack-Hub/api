@@ -104,7 +104,9 @@ def console():
         # Run SQLITE command
         try:
             conn = sqlite3.connect(config.DATA + "data.db")
-            out = conn.execute(f"select username, role, rowid from users where trim(username) like '{args[0]}'").fetchall()
+            out = conn.execute(
+                f"select username, role, rowid from users where trim(username) like '{args[0]}'"
+            ).fetchall()
             conn.commit()
             conn.close()
         except sqlite3.Error as error:
