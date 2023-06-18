@@ -213,7 +213,7 @@ def user_projects(username):
                     "description": item[5],
                     "ID": item[6],
                     "status": item[7],
-                    "downloads":item[8]
+                    "downloads": item[8],
                 }
 
                 if len(latest_version) != 0:
