@@ -13,6 +13,7 @@ import gen_example_data
 import shlex
 import time
 import requests
+import random
 from datetime import date
 
 console_commands = ["sql", "select", "hello", "reset", "notify", "user", "backup"]
@@ -129,10 +130,11 @@ def console():
         gen_example_data.reset(args[0])
         return "Reset the database."
     elif cmd == "backup":
+        id = random.randint(1,1000)
         if not auth(request.headers.get("Authorization"), ["admin"]):
             return "You do not have permission to run this command!"
         put = requests.put(
-            "https://backups.datapackhub.net/" + date.today().strftime("%d.%m.%Y"),
+            "https://backups.datapackhub.net/" + date.today().strftime("custom-" + str(id)),
             open(config.DATA + "data.db", "rb"),
             headers={
                 "Authorization": config.BACKUPS_TOKEN,
@@ -141,9 +143,9 @@ def console():
         )
 
         if not put.ok:
-            return "It didn't work."
-
-        return "Backed up the database!"
+            return("It didn't work.")
+        
+        return "Backed up the database as " + str(id)
     elif cmd == "notify":
         if not auth(
             request.headers.get("Authorization"),
