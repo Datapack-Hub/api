@@ -22,7 +22,8 @@ def reset(table: str):
         category STRING NOT NULL,
         uploaded INT NOT NULL,
         updated INT NOT NULL,
-        mod_message STRING);
+        mod_message STRING,
+        downloads INT NOT NULL = 0);
     """
     )
 

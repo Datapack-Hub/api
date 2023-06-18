@@ -41,7 +41,7 @@ def search():
 
     conn = sqlite3.connect(config.DATA + "data.db")
     r = conn.execute(
-        f"select type, author, title, icon, url, description, rowid, category, uploaded, updated from projects where status = 'live' and trim(title) LIKE '%{util.sanitise(query)}%'"
+        f"select type, author, title, icon, url, description, rowid, category, uploaded, updated, downloads from projects where status = 'live' and trim(title) LIKE '%{util.sanitise(query)}%'"
     ).fetchall()
 
     out = []
@@ -60,6 +60,7 @@ def search():
             "description": item[5],
             "ID": item[6],
             "category": item[7],
+            "downloads":item[10]
         }
 
         if len(latest_version) != 0:
@@ -92,7 +93,7 @@ def query():
     # SQL stuff
     conn = sqlite3.connect(config.DATA + "data.db")
     r = conn.execute(
-        "select type, author, title, icon, url, description, rowid, category, uploaded, updated from projects where status = 'live'"
+        "select type, author, title, icon, url, description, rowid, category, uploaded, updated, downloads from projects where status = 'live'"
     ).fetchall()
 
     out = []
@@ -111,6 +112,7 @@ def query():
             "description": item[5],
             "ID": item[6],
             "category": item[7],
+            "downloads":item[10]
         }
 
         if len(latest_version) != 0:
@@ -139,7 +141,7 @@ def get_proj(id):
         return "Token expired!", 429
 
     proj = conn.execute(
-        f"select type, author, title, icon, url, description, rowid, category, status, uploaded, updated, body from projects where rowid = {id}"
+        f"select type, author, title, icon, url, description, rowid, category, status, uploaded, updated, body, downloads from projects where rowid = {id}"
     ).fetchone()
 
     latest_version = conn.execute(
@@ -176,6 +178,7 @@ def get_proj(id):
         "uploaded": proj[9],
         "updated": proj[10],
         "body": proj[11],
+        "downloads":proj[12]
     }
 
     if len(latest_version) != 0:
@@ -206,7 +209,7 @@ def get_project(slug: str):
 
     # gimme dat project and gtfo
     proj = conn.execute(
-        f"select type, author, title, icon, url, description, rowid, category, status, uploaded, updated, body, mod_message from projects where url = '{util.sanitise(slug)}'"
+        f"select type, author, title, icon, url, description, rowid, category, status, uploaded, updated, body, mod_message, downloads from projects where url = '{util.sanitise(slug)}'"
     ).fetchone()
 
     latest_version = conn.execute(
@@ -244,6 +247,7 @@ def get_project(slug: str):
         "uploaded": proj[9],
         "updated": proj[10],
         "body": proj[11],
+        "downloads":proj[13]
     }
 
     if this_user != 31:
@@ -268,7 +272,7 @@ def random():
 
     conn = sqlite3.connect(config.DATA + "data.db")
     proj = conn.execute(
-        f"SELECT type, author, title, icon, url, description, rowid, category, status, uploaded, updated, body FROM projects where status = 'live' ORDER BY RANDOM() LIMIT {util.sanitise(count)}"
+        f"SELECT type, author, title, icon, url, description, rowid, category, status, uploaded, updated, body, downloads FROM projects where status = 'live' ORDER BY RANDOM() LIMIT {util.sanitise(count)}"
     ).fetchall()
 
     out = []
@@ -289,6 +293,7 @@ def random():
             "uploaded": i[9],
             "updated": i[10],
             "body": i[11],
+            "downloads": i[12]
         }
 
         if len(latest_version) != 0:
@@ -678,3 +683,25 @@ def remove(id):
         return "The project is now deleted.", 200
     else:
         return "This project is not in a valid state to be deleted!", 400
+
+@projects.route("/id/<int:id>/download", methods=["POST"])
+def download(id):
+    tok = request.headers.get("Authorization")
+    if tok != "ThisIsVeryLegitComeFromCDNNotSpoofedBroTrustMe12":
+        return "This is a private route!", 403
+
+    conn = sqlite3.connect(config.DATA + "data.db")
+    proj = conn.execute(
+        "select downloads from projects where rowid = " + str(id)
+    ).fetchall()
+
+    if len(proj) == 0:
+        return "Project not found.", 404
+
+    proj = proj[0]
+    
+    conn.execute("update projects set downloads = downloads + 1 where rowid = " + str(id))
+
+    conn.commit()
+    conn.close()
+    return "Incremented download counter.", 200
