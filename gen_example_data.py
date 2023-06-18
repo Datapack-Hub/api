@@ -23,7 +23,7 @@ def reset(table: str):
         uploaded INT NOT NULL,
         updated INT NOT NULL,
         mod_message STRING,
-        downloads INT NOT NULL = 0);
+        downloads INT NOT NULL DEFAULT 0);
     """
     )
 
