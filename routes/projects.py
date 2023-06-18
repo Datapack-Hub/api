@@ -50,7 +50,7 @@ def search():
             "select type, author, title, icon, url, description, rowid, category, uploaded, updated, downloads from projects where status = 'live' and trim(title) LIKE '%{util.sanitise(query)}%' ORDER BY downloads DESC"
         ).fetchall()
     else:
-        return "Unknown sorting method.",400
+        return "Unknown sorting method.", 400
 
     out = []
 
