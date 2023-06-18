@@ -141,8 +141,8 @@ def console():
         )
 
         if not put.ok:
-            return("It didn't work.")
-        
+            return "It didn't work."
+
         return "Backed up the database!"
     elif cmd == "notify":
         if not auth(
