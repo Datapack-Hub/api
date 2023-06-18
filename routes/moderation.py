@@ -16,7 +16,16 @@ import requests
 import random
 from datetime import date
 
-console_commands = ["sql", "select", "hello", "reset", "notify", "user", "backup", "restore"]
+console_commands = [
+    "sql",
+    "select",
+    "hello",
+    "reset",
+    "notify",
+    "user",
+    "backup",
+    "restore",
+]
 
 
 def auth(token: str, perm_levels: list[str]):
