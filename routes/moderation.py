@@ -13,7 +13,7 @@ import gen_example_data
 import shlex
 import time
 
-console_commands = ["sql", "select", "hello", "reset", "notify"]
+console_commands = ["sql", "select", "hello", "reset", "notify", "user"]
 
 
 def auth(token: str, perm_levels: list[str]):
