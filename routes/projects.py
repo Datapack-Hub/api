@@ -30,7 +30,7 @@ def after(resp):
 @projects.route("/search", methods=["GET"])
 def search():
     x = time.time()
-    query = request.args.get("query").replace("'", "")
+    query = request.args.get("query","").replace("'", "")
     page = request.args.get("page", 1)
     page = int(page)
     sort = request.args.get("sort", "updated")
