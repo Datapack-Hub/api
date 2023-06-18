@@ -88,13 +88,20 @@ def search():
 def query():
     page = request.args.get("page", 1)
     page = int(page)
-    request.args.get("sort", "updated")
+    sort = request.args.get("sort", "updated")
 
     # SQL stuff
     conn = sqlite3.connect(config.DATA + "data.db")
-    r = conn.execute(
-        "select type, author, title, icon, url, description, rowid, category, uploaded, updated, downloads from projects where status = 'live'"
-    ).fetchall()
+    if sort == "updated":
+        r = conn.execute(
+            "select type, author, title, icon, url, description, rowid, category, uploaded, updated, downloads from projects where status = 'live' ORDER BY updated DESC"
+        ).fetchall()
+    elif sort == "downloads":
+        r = conn.execute(
+            "select type, author, title, icon, url, description, rowid, category, uploaded, updated, downloads from projects where status = 'live' ORDER BY downloads DESC"
+        ).fetchall()
+    else:
+        return "Unknown sorting method.",400
 
     out = []
 
