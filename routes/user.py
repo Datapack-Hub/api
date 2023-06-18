@@ -194,7 +194,7 @@ def user_projects(username):
         if authed.id == user.id:
             # Get all submissions
             r = conn.execute(
-                f"select type, author, title, icon, url, description, rowid, status from projects where author = {user.id} and status != 'deleted'"
+                f"select type, author, title, icon, url, description, rowid, status, downloads from projects where author = {user.id} and status != 'deleted'"
             ).fetchall()
 
             # Form array
@@ -213,6 +213,7 @@ def user_projects(username):
                     "description": item[5],
                     "ID": item[6],
                     "status": item[7],
+                    "downloads":item[8]
                 }
 
                 if len(latest_version) != 0:
