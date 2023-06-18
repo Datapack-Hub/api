@@ -232,7 +232,7 @@ def user_projects(username):
         else:
             # Get all PUBLIC submissions
             r = conn.execute(
-                f"select type, author, title, icon, url, description, rowid, status from projects where author = {user.id} and status == 'live'"
+                f"select type, author, title, icon, url, description, rowid, status, downloads from projects where author = {user.id} and status == 'live'"
             ).fetchall()
 
             # Form array
@@ -248,6 +248,7 @@ def user_projects(username):
                         "description": item[5],
                         "ID": item[6],
                         "status": item[7],
+                        "downloads": item[8],
                     }
                 )
 
