@@ -168,6 +168,7 @@ def console():
         )
         with open(config.DATA + "data.db", "wb") as fp:
             fp.seek(0)
+            print(file.text)
             fp.write(file.content)
             fp.close()
 
