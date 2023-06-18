@@ -60,7 +60,7 @@ def search():
             "description": item[5],
             "ID": item[6],
             "category": item[7],
-            "downloads":item[10]
+            "downloads": item[10],
         }
 
         if len(latest_version) != 0:
@@ -112,7 +112,7 @@ def query():
             "description": item[5],
             "ID": item[6],
             "category": item[7],
-            "downloads":item[10]
+            "downloads": item[10],
         }
 
         if len(latest_version) != 0:
@@ -178,7 +178,7 @@ def get_proj(id):
         "uploaded": proj[9],
         "updated": proj[10],
         "body": proj[11],
-        "downloads":proj[12]
+        "downloads": proj[12],
     }
 
     if len(latest_version) != 0:
@@ -247,7 +247,7 @@ def get_project(slug: str):
         "uploaded": proj[9],
         "updated": proj[10],
         "body": proj[11],
-        "downloads":proj[13]
+        "downloads": proj[13],
     }
 
     if this_user != 31:
@@ -293,7 +293,7 @@ def random():
             "uploaded": i[9],
             "updated": i[10],
             "body": i[11],
-            "downloads": i[12]
+            "downloads": i[12],
         }
 
         if len(latest_version) != 0:
@@ -684,6 +684,7 @@ def remove(id):
     else:
         return "This project is not in a valid state to be deleted!", 400
 
+
 @projects.route("/id/<int:id>/download", methods=["POST"])
 def download(id):
     tok = request.headers.get("Authorization")
@@ -699,8 +700,10 @@ def download(id):
         return "Project not found.", 404
 
     proj = proj[0]
-    
-    conn.execute("update projects set downloads = downloads + 1 where rowid = " + str(id))
+
+    conn.execute(
+        "update projects set downloads = downloads + 1 where rowid = " + str(id)
+    )
 
     conn.commit()
     conn.close()
