@@ -109,7 +109,7 @@ def query():
             "select type, author, title, icon, url, description, rowid, category, uploaded, updated, downloads from projects where status = 'live' ORDER BY downloads DESC"
         ).fetchall()
     else:
-        return "Unknown sorting method.",400
+        return "Unknown sorting method.", 400
 
     out = []
 
