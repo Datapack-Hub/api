@@ -1,7 +1,6 @@
 import flask
 from flask_cors import CORS
 from flask_compress import Compress
-from datetime import date
 
 import config
 from os.path import exists
