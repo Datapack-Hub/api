@@ -82,7 +82,7 @@ def console():
             return "Processed SQL command!", 200
 
     elif cmd == "select":
-        if not auth(request.headers.get("Authorization"), ["admin", "developer"]):
+        if not auth(request.headers.get("Authorization"), ["admin"]):
             return "You do not have permission to run this command!"
 
         sql_command = "SELECT " + full[7:]
@@ -97,6 +97,23 @@ def console():
             return "SQL Error: " + (" ".join(error.args)), 400
         else:
             return json.dumps(out, indent=3).replace("\n", "<br />"), 200
+    elif cmd == "user":
+        if not auth(request.headers.get("Authorization"), ["admin", "moderator"]):
+            return "You do not have permission to run this command!"
+
+        # Run SQLITE command
+        try:
+            conn = sqlite3.connect(config.DATA + "data.db")
+            out = conn.execute(f"select username, role, rowid from users where trim(username) like '{args[0]}'").fetchall()
+            conn.commit()
+            conn.close()
+        except sqlite3.Error as error:
+            return "SQL Error: " + (" ".join(error.args)), 400
+        else:
+            returnthis = ""
+            for u in out:
+                returnthis = returnthis + f"{u[0]} (ID {u[2]}) | Role: {u[1]}\n"
+            return returnthis
     elif cmd == "hello":
         return "Beep boop! Hi!"
     elif cmd == "reset":

@@ -9,6 +9,7 @@ import sqlite3
 import config
 import usefuls.files as files
 from werkzeug.exceptions import BadRequestKeyError
+import time
 
 versions = Blueprint("versions", __name__, url_prefix="/versions")
 
@@ -223,8 +224,8 @@ def new(project: int):
 
     if v[3] is not None:
         o["resource_pack_download"]: v[3]
-
-    print("gotted here")
+        
+    conn.execute(f"update projects set updated = {str(int( time.time() ))} where rowid = {project};")
 
     conn.commit()
     conn.close()
