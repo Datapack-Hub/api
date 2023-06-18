@@ -146,6 +146,22 @@ def console():
             return("It didn't work.")
         
         return "Backed up the database as " + str(id)
+    elif cmd == "restore":
+        if not auth(request.headers.get("Authorization"), ["admin"]):
+            return "You do not have permission to run this command!"
+        file = requests.get(
+            "https://backups.datapackhub.net/" + args[0],
+            headers={
+                "Authorization": config.BACKUPS_TOKEN,
+            },
+            timeout=300,
+        )
+        with open(config.DATA + "data.db", "wb") as fp:
+            fp.seek(0)
+            fp.write(file.content)
+            fp.close()
+        
+        return "Restored the backup. Don't mess up again next time, silly boy."
     elif cmd == "notify":
         if not auth(
             request.headers.get("Authorization"),
