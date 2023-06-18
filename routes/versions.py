@@ -224,8 +224,10 @@ def new(project: int):
 
     if v[3] is not None:
         o["resource_pack_download"]: v[3]
-        
-    conn.execute(f"update projects set updated = {str(int( time.time() ))} where rowid = {project};")
+
+    conn.execute(
+        f"update projects set updated = {str(int( time.time() ))} where rowid = {project};"
+    )
 
     conn.commit()
     conn.close()
