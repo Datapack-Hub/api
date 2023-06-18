@@ -15,7 +15,6 @@ import time
 import requests
 import random
 from datetime import date
-import urllib.request
 
 console_commands = [
     "sql",
