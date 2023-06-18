@@ -33,6 +33,7 @@ def search():
     query = request.args.get("query").replace("'", "")
     page = request.args.get("page", 1)
     page = int(page)
+    sort = request.args.get("sort", "updated")
 
     if len(query) > 75:
         return
@@ -40,9 +41,16 @@ def search():
     page = request.args.get("page", 1)
 
     conn = sqlite3.connect(config.DATA + "data.db")
-    r = conn.execute(
-        f"select type, author, title, icon, url, description, rowid, category, uploaded, updated, downloads from projects where status = 'live' and trim(title) LIKE '%{util.sanitise(query)}%'"
-    ).fetchall()
+    if sort == "updated":
+        r = conn.execute(
+            "select type, author, title, icon, url, description, rowid, category, uploaded, updated, downloads from projects where status = 'live' and trim(title) LIKE '%{util.sanitise(query)}%' ORDER BY updated DESC"
+        ).fetchall()
+    elif sort == "downloads":
+        r = conn.execute(
+            "select type, author, title, icon, url, description, rowid, category, uploaded, updated, downloads from projects where status = 'live' and trim(title) LIKE '%{util.sanitise(query)}%' ORDER BY downloads DESC"
+        ).fetchall()
+    else:
+        return "Unknown sorting method.",400
 
     out = []
 
