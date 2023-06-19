@@ -9,6 +9,7 @@ from zipfile import ZipFile
 import os
 import shutil
 
+
 def upload_zipfile(file: str, file_name: str, uploader: str, squash: bool = False):
     print("Base64 File: " + file.split(",")[1])
     file = file.split(",")[1]
@@ -17,7 +18,7 @@ def upload_zipfile(file: str, file_name: str, uploader: str, squash: bool = Fals
 
     with open(config.DATA + "Temporary.zip", "wb") as out:
         out.write(decoded)
-    
+
     shutil.rmtree(config.DATA + "Temporary")
 
     if squash:
