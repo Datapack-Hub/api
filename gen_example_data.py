@@ -11,18 +11,18 @@ def reset(table: str):
     # Projects Data
     connection.execute(
         """create table IF NOT EXISTS projects(
-        type STRING NOT NULL, 
+        type TEXT NOT NULL, 
         author INT NOT NULL, 
-        title STRING NOT NULL, 
-        description STRING NOT NULL,
-        body STRING NOT NULL, 
-        icon STRING, 
-        url STRING NOT NULL UNIQUE, 
-        status STRING NOT NULL DEFAULT "draft", 
-        category STRING NOT NULL,
+        title TEXT NOT NULL, 
+        description TEXT NOT NULL,
+        body TEXT NOT NULL, 
+        icon TEXT, 
+        url TEXT NOT NULL UNIQUE, 
+        status TEXT NOT NULL DEFAULT "draft", 
+        category TEXT NOT NULL,
         uploaded INT NOT NULL,
         updated INT NOT NULL,
-        mod_message STRING,
+        mod_message TEXT,
         downloads INT NOT NULL DEFAULT 0);
     """
     )
@@ -30,12 +30,12 @@ def reset(table: str):
     # Versions Data
     connection.execute(
         """create table if not exists versions(
-        name STRING NOT NULL,
-        description STRING NOT NULL,
-        primary_download STRING NOT NULL,
-        resource_pack_download STRING,
-        minecraft_versions STRING NOT NULL,
-        version_code STRING NOT NULL,
+        name TEXT NOT NULL,
+        description TEXT NOT NULL,
+        primary_download TEXT NOT NULL,
+        resource_pack_download TEXT,
+        minecraft_versions TEXT NOT NULL,
+        version_code TEXT NOT NULL,
         project INT NOT NULL
     );
     """
@@ -44,12 +44,12 @@ def reset(table: str):
     # User data
     connection.execute(
         """create table IF NOT EXISTS users (
-        username string NOT NULL UNIQUE, 
-        token string NOT NULL UNIQUE, 
-        role string NOT NULL, 
-        bio STRING, 
+        username TEXT NOT NULL UNIQUE, 
+        token TEXT NOT NULL UNIQUE, 
+        role TEXT NOT NULL, 
+        bio TEXT, 
         github_id int NOT NULL UNIQUE,
-        profile_icon string NOT NULL
+        profile_icon TEXT NOT NULL
     )"""
     )
 
@@ -58,17 +58,17 @@ def reset(table: str):
         """create table IF NOT EXISTS banned_users (
         id int NOT NULL UNIQUE,
         expires int,
-        reason string
+        reason TEXT
     )"""
     )
 
     # Notification Data
     connection.execute(
         """create table if not exists notifs(
-        message STRING NOT NULL,
-        description STRING NOT NULL,
+        message TEXT NOT NULL,
+        description TEXT NOT NULL,
         read BOOL NOT NULL,
-        type STRING NOT NULL,
+        type TEXT NOT NULL,
         user INT NOT NULL
     );
     """
@@ -77,7 +77,7 @@ def reset(table: str):
     # Report Data
     connection.execute(
         """create table if not exists reports(
-        message STRING NOT NULL,
+        message TEXT NOT NULL,
         reporter INT NOT NULL,
         project INT NOT NULL
     );
