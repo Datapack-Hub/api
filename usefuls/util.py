@@ -4,6 +4,7 @@ import config
 import disnake
 import datetime
 from usefuls.commons import *
+import json
 
 
 def authenticate(auth: str):
@@ -39,7 +40,7 @@ class get_user:
 
         # Select
         u = conn.execute(
-            f"select username, rowid, role, bio, profile_icon from users where lower(username) = '{sanitise(self.lower())}'"
+            f"select username, rowid, role, bio, profile_icon, badges from users where lower(username) = '{sanitise(self.lower())}'"
         ).fetchone()
 
         if not u:
@@ -47,14 +48,14 @@ class get_user:
 
         conn.close()
 
-        return User(u[1], u[0], u[2], u[3], profile_icon=u[4])
+        return User(u[1], u[0], u[2], u[3], profile_icon=u[4], badges=json.loads(u[5]))
 
     def from_id(self: int):
         conn = sqlite3.connect(config.DATA + "data.db")
 
         # Select
         u = conn.execute(
-            f"select username, rowid, role, bio, profile_icon from users where rowid = {self}"
+            f"select username, rowid, role, bio, profile_icon, badges from users where rowid = {self}"
         ).fetchone()
 
         if not u:
@@ -62,14 +63,14 @@ class get_user:
 
         conn.close()
 
-        return User(u[1], u[0], u[2], u[3], profile_icon=u[4])
+        return User(u[1], u[0], u[2], u[3], profile_icon=u[4], badges=json.loads(u[5]))
 
     def from_github_id(self: int):
         conn = sqlite3.connect(config.DATA + "data.db")
 
         # Select
         u = conn.execute(
-            f"select username, rowid, role, bio, profile_icon from users where github_id = {self}"
+            f"select username, rowid, role, bio, profile_icon, badges from users where github_id = {self}"
         ).fetchone()
 
         if not u:
@@ -77,14 +78,14 @@ class get_user:
 
         conn.close()
 
-        return User(u[1], u[0], u[2], u[3], profile_icon=u[4])
+        return User(u[1], u[0], u[2], u[3], profile_icon=u[4], badges=json.loads(u[5]))
 
     def from_token(token: str):
         conn = sqlite3.connect(config.DATA + "data.db")
 
         # Select
         u = conn.execute(
-            f"select username, rowid, role, bio, profile_icon from users where token = '{sanitise(token)}'"
+            f"select username, rowid, role, bio, profile_icon, badges from users where token = '{sanitise(token)}'"
         ).fetchone()
 
         if not u:
@@ -93,7 +94,7 @@ class get_user:
 
         conn.close()
 
-        return User(u[1], u[0], u[2], u[3], profile_icon=u[4])
+        return User(u[1], u[0], u[2], u[3], profile_icon=u[4], badges=json.loads(u[5]))
 
 
 def get_user_token(github_id: int):

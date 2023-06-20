@@ -10,6 +10,7 @@ class User:
     profile_icon: str
     token: str = None
     github_id: int = None
+    badges: list[str]
 
 
 @dataclass
