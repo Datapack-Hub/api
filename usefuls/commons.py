@@ -8,9 +8,9 @@ class User:
     role: str
     bio: str
     profile_icon: str
+    badges: list[str]
     token: str = None
     github_id: int = None
-    badges: list[str]
 
 
 @dataclass
