@@ -24,14 +24,18 @@ def authenticate(auth: str):
     conn = sqlite3.connect(config.DATA + "data.db")
 
     u = conn.execute(
-        f"select username, rowid, role, bio, profile_icon from users where token = '{token}'"
+        f"select username, rowid, role, bio, profile_icon, badges from users where token = '{token}'"
     ).fetchone()
     if not u:
         print("user doth not exists")
         return 33
     conn.close()
 
-    return User(u[1], u[0], u[2], u[3], profile_icon=u[4])
+    if u[5]:
+        badges = json.loads(u[5])
+    else:
+        badges = None
+    return User(u[1], u[0], u[2], u[3], profile_icon=u[4], badges=badges)
 
 
 class get_user:
