@@ -63,7 +63,7 @@ def get_user(username):
         "role": u.role,
         "bio": u.bio,
         "profile_icon": u.profile_icon,
-        "badges":u.badges
+        "badges": u.badges,
     }
 
 
@@ -80,7 +80,7 @@ def get_user_id(id):
             "role": u.role,
             "bio": u.bio,
             "profile_icon": u.profile_icon,
-            "badges":u.badges
+            "badges": u.badges,
         }
     elif request.method == "PATCH":
         dat = request.get_json(force=True)
