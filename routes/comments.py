@@ -2,8 +2,7 @@
 **Notifications API endpoints**
 """
 
-from flask import Blueprint, request
-import usefuls.util as util
+from flask import Blueprint
 import sqlite3
 import config
 
@@ -48,7 +47,7 @@ def messages_from_thread(thread: int):
     out = []
     for cmt in cmts:
         if cmt[3]:
-            replies = conn.execute(
+            conn.execute(
                 f"select rowid, message, author, replies, sent from comments where thread = {thread} and replied_to = null"
             )
         out.append({"id": cmt[0], "message": cmt[1], "author": cmt[2], "sent": cmt[4]})
