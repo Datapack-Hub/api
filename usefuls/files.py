@@ -20,6 +20,7 @@ def upload_zipfile(file: str, file_name: str, uploader: str, squash: bool = Fals
         out.write(decoded)
 
     shutil.rmtree(config.DATA + "Temporary")
+    os.makedirs(config.DATA + "Temporary")
 
     if squash:
         with ZipFile(config.DATA + "Temporary.zip", "r") as zip_ref:
