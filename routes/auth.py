@@ -18,7 +18,8 @@ def login_gh():
     return flask.redirect(
         f"https://github.com/login/oauth/authorize?client_id={config.github.client_id}"
     )
-    
+
+
 @auth.route("/login/discord")
 def login_dc():
     return flask.redirect(
@@ -69,7 +70,8 @@ def callback_gh():
         )
 
         return resp
-    
+
+
 @auth.route("/callback/discord")
 def callback_dc():
     # Get an access token
