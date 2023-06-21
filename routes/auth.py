@@ -79,15 +79,13 @@ def callback_dc():
 
     # Get discord ID
     discord = requests.get(
-        "https://discord.com/api/oauth2/@me",
+        "https://discord.com/api/v10/users/@me",
         headers={"Authorization": f"Bearer {access_token}"},
         timeout=120,
-    ).json()
-
-    print(discord)
+    ).json()["user"]
 
     # Get DH user
-    u = util.get_user.from_github_id(discord["id"])
+    u = util.get_user.from_discord_id(discord["id"])
 
     if not u:
         # Make account
