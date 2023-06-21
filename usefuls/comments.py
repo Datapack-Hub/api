@@ -4,6 +4,7 @@ from dataclasses import dataclass
 
 sql_engine = create_engine("sqlite+pysqlite:///:memory:")
 
+
 def create_tables():
     with sql_engine.connect() as conn:
         conn.execute(
@@ -19,12 +20,14 @@ def create_tables():
         conn.commit()
         conn.close()
 
+
 @dataclass(frozen=True)
 class Comment:
     id: int
     author: int
     content: str
     replies: int
+
 
 class CommentTree:
     """A comment tree representation"""
@@ -63,15 +66,17 @@ class CommentTree:
     def save(self):
         for comment in self.comment_tree.all_nodes():
             with sql_engine.connect() as conn:
-                
-                comment_exists = conn.execute(text("SELECT * FROM comments WHERE id = :id"), { "id": comment.data.id }).first()
-                
+                comment_exists = conn.execute(
+                    text("SELECT * FROM comments WHERE id = :id"),
+                    {"id": comment.data.id},
+                ).first()
+
                 if comment_exists is None:
                     conn.execute(
                         text(
                             "INSERT INTO comments (id, author, content, replies) VALUES (:id, :author, :content, :replies)"
                         ),
-                        vars(comment.data)
+                        vars(comment.data),
                     )
                     conn.commit()
                 else:
@@ -79,20 +84,22 @@ class CommentTree:
                         text(
                             "UPDATE comments SET id = :id, author = :author, content = :content, replies = :replies WHERE id = :id"
                         ),
-                        vars(comment.data)
+                        vars(comment.data),
                     )
                     conn.commit()
                     pass
                 pass
             pass
         pass
+
     pass
+
 
 def load_tree():
     with sql_engine.connect() as conn:
         res = conn.execute(text("SELECT * FROM comments ORDER BY id DESC"))
         print(res.all())
-                
+
 
 if __name__ == "__main__":
     create_tables()
@@ -106,5 +113,5 @@ if __name__ == "__main__":
     tree.show_tree()
 
     tree.save()
-    
+
     load_tree()
