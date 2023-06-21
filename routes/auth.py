@@ -83,7 +83,7 @@ def callback_dc():
         headers={"Authorization": f"Bearer {access_token}"},
         timeout=120,
     ).json()
-    
+
     print(discord)
 
     # Get DH user
