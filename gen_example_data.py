@@ -48,7 +48,8 @@ def reset(table: str):
         token TEXT NOT NULL UNIQUE, 
         role TEXT NOT NULL, 
         bio TEXT, 
-        github_id int NOT NULL UNIQUE,
+        github_id int UNIQUE,
+        discord_id int UNIQUE,
         profile_icon TEXT NOT NULL
     )"""
     )
