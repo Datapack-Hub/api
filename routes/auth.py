@@ -23,7 +23,7 @@ def login_gh():
 @auth.route("/login/discord")
 def login_dc():
     return flask.redirect(
-        "https://discord.com/oauth2/authorize?client_id=1121129295868334220&redirect_uri=https%3A%2F%2Fapi.datapackhub.net%2Fauth%2Fdiscord%2Fcallback%2Fdiscord&response_type=code&scope=identify"
+        f"https://discord.com/oauth2/authorize?client_id=1121129295868334220&redirect_uri=https%3A%2F%2Fapi.datapackhub.net%2Fauth%2Fcallback%2Fdiscord&response_type=code&scope=identify"
     )
 
 
