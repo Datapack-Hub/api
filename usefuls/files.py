@@ -19,7 +19,8 @@ def upload_zipfile(file: str, file_name: str, uploader: str, squash: bool = Fals
     with open(config.DATA + "Temporary.zip", "wb") as out:
         out.write(decoded)
 
-    shutil.rmtree(config.DATA + "Temporary")
+    if(os.path.exists(config.DATA + "Temporary")):
+        shutil.rmtree(config.DATA + "Temporary")
     os.makedirs(config.DATA + "Temporary")
 
     if squash:
