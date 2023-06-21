@@ -96,7 +96,7 @@ class get_user:
         else:
             badges = None
         return User(u[1], u[0], u[2], u[3], profile_icon=u[4], badges=badges)
-    
+
     def from_discord_id(self: int):
         conn = sqlite3.connect(config.DATA + "data.db")
 
@@ -153,13 +153,12 @@ def get_user_token(github_id: int):
 
     return u[0]
 
+
 def get_user_token_from_discord_id(discord: int):
     conn = sqlite3.connect(config.DATA + "data.db")
 
     # Select
-    u = conn.execute(
-        f"select token from users where discord_id = {discord}"
-    ).fetchone()
+    u = conn.execute(f"select token from users where discord_id = {discord}").fetchone()
 
     conn.close()
 
@@ -169,7 +168,10 @@ def get_user_token_from_discord_id(discord: int):
     return u[0]
 
 
-def create_user_account(username: str, id: int, ):
+def create_user_account(
+    username: str,
+    id: int,
+):
     conn = sqlite3.connect(config.DATA + "data.db")
 
     token = secrets.token_urlsafe()
