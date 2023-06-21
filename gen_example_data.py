@@ -83,7 +83,7 @@ def reset(table: str):
     );
     """
     )
-    
+
     # Report Data
     connection.execute(
         """create table if not exists comments(
@@ -96,7 +96,6 @@ def reset(table: str):
     );
     """
     )
-
 
     # save and exit
     connection.commit()
