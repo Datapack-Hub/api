@@ -96,6 +96,25 @@ class get_user:
         else:
             badges = None
         return User(u[1], u[0], u[2], u[3], profile_icon=u[4], badges=badges)
+    
+    def from_discord_id(self: int):
+        conn = sqlite3.connect(config.DATA + "data.db")
+
+        # Select
+        u = conn.execute(
+            f"select username, rowid, role, bio, profile_icon, badges from users where discord_id = {self}"
+        ).fetchone()
+
+        if not u:
+            return None
+
+        conn.close()
+
+        if u[5]:
+            badges = json.loads(u[5])
+        else:
+            badges = None
+        return User(u[1], u[0], u[2], u[3], profile_icon=u[4], badges=badges)
 
     def from_token(token: str):
         conn = sqlite3.connect(config.DATA + "data.db")
@@ -134,8 +153,23 @@ def get_user_token(github_id: int):
 
     return u[0]
 
+def get_user_token_from_discord_id(discord: int):
+    conn = sqlite3.connect(config.DATA + "data.db")
 
-def create_user_account(ghubdata: dict):
+    # Select
+    u = conn.execute(
+        f"select token from users where discord_id = {discord}"
+    ).fetchone()
+
+    conn.close()
+
+    if not u:
+        return None
+
+    return u[0]
+
+
+def create_user_account(username: str, id: int, ):
     conn = sqlite3.connect(config.DATA + "data.db")
 
     token = secrets.token_urlsafe()
