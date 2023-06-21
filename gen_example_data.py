@@ -83,6 +83,20 @@ def reset(table: str):
     );
     """
     )
+    
+    # Report Data
+    connection.execute(
+        """create table if not exists comments(
+        message TEXT NOT NULL,
+        author INT NOT NULL,
+        replies TEXT,
+        replied_to INT,
+        thread INT NOT NULL,
+        sent INT NOT NULL
+    );
+    """
+    )
+
 
     # save and exit
     connection.commit()

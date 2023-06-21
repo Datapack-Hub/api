@@ -14,6 +14,7 @@ from routes.projects import projects
 from routes.versions import versions
 from routes.moderation import mod
 from routes.notifications import notifs
+from routes.comments import comments
 from routes.misc import misc
 
 app = flask.Flask(__name__)
@@ -38,6 +39,7 @@ app.register_blueprint(projects)
 app.register_blueprint(versions)
 app.register_blueprint(mod)
 app.register_blueprint(notifs)
+app.register_blueprint(comments)
 app.register_blueprint(misc)
 
 # Database things
