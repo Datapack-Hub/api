@@ -23,7 +23,7 @@ def login_gh():
 @auth.route("/login/discord")
 def login_dc():
     return flask.redirect(
-        "https://discord.com/oauth2/authorize?client_id=1121129295868334220&redirect_uri=https%3A%2F%2Fapi.datapackhub.net%2Fauth%2Fcallback%2Fdiscord&response_type=code&scope=identify"
+        "https://discord.com/oauth2/authorize?response_type=token&client_id=1121129295868334220&state=15773059ghq9183habn&scope=identify"
     )
 
 
@@ -82,9 +82,7 @@ def callback_dc():
         "https://discord.com/api/v10/users/@me",
         headers={"Authorization": f"Bearer {access_token}"},
         timeout=120,
-    ).json()
-
-    print(discord)
+    ).json()["user"]
 
     # Get DH user
     u = util.get_user.from_discord_id(discord["id"])
