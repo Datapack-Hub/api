@@ -50,6 +50,7 @@ def reset(table: str):
         bio TEXT, 
         github_id int UNIQUE,
         discord_id int UNIQUE,
+        badges TEXT,
         profile_icon TEXT NOT NULL
     )"""
     )
