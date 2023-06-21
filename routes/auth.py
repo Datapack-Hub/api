@@ -82,7 +82,9 @@ def callback_dc():
         "https://discord.com/api/oauth2/@me",
         headers={"Authorization": f"Bearer {access_token}"},
         timeout=120,
-    ).json()["user"]
+    ).json()
+    
+    print(discord)
 
     # Get DH user
     u = util.get_user.from_github_id(discord["id"])
