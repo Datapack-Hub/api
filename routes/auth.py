@@ -82,11 +82,13 @@ def callback_dc():
     access_token = request.args.get("access_token")
 
     # Get discord ID
-    print(discord = requests.get(
-        "https://discord.com/api/v10/users/@me",
-        headers={"Authorization": f"Bearer {access_token}"},
-        timeout=120,
-    ).json())
+    print(
+        discord=requests.get(
+            "https://discord.com/api/v10/users/@me",
+            headers={"Authorization": f"Bearer {access_token}"},
+            timeout=120,
+        ).json()
+    )
     discord = requests.get(
         "https://discord.com/api/v10/users/@me",
         headers={"Authorization": f"Bearer {access_token}"},
