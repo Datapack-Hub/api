@@ -169,8 +169,7 @@ def get_user_token_from_discord_id(discord: int):
 
 
 def create_user_account(
-    username: str,
-    id: int,
+    ghubdata: dict,
 ):
     conn = sqlite3.connect(config.DATA + "data.db")
 
