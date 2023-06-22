@@ -35,7 +35,11 @@ def callback_gh():
         f"https://github.com/login/oauth/access_token?client_id={config.github.client_id}&client_secret={config.github.client_secret}&code={code}",
         headers={"Accept": "application/json"},
         timeout=180,
-    ).json()["access_token"]
+    ).json()
+    
+    print(access_token)
+    
+    access_token = access_token["access_token"]
 
     # Get github ID
     github = requests.get(
