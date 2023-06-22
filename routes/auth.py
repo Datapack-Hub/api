@@ -23,7 +23,7 @@ def login_gh():
 @auth.route("/login/discord")
 def login_dc():
     return flask.redirect(
-        "https://discord.com/oauth2/authorize?response_type=token&client_id=1121129295868334220&state=15773059ghq9183habn&scope=identify"
+        "https://discord.com/api/oauth2/authorize?client_id=1121129295868334220&redirect_uri=https%3A%2F%2Fapi.datapackhub.net%2Fauth%2Fcallback%2Fdiscord&response_type=code&scope=identify"
     )
 
 
@@ -79,17 +79,22 @@ def callback_gh():
 @auth.route("/callback/discord")
 def callback_dc():
     # Get an access token
-    access_token = request.args.get("access_token")
-    print(access_token)
+    code = request.args.get("code")
+    
+    data = {
+    'client_id': 1121129295868334220,
+    'client_secret': "BvADF8zUtHmhb1XfVAg9bdpfNithjqo3",
+    'grant_type': 'authorization_code',
+    'code': code,
+    'redirect_uri': "https://api.datapackhub.net/auth/callback/discord"
+    }
+    headers = {
+        'Content-Type': 'application/x-www-form-urlencoded'
+    }
+    
+    access_token = requests.post('https://discord.com/api/v10/oauth2/token', data=data, headers=headers).json()["access_token"]
 
     # Get discord ID
-    print(
-        requests.get(
-            "https://discord.com/api/v10/users/@me",
-            headers={"Authorization": f"Bearer {access_token}"},
-            timeout=120,
-        ).json()
-    )
     discord = requests.get(
         "https://discord.com/api/v10/users/@me",
         headers={"Authorization": f"Bearer {access_token}"},
