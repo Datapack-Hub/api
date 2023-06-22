@@ -1,4 +1,4 @@
-from treelib import Tree, Node
+from treelib import Tree
 from sqlalchemy import create_engine, text
 from dataclasses import dataclass
 
