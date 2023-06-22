@@ -36,9 +36,9 @@ def callback_gh():
         headers={"Accept": "application/json"},
         timeout=180,
     ).json()
-    
+
     print(access_token)
-    
+
     access_token = access_token["access_token"]
 
     # Get github ID
