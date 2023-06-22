@@ -80,19 +80,19 @@ def callback_gh():
 def callback_dc():
     # Get an access token
     code = request.args.get("code")
-    
+
     data = {
-    'client_id': 1121129295868334220,
-    'client_secret': "BvADF8zUtHmhb1XfVAg9bdpfNithjqo3",
-    'grant_type': 'authorization_code',
-    'code': code,
-    'redirect_uri': "https://api.datapackhub.net/auth/callback/discord"
+        "client_id": 1121129295868334220,
+        "client_secret": "BvADF8zUtHmhb1XfVAg9bdpfNithjqo3",
+        "grant_type": "authorization_code",
+        "code": code,
+        "redirect_uri": "https://api.datapackhub.net/auth/callback/discord",
     }
-    headers = {
-        'Content-Type': 'application/x-www-form-urlencoded'
-    }
-    
-    access_token = requests.post('https://discord.com/api/v10/oauth2/token', data=data, headers=headers).json()["access_token"]
+    headers = {"Content-Type": "application/x-www-form-urlencoded"}
+
+    access_token = requests.post(
+        "https://discord.com/api/v10/oauth2/token", data=data, headers=headers
+    ).json()["access_token"]
 
     # Get discord ID
     discord = requests.get(
