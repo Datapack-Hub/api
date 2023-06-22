@@ -80,6 +80,7 @@ def callback_gh():
 def callback_dc():
     # Get an access token
     access_token = request.args.get("access_token")
+    print(access_token)
 
     # Get discord ID
     print(
