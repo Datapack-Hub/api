@@ -133,12 +133,13 @@ def callback_dc():
 
         return resp
 
+
 @auth.route("/link/discord")
 def link_discord():
     code = request.args.get("code")
     if not code:
         return "Code required", 400
-    
+
     # Get signed-in user
     if not request.headers.get("Authorization"):
         return "Authorization required", 401
@@ -148,7 +149,7 @@ def link_discord():
         return "Please make sure authorization type = Basic"
     if usr == 33:
         return "Token Expired", 498
-    
+
     # Get discord user info
     data = {
         "client_id": 1121129295868334220,
@@ -169,10 +170,12 @@ def link_discord():
         headers={"Authorization": f"Bearer {access_token}"},
         timeout=120,
     ).json()["id"]
-    
+
     conn = sqlite3.connect(config.DATA + "data.db")
     try:
-        conn.execute(f"update users set discord_id = {discord_id} where rowid = {usr.id};")
+        conn.execute(
+            f"update users set discord_id = {discord_id} where rowid = {usr.id};"
+        )
     except:
         conn.rollback()
         conn.close()
@@ -181,12 +184,13 @@ def link_discord():
         conn.commit()
         conn.close()
         return "Discord linked!", 200
-    
+
+
 @auth.route("/link/github")
 def link_github():
     # Get an access token
     code = request.args.get("code")
-    
+
     access_token = requests.post(
         f"https://github.com/login/oauth/access_token?client_id={config.github.client_id}&client_secret={config.github.client_secret}&code={code}",
         headers={"Accept": "application/json"},
@@ -194,7 +198,7 @@ def link_github():
     ).json()
 
     access_token = access_token["access_token"]
-    
+
     # Get signed-in user
     if not request.headers.get("Authorization"):
         return "Authorization required", 401
@@ -211,10 +215,12 @@ def link_github():
         headers={"Authorization": f"Bearer {access_token}"},
         timeout=120,
     ).json()
-    
+
     conn = sqlite3.connect(config.DATA + "data.db")
     try:
-        conn.execute(f"update users set github_id = {github['id']} where rowid = {usr.id};")
+        conn.execute(
+            f"update users set github_id = {github['id']} where rowid = {usr.id};"
+        )
     except:
         conn.rollback()
         conn.close()
