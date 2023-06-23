@@ -156,7 +156,7 @@ def link_discord():
         "client_secret": "BvADF8zUtHmhb1XfVAg9bdpfNithjqo3",
         "grant_type": "authorization_code",
         "code": code,
-        "redirect_uri": "https://api.datapackhub.net/auth/callback/discord",
+        "redirect_uri": "https://datapackhub.net/settings/discord",
     }
     headers = {"Content-Type": "application/x-www-form-urlencoded"}
 
