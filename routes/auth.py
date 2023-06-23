@@ -37,8 +37,6 @@ def callback_gh():
         timeout=180,
     ).json()
 
-    print(access_token)
-
     access_token = access_token["access_token"]
 
     # Get github ID
@@ -134,3 +132,94 @@ def callback_dc():
         )
 
         return resp
+
+@auth.route("/link/discord")
+def link_discord():
+    code = request.args.get("code")
+    if not code:
+        return "Code required", 400
+    
+    # Get signed-in user
+    if not request.headers.get("Authorization"):
+        return "Authorization required", 401
+
+    usr = util.authenticate(request.headers.get("Authorization"))
+    if usr == 32:
+        return "Please make sure authorization type = Basic"
+    if usr == 33:
+        return "Token Expired", 498
+    
+    # Get discord user info
+    data = {
+        "client_id": 1121129295868334220,
+        "client_secret": "BvADF8zUtHmhb1XfVAg9bdpfNithjqo3",
+        "grant_type": "authorization_code",
+        "code": code,
+        "redirect_uri": "https://api.datapackhub.net/auth/callback/discord",
+    }
+    headers = {"Content-Type": "application/x-www-form-urlencoded"}
+
+    access_token = requests.post(
+        "https://discord.com/api/v10/oauth2/token", data=data, headers=headers
+    ).json()["access_token"]
+
+    # Get discord ID
+    discord_id = requests.get(
+        "https://discord.com/api/v10/users/@me",
+        headers={"Authorization": f"Bearer {access_token}"},
+        timeout=120,
+    ).json()["id"]
+    
+    conn = sqlite3.connect(config.DATA + "data.db")
+    try:
+        conn.execute(f"update users set discord_id = {discord_id} where rowid = {usr.id};")
+    except:
+        conn.rollback()
+        conn.close()
+        return "Something went wrong!", 500
+    else:
+        conn.commit()
+        conn.close()
+        return "Discord linked!", 200
+    
+@auth.route("/link/github")
+def link_github():
+    # Get an access token
+    code = request.args.get("code")
+    
+    access_token = requests.post(
+        f"https://github.com/login/oauth/access_token?client_id={config.github.client_id}&client_secret={config.github.client_secret}&code={code}",
+        headers={"Accept": "application/json"},
+        timeout=180,
+    ).json()
+
+    access_token = access_token["access_token"]
+    
+    # Get signed-in user
+    if not request.headers.get("Authorization"):
+        return "Authorization required", 401
+
+    usr = util.authenticate(request.headers.get("Authorization"))
+    if usr == 32:
+        return "Please make sure authorization type = Basic"
+    if usr == 33:
+        return "Token Expired", 498
+
+    # Get github ID
+    github = requests.get(
+        "https://api.github.com/user",
+        headers={"Authorization": f"Bearer {access_token}"},
+        timeout=120,
+    ).json()
+    
+    conn = sqlite3.connect(config.DATA + "data.db")
+    try:
+        conn.execute(f"update users set github_id = {github['id']} where rowid = {usr.id};")
+    except:
+        conn.rollback()
+        conn.close()
+        return "Something went wrong!", 500
+    else:
+        conn.commit()
+        conn.close()
+        return "Discord linked!", 200

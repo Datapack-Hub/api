@@ -133,7 +133,6 @@ def get_user_id(id):
 
 @user.route("/me")
 def me():
-    # TODO user can see if they are banned
     if not request.headers.get("Authorization"):
         return "Authorization required", 401
 
