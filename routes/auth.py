@@ -16,7 +16,7 @@ auth = flask.Blueprint("auth", __name__, url_prefix="/auth")
 @auth.route("/login/github")
 def login_gh():
     return flask.redirect(
-        f"https://github.com/login/oauth/authorize?client_id={config.github.client_id}"
+        f"https://github.com/login/oauth/authorize?client_id={config.github.client_id}&redirect_uri=https%3A%2F%2Fapi.datapackhub.net%2Fauth%2Fcallback%2Fdiscord"
     )
 
 
