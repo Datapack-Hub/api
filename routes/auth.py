@@ -16,7 +16,7 @@ auth = flask.Blueprint("auth", __name__, url_prefix="/auth")
 @auth.route("/login/github")
 def login_gh():
     return flask.redirect(
-        f"https://github.com/login/oauth/authorize?client_id={config.github.client_id}&redirect_uri=https%3A%2F%2Fapi.datapackhub.net%2Fauth%2Fcallback%2Fdiscord"
+        f"https://github.com/login/oauth/authorize?client_id={config.github.client_id}&redirect_uri=https%3A%2F%2Fapi.datapackhub.net%2Fauth%2Fcallback%2Fgithub"
     )
 
 
@@ -134,7 +134,7 @@ def callback_dc():
         return resp
 
 
-@auth.route("/link/discord")
+@auth.route("/link/discord", methods=["put"])
 def link_discord():
     code = request.args.get("code")
     if not code:
@@ -186,7 +186,7 @@ def link_discord():
         return "Discord linked!", 200
 
 
-@auth.route("/link/github")
+@auth.route("/link/github", methods=["put"])
 def link_github():
     # Get an access token
     code = request.args.get("code")
