@@ -43,11 +43,11 @@ def search():
     conn = sqlite3.connect(config.DATA + "data.db")
     if sort == "updated":
         r = conn.execute(
-            "select type, author, title, icon, url, description, rowid, category, uploaded, updated, downloads from projects where status = 'live' and trim(title) LIKE '%{util.sanitise(query)}%' ORDER BY updated DESC"
+            f"select type, author, title, icon, url, description, rowid, category, uploaded, updated, downloads from projects where status = 'live' and trim(title) LIKE '%{util.sanitise(query)}%' ORDER BY updated DESC"
         ).fetchall()
     elif sort == "downloads":
         r = conn.execute(
-            "select type, author, title, icon, url, description, rowid, category, uploaded, updated, downloads from projects where status = 'live' and trim(title) LIKE '%{util.sanitise(query)}%' ORDER BY downloads DESC"
+            f"select type, author, title, icon, url, description, rowid, category, uploaded, updated, downloads from projects where status = 'live' and trim(title) LIKE '%{util.sanitise(query)}%' ORDER BY downloads DESC"
         ).fetchall()
     else:
         return "Unknown sorting method.", 400
