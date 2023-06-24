@@ -69,6 +69,7 @@ def search():
             "ID": item[6],
             "category": item[7],
             "downloads": item[10],
+            "featured":False
         }
 
         if item[11]:
@@ -131,6 +132,7 @@ def query():
             "ID": item[6],
             "category": item[7],
             "downloads": item[10],
+            "featured":False
         }
 
         if item[11]:
@@ -200,6 +202,7 @@ def get_proj(id):
         "updated": proj[10],
         "body": proj[11],
         "downloads": proj[12],
+        "featured":False
     }
 
     if proj[13]:
@@ -272,6 +275,7 @@ def get_project(slug: str):
         "updated": proj[10],
         "body": proj[11],
         "downloads": proj[13],
+        "featured":False
     }
 
     if proj[14]:
@@ -321,6 +325,7 @@ def random():
             "updated": i[10],
             "body": i[11],
             "downloads": i[12],
+            "featured":False
         }
 
         if i[13]:
