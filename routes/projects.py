@@ -72,7 +72,7 @@ def search():
         }
         
         if(item[11]):
-            temp["featured"] is True
+            temp["featured"] == True
 
         if len(latest_version) != 0:
             temp["latest_version"] = {
@@ -134,7 +134,7 @@ def query():
         }
         
         if(item[11]):
-            temp["featured"] is True
+            temp["featured"] == True
 
         if len(latest_version) != 0:
             temp["latest_version"] = {
@@ -203,7 +203,7 @@ def get_proj(id):
     }
     
     if(proj[13]):
-        temp["featured"] is True
+        temp["featured"] == True
 
     if len(latest_version) != 0:
         temp["latest_version"] = {
@@ -275,7 +275,7 @@ def get_project(slug: str):
     }
     
     if(proj[14]):
-        project_data["featured"] is True
+        project_data["featured"] == True
 
     if this_user != 31:
         if proj[1] == this_user.id or this_user.role in ["admin", "moderator"]:
@@ -324,7 +324,7 @@ def random():
         }
         
         if(i[13]):
-            temp["featured"] is True
+            temp["featured"] == True
 
         if len(latest_version) != 0:
             temp["latest_version"] = {
@@ -790,11 +790,9 @@ def feature(id):
     
 @projects.route("/featured")
 def featured():
-    count = request.args.get("count", 1)
-
     conn = sqlite3.connect(config.DATA + "data.db")
     proj = conn.execute(
-        f"SELECT type, author, title, icon, url, description, rowid, category, status, uploaded, updated, body, downloads FROM projects where status = 'live' and featured_until != null LIMIT {util.sanitise(count)}"
+        f"SELECT type, author, title, icon, url, description, rowid, category, status, uploaded, updated, body, downloads FROM projects where status = 'live' and featured_until != null"
     ).fetchall()
 
     out = []
