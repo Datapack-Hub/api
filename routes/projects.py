@@ -43,11 +43,11 @@ def search():
     conn = sqlite3.connect(config.DATA + "data.db")
     if sort == "updated":
         r = conn.execute(
-            f"select type, author, title, icon, url, description, rowid, category, uploaded, updated, downloads from projects where status = 'live' and trim(title) LIKE '%{util.sanitise(query)}%' ORDER BY updated DESC"
+            f"select type, author, title, icon, url, description, rowid, category, uploaded, updated, downloads, featured_until from projects where status = 'live' and trim(title) LIKE '%{util.sanitise(query)}%' ORDER BY updated DESC"
         ).fetchall()
     elif sort == "downloads":
         r = conn.execute(
-            f"select type, author, title, icon, url, description, rowid, category, uploaded, updated, downloads from projects where status = 'live' and trim(title) LIKE '%{util.sanitise(query)}%' ORDER BY downloads DESC"
+            f"select type, author, title, icon, url, description, rowid, category, uploaded, updated, downloads, featured_until from projects where status = 'live' and trim(title) LIKE '%{util.sanitise(query)}%' ORDER BY downloads DESC"
         ).fetchall()
     else:
         return "Unknown sorting method.", 400
@@ -70,6 +70,9 @@ def search():
             "category": item[7],
             "downloads": item[10],
         }
+        
+        if(item[11]):
+            temp["featured"] == True
 
         if len(latest_version) != 0:
             temp["latest_version"] = {
@@ -102,11 +105,11 @@ def query():
     conn = sqlite3.connect(config.DATA + "data.db")
     if sort == "updated":
         r = conn.execute(
-            "select type, author, title, icon, url, description, rowid, category, uploaded, updated, downloads from projects where status = 'live' ORDER BY updated DESC"
+            "select type, author, title, icon, url, description, rowid, category, uploaded, updated, downloads, featured_until from projects where status = 'live' ORDER BY updated DESC"
         ).fetchall()
     elif sort == "downloads":
         r = conn.execute(
-            "select type, author, title, icon, url, description, rowid, category, uploaded, updated, downloads from projects where status = 'live' ORDER BY downloads DESC"
+            "select type, author, title, icon, url, description, rowid, category, uploaded, updated, downloads, featured_until from projects where status = 'live' ORDER BY downloads DESC"
         ).fetchall()
     else:
         return "Unknown sorting method.", 400
@@ -129,6 +132,9 @@ def query():
             "category": item[7],
             "downloads": item[10],
         }
+        
+        if(item[11]):
+            temp["featured"] == True
 
         if len(latest_version) != 0:
             temp["latest_version"] = {
@@ -156,7 +162,7 @@ def get_proj(id):
         return "Token expired!", 429
 
     proj = conn.execute(
-        f"select type, author, title, icon, url, description, rowid, category, status, uploaded, updated, body, downloads from projects where rowid = {id}"
+        f"select type, author, title, icon, url, description, rowid, category, status, uploaded, updated, body, downloads, featured_until from projects where rowid = {id}"
     ).fetchone()
 
     latest_version = conn.execute(
@@ -195,6 +201,9 @@ def get_proj(id):
         "body": proj[11],
         "downloads": proj[12],
     }
+    
+    if(proj[13]):
+        temp["featured"] == True
 
     if len(latest_version) != 0:
         temp["latest_version"] = {
@@ -224,7 +233,7 @@ def get_project(slug: str):
 
     # gimme dat project and gtfo
     proj = conn.execute(
-        f"select type, author, title, icon, url, description, rowid, category, status, uploaded, updated, body, mod_message, downloads from projects where url = '{util.sanitise(slug)}'"
+        f"select type, author, title, icon, url, description, rowid, category, status, uploaded, updated, body, mod_message, downloads, featured_until from projects where url = '{util.sanitise(slug)}'"
     ).fetchone()
 
     latest_version = conn.execute(
@@ -264,6 +273,9 @@ def get_project(slug: str):
         "body": proj[11],
         "downloads": proj[13],
     }
+    
+    if(proj[14]):
+        project_data["featured"] == True
 
     if this_user != 31:
         if proj[1] == this_user.id or this_user.role in ["admin", "moderator"]:
@@ -287,7 +299,7 @@ def random():
 
     conn = sqlite3.connect(config.DATA + "data.db")
     proj = conn.execute(
-        f"SELECT type, author, title, icon, url, description, rowid, category, status, uploaded, updated, body, downloads FROM projects where status = 'live' ORDER BY RANDOM() LIMIT {util.sanitise(count)}"
+        f"SELECT type, author, title, icon, url, description, rowid, category, status, uploaded, updated, body, downloads, featured_until FROM projects where status = 'live' ORDER BY RANDOM() LIMIT {util.sanitise(count)}"
     ).fetchall()
 
     out = []
@@ -310,6 +322,9 @@ def random():
             "body": i[11],
             "downloads": i[12],
         }
+        
+        if(proj[13]):
+            temp["featured"] == True
 
         if len(latest_version) != 0:
             temp["latest_version"] = {
@@ -723,3 +738,101 @@ def download(id):
     conn.commit()
     conn.close()
     return "Incremented download counter.", 200
+
+@projects.route("/id/<int:id>/feature", methods=["POST"])
+def feature(id):
+    # Authenticate
+    tok = request.headers.get("Authorization")
+    if not tok:
+        return "Not authenticated! You gotta log in first :P", 401
+    user = util.authenticate(tok)
+    if user == 32:
+        return "Make sure authorization is basic!", 400
+    elif user == 33:
+        return "Token expired!", 429
+    if user.role not in ["admin", "moderator"]:
+        return "You don't have permission to do this", 403
+    
+    dat = request.get_json(force=True)
+    try:
+        dat["expires"]
+    except:
+        return "Expiry parameter missing", 400
+
+    # Validate project
+    conn = sqlite3.connect(config.DATA + "data.db")
+    proj = conn.execute(
+        "select author, status from projects where rowid = " + str(id)
+    ).fetchall()
+
+    if len(proj) == 0:
+        return "Project not found.", 404
+
+    proj = proj[0]
+
+    # now onto the fun stuff >:)
+    if proj[1] != "live":
+        return "This project is not in a valid state to be featured!", 400
+    
+    current = time.time()
+    expiry = current + (86400 * dat["expires"])
+    
+    try:
+        conn.execute(f"UPDATE projects SET featured_until = {str(expiry)} WHERE rowid = {str(id)}")
+    except:
+        conn.rollback()
+        conn.close()
+        return "There was an error."
+    else:
+        conn.commit()
+        conn.close()
+        return "Featured project!"
+    
+@projects.route("/featured")
+def featured():
+    count = request.args.get("count", 1)
+
+    conn = sqlite3.connect(config.DATA + "data.db")
+    proj = conn.execute(
+        f"SELECT type, author, title, icon, url, description, rowid, category, status, uploaded, updated, body, downloads FROM projects where status = 'live' and featured_until != null LIMIT {util.sanitise(count)}"
+    ).fetchall()
+
+    out = []
+    for i in proj:
+        latest_version = conn.execute(
+            f"SELECT * FROM versions WHERE project = {i[6]} ORDER BY rowid DESC"
+        ).fetchall()
+        
+        current = time.time()
+        if current > i[13]:
+            conn.execute(f"update projects set featured_until = null where rowid = {i[6]}")
+            conn.commit()
+        else:
+            temp = {
+                "type": i[0],
+                "author": i[1],
+                "title": i[2],
+                "icon": i[3],
+                "url": i[4],
+                "description": i[5],
+                "ID": i[6],
+                "category": i[7],
+                "uploaded": i[9],
+                "updated": i[10],
+                "body": i[11],
+                "downloads": i[12],
+                "featured": True
+            }
+
+            if len(latest_version) != 0:
+                temp["latest_version"] = {
+                    "name": latest_version[0][0],
+                    "description": latest_version[0][1],
+                    "minecraft_versions": latest_version[0][4],
+                    "version_code": latest_version[0][5],
+                }
+
+            out.append(temp)
+
+    conn.close()
+    return {"count": count, "result": out}
