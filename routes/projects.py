@@ -70,8 +70,8 @@ def search():
             "category": item[7],
             "downloads": item[10],
         }
-        
-        if(item[11]):
+
+        if item[11]:
             temp["featured"] == True
 
         if len(latest_version) != 0:
@@ -132,8 +132,8 @@ def query():
             "category": item[7],
             "downloads": item[10],
         }
-        
-        if(item[11]):
+
+        if item[11]:
             temp["featured"] == True
 
         if len(latest_version) != 0:
@@ -201,8 +201,8 @@ def get_proj(id):
         "body": proj[11],
         "downloads": proj[12],
     }
-    
-    if(proj[13]):
+
+    if proj[13]:
         temp["featured"] == True
 
     if len(latest_version) != 0:
@@ -273,8 +273,8 @@ def get_project(slug: str):
         "body": proj[11],
         "downloads": proj[13],
     }
-    
-    if(proj[14]):
+
+    if proj[14]:
         project_data["featured"] == True
 
     if this_user != 31:
@@ -322,8 +322,8 @@ def random():
             "body": i[11],
             "downloads": i[12],
         }
-        
-        if(i[13]):
+
+        if i[13]:
             temp["featured"] == True
 
         if len(latest_version) != 0:
@@ -739,6 +739,7 @@ def download(id):
     conn.close()
     return "Incremented download counter.", 200
 
+
 @projects.route("/id/<int:id>/feature", methods=["POST"])
 def feature(id):
     # Authenticate
@@ -752,7 +753,7 @@ def feature(id):
         return "Token expired!", 429
     if user.role not in ["admin", "moderator"]:
         return "You don't have permission to do this", 403
-    
+
     dat = request.get_json(force=True)
     try:
         dat["expires"]
@@ -773,12 +774,14 @@ def feature(id):
     # now onto the fun stuff >:)
     if proj[1] != "live":
         return "This project is not in a valid state to be featured!", 400
-    
+
     current = time.time()
     expiry = current + (86400 * dat["expires"])
-    
+
     try:
-        conn.execute(f"UPDATE projects SET featured_until = {str(expiry)} WHERE rowid = {str(id)}")
+        conn.execute(
+            f"UPDATE projects SET featured_until = {str(expiry)} WHERE rowid = {str(id)}"
+        )
     except:
         conn.rollback()
         conn.close()
@@ -787,7 +790,8 @@ def feature(id):
         conn.commit()
         conn.close()
         return "Featured project!"
-    
+
+
 @projects.route("/featured")
 def featured():
     conn = sqlite3.connect(config.DATA + "data.db")
@@ -800,10 +804,12 @@ def featured():
         latest_version = conn.execute(
             f"SELECT * FROM versions WHERE project = {i[6]} ORDER BY rowid DESC"
         ).fetchall()
-        
+
         current = time.time()
         if current > i[13]:
-            conn.execute(f"update projects set featured_until = null where rowid = {i[6]}")
+            conn.execute(
+                f"update projects set featured_until = null where rowid = {i[6]}"
+            )
             conn.commit()
         else:
             temp = {
@@ -819,7 +825,7 @@ def featured():
                 "updated": i[10],
                 "body": i[11],
                 "downloads": i[12],
-                "featured": True
+                "featured": True,
             }
 
             if len(latest_version) != 0:
@@ -833,4 +839,4 @@ def featured():
             out.append(temp)
 
     conn.close()
-    return {"result": out, "count":out.__len__()}
+    return {"result": out, "count": out.__len__()}
