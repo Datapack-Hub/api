@@ -69,7 +69,7 @@ def search():
             "ID": item[6],
             "category": item[7],
             "downloads": item[10],
-            "featured": False,
+            "featured":False
         }
 
         if item[11]:
@@ -132,7 +132,7 @@ def query():
             "ID": item[6],
             "category": item[7],
             "downloads": item[10],
-            "featured": False,
+            "featured":False
         }
 
         if item[11]:
@@ -202,7 +202,7 @@ def get_proj(id):
         "updated": proj[10],
         "body": proj[11],
         "downloads": proj[12],
-        "featured": False,
+        "featured":False
     }
 
     if proj[13]:
@@ -275,7 +275,7 @@ def get_project(slug: str):
         "updated": proj[10],
         "body": proj[11],
         "downloads": proj[13],
-        "featured": False,
+        "featured":False
     }
 
     if proj[14]:
@@ -325,7 +325,7 @@ def random():
             "updated": i[10],
             "body": i[11],
             "downloads": i[12],
-            "featured": False,
+            "featured":False
         }
 
         if i[13]:
@@ -801,7 +801,7 @@ def feature(id):
 def featured():
     conn = sqlite3.connect(config.DATA + "data.db")
     proj = conn.execute(
-        f"SELECT type, author, title, icon, url, description, rowid, category, status, uploaded, updated, body, downloads FROM projects where status = 'live' and featured_until > 0"
+        f"SELECT type, author, title, icon, url, description, rowid, category, status, uploaded, updated, body, downloads, featured_until FROM projects where status = 'live' and featured_until > 0"
     ).fetchall()
 
     out = []
