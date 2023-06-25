@@ -232,6 +232,7 @@ class post:
             timestamp=datetime.datetime.now(),
         ).set_author(name=usr.username, icon_url=usr.profile_icon)
         webhook.send(embed=emb)
+
     def error(title: str, message: str):
         webhook = disnake.SyncWebhook.from_url(config.MOD_LOGS)
         emb = disnake.Embed(
@@ -241,49 +242,91 @@ class post:
             timestamp=datetime.datetime.now(),
         )
         webhook.send(embed=emb)
-    def approval(approver: str, title: str, description: str, icon:str, author: int):
+
+    def approval(approver: str, title: str, description: str, icon: str, author: int):
         author_obj = get_user.from_id(author)
 
         webhook = disnake.SyncWebhook.from_url(config.PROJ_LOGS)
-        emb = disnake.Embed(
-            title=title,
-            description=description,
-            color=2673743,
-            timestamp=datetime.datetime.now(),
-        ).set_author(name=f"Project approved by {approver}", icon_url="https://media.discordapp.net/attachments/1076912842269270037/1122514368979026021/utility12.png").set_footer(text=author_obj.username,icon_url=author_obj.profile_icon).set_thumbnail(icon)
+        emb = (
+            disnake.Embed(
+                title=title,
+                description=description,
+                color=2673743,
+                timestamp=datetime.datetime.now(),
+            )
+            .set_author(
+                name=f"Project approved by {approver}",
+                icon_url="https://media.discordapp.net/attachments/1076912842269270037/1122514368979026021/utility12.png",
+            )
+            .set_footer(text=author_obj.username, icon_url=author_obj.profile_icon)
+            .set_thumbnail(icon)
+        )
         webhook.send(embed=emb)
-    def deletion(approver: str, title: str, description: str, icon:str, author: int, reason: str):
+
+    def deletion(
+        approver: str, title: str, description: str, icon: str, author: int, reason: str
+    ):
         author_obj = get_user.from_id(author)
 
         webhook = disnake.SyncWebhook.from_url(config.PROJ_LOGS)
-        emb = disnake.Embed(
-            title=title,
-            description=description,
-            color=12597818,
-            timestamp=datetime.datetime.now(),
-        ).set_author(name=f"Project deleted by {approver}", icon_url="https://media.discordapp.net/attachments/1076912842269270037/1122514607572009040/utility8.png").set_footer(text=author_obj.username,icon_url=author_obj.profile_icon).set_thumbnail(icon).add_field("Reason",reason)
+        emb = (
+            disnake.Embed(
+                title=title,
+                description=description,
+                color=12597818,
+                timestamp=datetime.datetime.now(),
+            )
+            .set_author(
+                name=f"Project deleted by {approver}",
+                icon_url="https://media.discordapp.net/attachments/1076912842269270037/1122514607572009040/utility8.png",
+            )
+            .set_footer(text=author_obj.username, icon_url=author_obj.profile_icon)
+            .set_thumbnail(icon)
+            .add_field("Reason", reason)
+        )
         webhook.send(embed=emb)
-    def disabled(approver: str, title: str, description: str, icon:str, author: int, reason: str):
+
+    def disabled(
+        approver: str, title: str, description: str, icon: str, author: int, reason: str
+    ):
         author_obj = get_user.from_id(author)
 
         webhook = disnake.SyncWebhook.from_url(config.PROJ_LOGS)
-        emb = disnake.Embed(
-            title=title,
-            description=description,
-            color=12597818,
-            timestamp=datetime.datetime.now(),
-        ).set_author(name=f"Project disabled by {approver}", icon_url="https://media.discordapp.net/attachments/1076912842269270037/1122514607572009040/utility8.png").set_footer(text=author_obj.username,icon_url=author_obj.profile_icon).set_thumbnail(icon).add_field("Reason",reason)
+        emb = (
+            disnake.Embed(
+                title=title,
+                description=description,
+                color=12597818,
+                timestamp=datetime.datetime.now(),
+            )
+            .set_author(
+                name=f"Project disabled by {approver}",
+                icon_url="https://media.discordapp.net/attachments/1076912842269270037/1122514607572009040/utility8.png",
+            )
+            .set_footer(text=author_obj.username, icon_url=author_obj.profile_icon)
+            .set_thumbnail(icon)
+            .add_field("Reason", reason)
+        )
         webhook.send(embed=emb)
-    def in_queue(title: str, description: str, icon:str, author: int):
+
+    def in_queue(title: str, description: str, icon: str, author: int):
         author_obj = get_user.from_id(author)
 
         webhook = disnake.SyncWebhook.from_url(config.PROJ_LOGS)
-        emb = disnake.Embed(
-            title=title,
-            description=description,
-            color=12487214,
-            timestamp=datetime.datetime.now(),
-        ).set_author(name=f"Project awaiting approval", icon_url="https://media.discordapp.net/attachments/1076912842269270037/1122514541138432020/output-onlinepngtools.png").set_footer(text=author_obj.username,icon_url=author_obj.profile_icon).set_thumbnail(icon)
+        emb = (
+            disnake.Embed(
+                title=title,
+                description=description,
+                color=12487214,
+                timestamp=datetime.datetime.now(),
+            )
+            .set_author(
+                name=f"Project awaiting approval",
+                icon_url="https://media.discordapp.net/attachments/1076912842269270037/1122514541138432020/output-onlinepngtools.png",
+            )
+            .set_footer(text=author_obj.username, icon_url=author_obj.profile_icon)
+            .set_thumbnail(icon)
+        )
         webhook.send(embed=emb)
 
 
@@ -303,4 +346,10 @@ def sanitise(query: str):
 
 
 if __name__ == "__main__":
-    post.approval("Silabear","Hexenwerk","Magic datapack which adds wands, spells, etc. and will soon even be well polished!","https://files.datapackhub.net/icons/174209.png","Flynecraft")
+    post.approval(
+        "Silabear",
+        "Hexenwerk",
+        "Magic datapack which adds wands, spells, etc. and will soon even be well polished!",
+        "https://files.datapackhub.net/icons/174209.png",
+        "Flynecraft",
+    )

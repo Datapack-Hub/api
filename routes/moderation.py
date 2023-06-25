@@ -372,7 +372,7 @@ def change_status(proj: int):
     if not user:
         return "You can't do this!", 403
 
-    data = request.get_json(force=True) 
+    data = request.get_json(force=True)
 
     try:
         data["action"]
@@ -381,7 +381,8 @@ def change_status(proj: int):
 
     conn = sqlite3.connect(config.DATA + "data.db")
     project = conn.execute(
-        "select rowid, status, title, author, description, icon from projects where rowid = " + str(proj)
+        "select rowid, status, title, author, description, icon from projects where rowid = "
+        + str(proj)
     ).fetchall()
 
     project = project[0]
@@ -397,7 +398,9 @@ def change_status(proj: int):
         )
         conn.commit()
         conn.close()
-        util.post.approval(user.username, project[2], project[4], project[5], project[3])
+        util.post.approval(
+            user.username, project[2], project[4], project[5], project[3]
+        )
         return "yep i did the thing", 200
     elif data["action"] == "delete":
         conn.execute(
@@ -407,7 +410,14 @@ def change_status(proj: int):
             conn.execute(
                 f"INSERT INTO notifs VALUES ('Project {project[2]} deleted', 'Your project was deleted for the following reason: {util.sanitise(data['message'])}', False, 'important', {project[3]})"
             )
-        util.post.deletion(user.username, project[2], project[4], project[5], project[3], data["message"])
+        util.post.deletion(
+            user.username,
+            project[2],
+            project[4],
+            project[5],
+            project[3],
+            data["message"],
+        )
         conn.commit()
         conn.close()
         return "deleted project"
@@ -434,7 +444,14 @@ def change_status(proj: int):
             )
             conn.commit()
             conn.close()
-            util.post.disabled(user.username, project[2], project[4], project[5], project[3], data["message"])
+            util.post.disabled(
+                user.username,
+                project[2],
+                project[4],
+                project[5],
+                project[3],
+                data["message"],
+            )
             return "disabled the project lmao xd xd", 200
     elif data["action"] == "write_note":
         try:
