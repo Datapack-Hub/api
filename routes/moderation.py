@@ -381,7 +381,7 @@ def change_status(proj: int):
 
     conn = sqlite3.connect(config.DATA + "data.db")
     project = conn.execute(
-        "select rowid, status, title, author, description, icon from projects where rowid = "
+        "select rowid, status, title, author, description, icon, url from projects where rowid = "
         + str(proj)
     ).fetchall()
 
@@ -399,7 +399,7 @@ def change_status(proj: int):
         conn.commit()
         conn.close()
         util.post.approval(
-            user.username, project[2], project[4], project[5], project[3]
+            user.username, project[2], project[4], project[5], project[3], project[6]
         )
         return "yep i did the thing", 200
     elif data["action"] == "delete":
@@ -417,6 +417,7 @@ def change_status(proj: int):
             project[5],
             project[3],
             data["message"],
+            project[6]
         )
         conn.commit()
         conn.close()
@@ -451,6 +452,7 @@ def change_status(proj: int):
                 project[5],
                 project[3],
                 data["message"],
+                project[6]
             )
             return "disabled the project lmao xd xd", 200
     elif data["action"] == "write_note":
