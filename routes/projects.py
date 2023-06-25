@@ -546,14 +546,14 @@ def edit(id: int):
             )
     except:
         conn.rollback()
-        util.post_error("Error updating project", traceback.format_exc())
+        util.post.error("Error updating project", traceback.format_exc())
         return "Something went wrong.", 500
 
     conn.commit()
     conn.close()
 
     if user.role in ["admin", "moderator"]:
-        util.post_site_log(
+        util.post.site_log(
             user.username, "Edited project", f"Edited the project {data['title']}"
         )
 
@@ -574,7 +574,7 @@ def publish(id):
 
     conn = sqlite3.connect(config.DATA + "data.db")
     proj = conn.execute(
-        "select author, status from projects where rowid = " + str(id)
+        "select author, status, title, description, icon from projects where rowid = " + str(id)
     ).fetchall()
 
     if len(proj) == 0:
@@ -593,6 +593,7 @@ def publish(id):
 
         conn.commit()
         conn.close()
+        util.post.in_queue(proj[2],proj[3],proj[4],proj[0])
         return "The project is now in the publish queue.", 200
     elif proj[1] == "draft":
         conn.execute("update projects set status = 'live' where rowid = " + str(id))
@@ -607,6 +608,7 @@ def publish(id):
 
         conn.commit()
         conn.close()
+        util.post.in_queue(proj[2],proj[3],proj[4],proj[0])
         return "The project is now in the review queue.", 200
     else:
         return "This project is not in a valid state to be published!", 400
@@ -794,6 +796,7 @@ def feature(id):
     else:
         conn.commit()
         conn.close()
+        # util.post.fea(user.username, project[2], project[4], project[5], project[3], data["message"])
         return "Featured project!"
 
 
