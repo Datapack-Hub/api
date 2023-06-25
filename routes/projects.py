@@ -574,7 +574,8 @@ def publish(id):
 
     conn = sqlite3.connect(config.DATA + "data.db")
     proj = conn.execute(
-        "select author, status, title, description, icon from projects where rowid = " + str(id)
+        "select author, status, title, description, icon from projects where rowid = "
+        + str(id)
     ).fetchall()
 
     if len(proj) == 0:
@@ -593,7 +594,7 @@ def publish(id):
 
         conn.commit()
         conn.close()
-        util.post.in_queue(proj[2],proj[3],proj[4],proj[0])
+        util.post.in_queue(proj[2], proj[3], proj[4], proj[0])
         return "The project is now in the publish queue.", 200
     elif proj[1] == "draft":
         conn.execute("update projects set status = 'live' where rowid = " + str(id))
@@ -608,7 +609,7 @@ def publish(id):
 
         conn.commit()
         conn.close()
-        util.post.in_queue(proj[2],proj[3],proj[4],proj[0])
+        util.post.in_queue(proj[2], proj[3], proj[4], proj[0])
         return "The project is now in the review queue.", 200
     else:
         return "This project is not in a valid state to be published!", 400
