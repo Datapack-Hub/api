@@ -244,7 +244,7 @@ class post:
     def approval(approver: str, title: str, description: str, icon:str, author: int):
         author_obj = get_user.from_id(author)
 
-        webhook = disnake.SyncWebhook.from_url(config.MOD_LOGS)
+        webhook = disnake.SyncWebhook.from_url(config.PROJ_LOGS)
         emb = disnake.Embed(
             title=title,
             description=description,
@@ -255,7 +255,7 @@ class post:
     def deletion(approver: str, title: str, description: str, icon:str, author: int, reason: str):
         author_obj = get_user.from_id(author)
 
-        webhook = disnake.SyncWebhook.from_url(config.MOD_LOGS)
+        webhook = disnake.SyncWebhook.from_url(config.PROJ_LOGS)
         emb = disnake.Embed(
             title=title,
             description=description,
@@ -266,7 +266,7 @@ class post:
     def disabled(approver: str, title: str, description: str, icon:str, author: int, reason: str):
         author_obj = get_user.from_id(author)
 
-        webhook = disnake.SyncWebhook.from_url(config.MOD_LOGS)
+        webhook = disnake.SyncWebhook.from_url(config.PROJ_LOGS)
         emb = disnake.Embed(
             title=title,
             description=description,
@@ -277,7 +277,7 @@ class post:
     def in_queue(title: str, description: str, icon:str, author: int):
         author_obj = get_user.from_id(author)
 
-        webhook = disnake.SyncWebhook.from_url(config.MOD_LOGS)
+        webhook = disnake.SyncWebhook.from_url(config.PROJ_LOGS)
         emb = disnake.Embed(
             title=title,
             description=description,
