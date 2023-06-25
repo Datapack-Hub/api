@@ -116,7 +116,7 @@ def send(target):
     conn.commit()
     conn.close()
 
-    util.post_site_log(
+    util.post.site_log(
         usr.username,
         "Sent a notification",
         f"Sent a `{notif_data['type']}` notification to `{target}`",

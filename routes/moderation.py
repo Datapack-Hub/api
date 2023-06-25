@@ -39,7 +39,7 @@ def auth(token: str, perm_levels: list[str]):
 
     if user.role not in perm_levels:
         return False
-    return True
+    return user
 
 
 mod = Blueprint("mod", __name__, url_prefix="/moderation")
@@ -69,7 +69,7 @@ def console():
     if not util.get_user.from_token(request.headers.get("Authorization")[6:]):
         return "hey u! sign in again plz (i am not hax)", 429
 
-    util.post_site_log(
+    util.post.site_log(
         util.get_user.from_token(request.headers.get("Authorization")[6:]).username,
         "Ran console command",
         f"Ran the console command: `{data['command']}`",
@@ -189,7 +189,7 @@ def logout():
     except:
         return "Failed", 500
     else:
-        util.post_site_log(
+        util.post.site_log(
             util.get_user.from_token(request.headers.get("Authorization")[6:]).username,
             "Logged user out",
             f"Logged out user`{id}`",
@@ -219,7 +219,7 @@ def ban(user: int):
         else:
             conn.commit()
             conn.close()
-            util.post_site_log(
+            util.post.site_log(
                 util.get_user.from_token(
                     request.headers.get("Authorization")[6:]
                 ).username,
@@ -237,7 +237,7 @@ def ban(user: int):
         else:
             conn.commit()
             conn.close()
-            util.post_site_log(
+            util.post.site_log(
                 util.get_user.from_token(
                     request.headers.get("Authorization")[6:]
                 ).username,
@@ -365,13 +365,14 @@ def queue(type: str):
 
 @mod.route("/project/<int:proj>/action", methods=["PATCH"])
 def change_status(proj: int):
-    if not auth(
+    user = auth(
         request.headers.get("Authorization"),
         ["moderator", "admin"],
-    ):
+    )
+    if not user:
         return "You can't do this!", 403
 
-    data = request.get_json(force=True)
+    data = request.get_json(force=True) 
 
     try:
         data["action"]
@@ -380,7 +381,7 @@ def change_status(proj: int):
 
     conn = sqlite3.connect(config.DATA + "data.db")
     project = conn.execute(
-        "select rowid, status, title, author from projects where rowid = " + str(proj)
+        "select rowid, status, title, author, description, icon from projects where rowid = " + str(proj)
     ).fetchall()
 
     project = project[0]
@@ -396,6 +397,7 @@ def change_status(proj: int):
         )
         conn.commit()
         conn.close()
+        util.post.approval(user.username, project[2], project[4], project[5], project[3])
         return "yep i did the thing", 200
     elif data["action"] == "delete":
         conn.execute(
@@ -405,6 +407,7 @@ def change_status(proj: int):
             conn.execute(
                 f"INSERT INTO notifs VALUES ('Project {project[2]} deleted', 'Your project was deleted for the following reason: {util.sanitise(data['message'])}', False, 'important', {project[3]})"
             )
+        util.post.deletion(user.username, project[2], project[4], project[5], project[3], data["message"])
         conn.commit()
         conn.close()
         return "deleted project"
@@ -431,6 +434,7 @@ def change_status(proj: int):
             )
             conn.commit()
             conn.close()
+            util.post.disabled(user.username, project[2], project[4], project[5], project[3], data["message"])
             return "disabled the project lmao xd xd", 200
     elif data["action"] == "write_note":
         try:

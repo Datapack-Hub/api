@@ -119,7 +119,7 @@ def get_user_id(id):
                 conn.execute(
                     f"UPDATE users SET role = '{util.sanitise(dat['role'])}' where rowid = {id}"
                 )
-                util.post_site_log(
+                util.post.site_log(
                     usr.username,
                     "Edited user",
                     f"Edited user data of {dat['username']}",
