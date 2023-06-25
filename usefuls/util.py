@@ -325,7 +325,7 @@ class post:
                 url=f"https://datapackhub.net/project/{url}"
             )
             .set_author(
-                name=f"Project awaiting approval",
+                name="Project awaiting approval",
                 icon_url="https://media.discordapp.net/attachments/1076912842269270037/1122514541138432020/output-onlinepngtools.png",
             )
             .set_footer(text=author_obj.username, icon_url=author_obj.profile_icon)
