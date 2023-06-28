@@ -417,7 +417,7 @@ def change_status(proj: int):
             project[5],
             project[3],
             data["message"],
-            project[6]
+            project[6],
         )
         conn.commit()
         conn.close()
@@ -452,7 +452,7 @@ def change_status(proj: int):
                 project[5],
                 project[3],
                 data["message"],
-                project[6]
+                project[6],
             )
             return "disabled the project lmao xd xd", 200
     elif data["action"] == "write_note":
