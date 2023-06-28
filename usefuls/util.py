@@ -243,7 +243,9 @@ class post:
         )
         webhook.send(embed=emb)
 
-    def approval(approver: str, title: str, description: str, icon: str, author: int, url: str):
+    def approval(
+        approver: str, title: str, description: str, icon: str, author: int, url: str
+    ):
         author_obj = get_user.from_id(author)
 
         webhook = disnake.SyncWebhook.from_url(config.PROJ_LOGS)
@@ -253,7 +255,7 @@ class post:
                 description=description,
                 color=2673743,
                 timestamp=datetime.datetime.now(),
-                url=f"https://datapackhub.net/project/{url}"
+                url=f"https://datapackhub.net/project/{url}",
             )
             .set_author(
                 name=f"Project approved by {approver}",
@@ -265,7 +267,13 @@ class post:
         webhook.send(embed=emb)
 
     def deletion(
-        approver: str, title: str, description: str, icon: str, author: int, reason: str, url: str
+        approver: str,
+        title: str,
+        description: str,
+        icon: str,
+        author: int,
+        reason: str,
+        url: str,
     ):
         author_obj = get_user.from_id(author)
 
@@ -276,7 +284,7 @@ class post:
                 description=description,
                 color=12597818,
                 timestamp=datetime.datetime.now(),
-                url=f"https://datapackhub.net/project/{url}"
+                url=f"https://datapackhub.net/project/{url}",
             )
             .set_author(
                 name=f"Project deleted by {approver}",
@@ -289,7 +297,13 @@ class post:
         webhook.send(embed=emb)
 
     def disabled(
-        approver: str, title: str, description: str, icon: str, author: int, reason: str, url: str
+        approver: str,
+        title: str,
+        description: str,
+        icon: str,
+        author: int,
+        reason: str,
+        url: str,
     ):
         author_obj = get_user.from_id(author)
 
@@ -300,7 +314,7 @@ class post:
                 description=description,
                 color=12597818,
                 timestamp=datetime.datetime.now(),
-                url=f"https://datapackhub.net/project/{url}"
+                url=f"https://datapackhub.net/project/{url}",
             )
             .set_author(
                 name=f"Project disabled by {approver}",
@@ -322,7 +336,7 @@ class post:
                 description=description,
                 color=12487214,
                 timestamp=datetime.datetime.now(),
-                url=f"https://datapackhub.net/project/{url}"
+                url=f"https://datapackhub.net/project/{url}",
             )
             .set_author(
                 name="Project awaiting approval",
