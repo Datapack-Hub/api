@@ -98,8 +98,6 @@ def code(id: int, code: str):
                 return "didded", 200
         else:
             return "Not your version! :P", 403
-
-        return "everything went wrong, you broke it all", 500
     else:
         # Select all versions where the project is this one
         conn = sqlite3.connect(f"{config.DATA}data.db")
