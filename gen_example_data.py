@@ -100,6 +100,12 @@ def reset(table: str):
     """
     )
 
+    # SQLite optimizations
+    connection.execute("PRAGMA synchronous = NORMAL")
+
+    # ! This operation may not be supported on all OSes, disable if you run into issues
+    connection.execute("PRAGMA journal_mode = wal")
+
     # save and exit
     connection.commit()
     connection.close()
