@@ -8,6 +8,7 @@ mctools = Blueprint("mctools", __name__, url_prefix="/tools")
 
 
 # This is: /tools/hello/<name>
+# i feel like the `input` statements would cause this to hang the api
 @mctools.route("/tellraw")
 def tellraw():
     # Input>>>>

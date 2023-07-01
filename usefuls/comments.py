@@ -2,6 +2,10 @@ from treelib import Tree
 from sqlalchemy import create_engine, text
 from dataclasses import dataclass
 
+# I don't plan on touching this more
+# Feel free to modify it sila :)
+# - Cbble
+
 sql_engine = create_engine("sqlite+pysqlite:///:memory:")
 
 

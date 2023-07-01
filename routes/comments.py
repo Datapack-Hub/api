@@ -1,5 +1,5 @@
 """
-**Notifications API endpoints**
+** Comments API endpoints**
 """
 
 from flask import Blueprint
