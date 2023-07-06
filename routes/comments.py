@@ -2,8 +2,10 @@
 ** Comments API endpoints**
 """
 
-from flask import Blueprint
 import sqlite3
+
+from flask import Blueprint
+
 import config
 
 comments = Blueprint("comments", __name__, url_prefix="/comments")

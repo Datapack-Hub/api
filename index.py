@@ -1,21 +1,21 @@
+from os.path import exists
+
 import flask
-from flask_cors import CORS
 from flask_compress import Compress
+from flask_cors import CORS
 
 import config
-from os.path import exists
 import gen_example_data
 from prod import PROD
 
 # Register blueprints
-from routes.user import user
 from routes.auth import auth
-from routes.projects import projects
-from routes.versions import versions
+from routes.comments import comments
 from routes.moderation import mod
 from routes.notifications import notifs
-from routes.comments import comments
-from routes.misc import misc
+from routes.projects import projects
+from routes.user import user
+from routes.versions import versions
 
 app = flask.Flask(__name__)
 CORS(app)
@@ -40,7 +40,6 @@ app.register_blueprint(versions)
 app.register_blueprint(mod)
 app.register_blueprint(notifs)
 app.register_blueprint(comments)
-app.register_blueprint(misc)
 
 # Database things
 if not exists(config.DATA + "data.db"):

@@ -2,19 +2,21 @@
 **Moderation API endpoints**
 """
 
-from flask_cors import CORS
-from flask import Blueprint, request
-import sqlite3
-import config
-import json
 import difflib
-import usefuls.util as util
-import gen_example_data
-import shlex
-import time
-import requests
+import json
 import random
+import shlex
+import sqlite3
+import time
 from datetime import date
+
+import requests
+from flask import Blueprint, request
+from flask_cors import CORS
+
+import config
+import gen_example_data
+import usefuls.util as util
 
 console_commands = [
     "sql",
@@ -472,8 +474,6 @@ def change_status(proj: int):
             return "Added message", 200
     else:
         return "non existent action lmao xd xd", 400
-
-    return "uh", 500
 
 
 @mod.route("/project/<int:proj>/dismiss_message", methods=["DELETE"])

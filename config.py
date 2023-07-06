@@ -23,7 +23,6 @@ else:
         client_id = "cd983835f4e37148ba77"
         client_secret = "56414b10caf5394328730deba6b41a6f38bfee8f"
 
-
 valid_tags = [
     "Adventure",
     "Magic",

@@ -1,6 +1,7 @@
-from treelib import Tree
-from sqlalchemy import create_engine, text
 from dataclasses import dataclass
+
+from sqlalchemy import create_engine, text
+from treelib import Tree
 
 # I don't plan on touching this more
 # Feel free to modify it sila :)
@@ -95,7 +96,6 @@ class CommentTree:
                 pass
             pass
         pass
-
     pass
 
 

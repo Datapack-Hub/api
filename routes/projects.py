@@ -2,17 +2,19 @@
 **Projects API endpoints**
 """
 
-from flask_cors import CORS
-from flask import Blueprint, request
-import usefuls.util as util
-import sqlite3
-import config
-import regex as re
-import time
-import usefuls.files as files
-import secrets
-import traceback
 import math
+import secrets
+import sqlite3
+import time
+import traceback
+
+import regex as re
+from flask import Blueprint, request
+from flask_cors import CORS
+
+import config
+import usefuls.files as files
+import usefuls.util as util
 
 projects = Blueprint("projects", __name__, url_prefix="/projects")
 
@@ -31,8 +33,7 @@ def after(resp):
 def search():
     x = time.time()
     query = request.args.get("query", "").replace("'", "")
-    page = request.args.get("page", 1)
-    page = int(page)
+    page = int(request.args.get("page", 1))
     sort = request.args.get("sort", "updated")
 
     if len(query) > 75:
@@ -54,7 +55,7 @@ def search():
 
     out = []
 
-    for item in r[(page - 1) * 20 : page * 20 - 1]:
+    for item in r[(page - 1) * 20: page * 20 - 1]:
         latest_version = conn.execute(
             f"SELECT * FROM versions WHERE project = {item[6]} ORDER BY rowid DESC"
         ).fetchall()
@@ -117,7 +118,7 @@ def query():
 
     out = []
 
-    for item in r[(page - 1) * 20 : page * 20 - 1]:
+    for item in r[(page - 1) * 20: page * 20 - 1]:
         latest_version = conn.execute(
             f"SELECT * FROM versions WHERE project = {item[6]} ORDER BY rowid DESC"
         ).fetchall()
@@ -435,8 +436,8 @@ def new_project():
                         '{util.sanitise(data['category'])}', 
                         '{util.sanitise(data['url'])}', 
                         'unpublished',
-                        {str(int( time.time() ))},
-                        {str(int( time.time() ))},
+                        {str(int(time.time()))},
+                        {str(int(time.time()))},
                         '{icon}')"""
         )
     else:
@@ -460,8 +461,8 @@ def new_project():
                         '{util.sanitise(data['category'])}', 
                         '{util.sanitise(data['url'])}', 
                         'draft',
-                        {str(int( time.time() ))},
-                        {str(int( time.time() ))})"""
+                        {str(int(time.time()))},
+                        {str(int(time.time()))})"""
         )
 
     conn.commit()
@@ -736,8 +737,6 @@ def download(id):
 
     if len(proj) == 0:
         return "Project not found.", 404
-
-    proj = proj[0]
 
     conn.execute(
         "update projects set downloads = downloads + 1 where rowid = " + str(id)
