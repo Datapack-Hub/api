@@ -2,13 +2,15 @@
 **Auth API Endpoints**
 """
 
+import secrets
+import sqlite3
+
 import flask
 import requests
-import usefuls.util as util
 from flask import request
+
 import config
-import sqlite3
-import secrets
+import usefuls.util as util
 
 auth = flask.Blueprint("auth", __name__, url_prefix="/auth")
 

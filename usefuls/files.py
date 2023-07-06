@@ -2,12 +2,14 @@
 This code does some weird ass stuff which should probably upload files to the cloudflare... don't ask me
 """
 
-import requests
-import config
 import base64
-from zipfile import ZipFile
 import os
 import shutil
+from zipfile import ZipFile
+
+import requests
+
+import config
 
 
 def upload_zipfile(file: str, file_name: str, uploader: str, squash: bool = False):

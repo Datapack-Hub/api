@@ -2,14 +2,16 @@
 **Versions API endpoints**
 """
 
-from flask_cors import CORS
-from flask import Blueprint, request
-import usefuls.util as util
 import sqlite3
+import time
+
+from flask import Blueprint, request
+from flask_cors import CORS
+from werkzeug.exceptions import BadRequestKeyError
+
 import config
 import usefuls.files as files
-from werkzeug.exceptions import BadRequestKeyError
-import time
+import usefuls.util as util
 
 versions = Blueprint("versions", __name__, url_prefix="/versions")
 
@@ -224,7 +226,7 @@ def new(project: int):
         o["resource_pack_download"]: v[3]
 
     conn.execute(
-        f"update projects set updated = {str(int( time.time() ))} where rowid = {project};"
+        f"update projects set updated = {str(int(time.time()))} where rowid = {project};"
     )
 
     conn.commit()

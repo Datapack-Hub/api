@@ -2,21 +2,21 @@
 **User API endpoints**
 """
 
+import json
+import sqlite3
+import time
 
 from flask import Blueprint, request
-import sqlite3
-
 from flask_cors import CORS
-import config
-import time
-import json
 
+import config
 import usefuls.util as util
 
 ADMINS = ["Silabear", "Flynecraft", "HoodieRocks"]
 user = Blueprint("user", __name__, url_prefix="/user")
 
 CORS(user)
+
 
 # @user.after_request
 # def after(resp):
@@ -30,7 +30,7 @@ def staff(role):
     if role == "default":
         return "Role has to be staff role", 400
     list = conn.execute(
-        f"select username, rowid, role, bio, profile_icon from users where role = '{util.sanitise(role)}'"
+        f"select username, rowid, bio, profile_icon from users where role = '{util.sanitise(role)}'"
     ).fetchall()
     finale = []
     for i in list:
@@ -38,7 +38,7 @@ def staff(role):
             {
                 "id": i[1],
                 "username": i[0],
-                "role": i[2],
+                "role": role,
                 "bio": i[3],
                 "profile_icon": i[4],
             }

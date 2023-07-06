@@ -2,10 +2,12 @@
 **Notifications API endpoints**
 """
 
-from flask import Blueprint, request
-import usefuls.util as util
 import sqlite3
+
+from flask import Blueprint, request
+
 import config
+import usefuls.util as util
 
 notifs = Blueprint("notifications", __name__, url_prefix="/notifs")
 

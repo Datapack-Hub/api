@@ -1,64 +1,64 @@
 {
-    "roles":[
+    "roles": [
         {
-            "name":"admin",
-            "color":"#ef4444",
-            "permissions":[
+            "name": "admin",
+            "color": "#ef4444",
+            "permissions": [
                 "BAN_USER",
                 "WARN_USER",
                 "EDIT_USER",
                 "DELETE_CONTENT",
                 "USE_CONSOLE"
             ],
-            "verified":true
+            "verified": true
         },
         {
-            "name":"moderator",
-            "color":"#f97316",
-            "permissions":[
+            "name": "moderator",
+            "color": "#f97316",
+            "permissions": [
                 "BAN_USER",
                 "WARN_USER",
                 "EDIT_USER",
                 "DELETE_CONTENT",
                 "USE_CONSOLE"
             ],
-            "verified":true
+            "verified": true
         },
         {
-            "name":"helper",
-            "color":"#60a5fa",
-            "permissions":[
+            "name": "helper",
+            "color": "#60a5fa",
+            "permissions": [
                 "WARN_USER"
             ],
-            "verified":true
+            "verified": true
         },
         {
-            "name":"verified",
-            "color":"#84cc16",
-            "permissions":[],
-            "verified":true
+            "name": "verified",
+            "color": "#84cc16",
+            "permissions": [],
+            "verified": true
         },
         {
-            "name":"nerd",
-            "color":"#eab308",
-            "permissions":[],
-            "verified":false
+            "name": "nerd",
+            "color": "#eab308",
+            "permissions": [],
+            "verified": false
         },
         {
-            "name":"donator",
-            "color":"#00ff00",
-            "permissions":[],
-            "verified":"true"
+            "name": "donator",
+            "color": "#00ff00",
+            "permissions": [],
+            "verified": "true"
         },
         {
-            "name":"beta access",
-            "permissions":[],
-            "verified":false
+            "name": "beta access",
+            "permissions": [],
+            "verified": false
         },
         {
-            "name":"default",
-            "permissions":[],
-            "verified":false
+            "name": "default",
+            "permissions": [],
+            "verified": false
         }
     ]
 }

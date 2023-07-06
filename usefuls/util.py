@@ -1,10 +1,13 @@
-import sqlite3
-import secrets
-import config
-import disnake
 import datetime
-from usefuls.commons import User
 import json
+import secrets
+import sqlite3
+from functools import lru_cache
+
+import disnake
+
+import config
+from usefuls.commons import User
 
 
 def authenticate(auth: str):
@@ -138,6 +141,7 @@ class get_user:
         return User(u[1], u[0], u[2], u[3], profile_icon=u[4], badges=badges)
 
 
+@lru_cache
 def get_user_token(github_id: int):
     conn = sqlite3.connect(config.DATA + "data.db")
 
@@ -154,6 +158,7 @@ def get_user_token(github_id: int):
     return u[0]
 
 
+@lru_cache
 def get_user_token_from_discord_id(discord: int):
     conn = sqlite3.connect(config.DATA + "data.db")
 
@@ -188,6 +193,7 @@ def create_user_account(
     return token
 
 
+@lru_cache
 def get_user_ban_data(id: int):
     conn = sqlite3.connect(config.DATA + "data.db")
 
