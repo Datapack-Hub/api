@@ -39,17 +39,17 @@ def tellraw():
         value = input("result of event: ")
         clickevent = (
             "," + '"clickEvent"' + ":{" + '"action":' + f'"{events[event_input]}"'
-                                                        "," + '"value"'
-                                                              ":" + f'"{value}"'
-                                                                    "}"
+            "," + '"value"'
+            ":" + f'"{value}"'
+            "}"
         )
     else:
         clickevent = ""
     # Main Command>>>
     command = (
         "/tellraw @s " + "{"
-                         f'"text":"{text}"{clickevent},"bold":{bold},"italic":{italic},"strikethrough":{strikethrough},"underlined":{underlined},"obfuscated":{obfuscated},"color":"{color}"'
-                         "}"
+        f'"text":"{text}"{clickevent},"bold":{bold},"italic":{italic},"strikethrough":{strikethrough},"underlined":{underlined},"obfuscated":{obfuscated},"color":"{color}"'
+        "}"
     )
 
     # Color Check>>>>
