@@ -28,7 +28,7 @@ def messages_from_thread(thread: int):
                     "id": reply[0],
                     "message": reply[1],
                     "author": reply[2],
-                    "sent": reply[4],
+                    "sent": reply[3],
                 }
             )
         out.append(
@@ -36,7 +36,7 @@ def messages_from_thread(thread: int):
                 "id": cmt[0],
                 "message": cmt[1],
                 "author": cmt[2],
-                "sent": cmt[4],
+                "sent": cmt[3],
                 "replies": reps,
             }
         )
