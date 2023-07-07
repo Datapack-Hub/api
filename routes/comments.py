@@ -3,9 +3,10 @@
 """
 
 import sqlite3
-from flask import Blueprint
+from flask import Blueprint, request
 import config
 import usefuls.util as util
+import time
 
 comments = Blueprint("comments", __name__, url_prefix="/comments")
 
@@ -58,3 +59,32 @@ def messages_from_thread(thread: int):
             }
         )
     return {"count": out.__len__(), "result": out}
+
+@comments.route("/thread/<int:thread>/post", methods=["POST"])
+def post_msg(thread: int):
+    if not request.headers.get("Authorization"):
+        return "Authorization required", 401
+    usr = util.authenticate(request.headers.get("Authorization"))
+    if usr == 32:
+        return "Please make sure authorization type = Basic"
+    if usr == 33:
+        return "Token Expired", 498
+    
+    conn = sqlite3.connect(config.DATA + "data.db")
+    cmt_data = request.get_json(True)
+    try:
+        cmt_data["message"]
+    except:
+        return "You need to provide a message field!", 400
+    
+    try:
+        cmt_data["parent_id"]
+    except:
+        conn.execute(f"INSERT INTO comments VALUES ({thread}, '{util.sanitise(cmt_data['message'])}', {usr.id}, {time.time()}, null)")
+    else:
+        conn.execute(f"INSERT INTO comments VALUES ({thread}, '{util.sanitise(cmt_data['message'])}', {usr.id}, {time.time()}, {cmt_data['parent_id']})")
+    
+    conn.commit()
+    conn.close()
+    
+    return "Posted comment!", 200
