@@ -99,13 +99,14 @@ def reset(table: str):
 
     # Comment data
     connection.execute(
-        """CREATE TABLE comments (
-                thread_id INT,
-                message TEXT NOT NULL,
-                author INT NOT NULL,
-                sent INT NOT NULL,
-                parent_id INT,
-            );"""
+        """CREATE TABLE IF NOT EXISTS comments(
+        thread_id INT,
+        message TEXT NOT NULL,
+        author INT NOT NULL,
+        sent INT NOT NULL,
+        parent_id INT
+    );
+    """
     )
 
     # save and exit
