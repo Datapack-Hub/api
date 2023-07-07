@@ -5,6 +5,7 @@
 import sqlite3
 from flask import Blueprint
 import config
+import usefuls.util as util
 
 comments = Blueprint("comments", __name__, url_prefix="/comments")
 
@@ -18,16 +19,25 @@ def messages_from_thread(thread: int):
 
     out = []
     for cmt in cmts:
+        author = util.get_user.from_id(cmt[2])
         replies = conn.execute(
             f"select rowid, message, author, sent from comments where thread_id = {thread} and parent_id = {cmt[0]}"
         ).fetchall()
         reps = []
         for reply in replies:
+            repl_auth = util.get_user.from_id(reply[2])
             reps.append(
                 {
                     "id": reply[0],
                     "message": reply[1],
-                    "author": reply[2],
+                    "author": {
+                        "username": repl_auth.username,
+                        "id": repl_auth.id,
+                        "role": repl_auth.role,
+                        "bio": repl_auth.bio,
+                        "profile_icon": repl_auth.profile_icon,
+                        "badges": repl_auth.badges,
+                    },
                     "sent": reply[3],
                 }
             )
@@ -35,7 +45,14 @@ def messages_from_thread(thread: int):
             {
                 "id": cmt[0],
                 "message": cmt[1],
-                "author": cmt[2],
+                "author": {
+                    "username": author.username,
+                    "id": author.id,
+                    "role": author.role,
+                    "bio": author.bio,
+                    "profile_icon": author.profile_icon,
+                    "badges": author.badges,
+                },
                 "sent": cmt[3],
                 "replies": reps,
             }
