@@ -13,7 +13,7 @@ comments = Blueprint("comments", __name__, url_prefix="/comments")
 def messages_from_thread(thread: int):
     conn = sqlite3.connect(config.DATA + "data.db")
     cmts = conn.execute(
-        f"select rowid, message, author, sent from comments where thread_id = {thread} and parent_id = null"
+        f"select rowid, message, author, sent from comments where thread_id = {thread} and parent_id is null"
     ).fetchall()
 
     out = []
@@ -40,4 +40,4 @@ def messages_from_thread(thread: int):
                 "replies": reps,
             }
         )
-    return {"count": out.__len__(), "result": out}
+    return {"count":out.__len__(), "result":out}
