@@ -110,7 +110,7 @@ def get_comment(id: int):
     author = util.get_user.from_id(comment[2])
 
     replies = conn.execute(
-        f"select rowid, message, author, sent from comments where and parent_id = {id} order by sent desc"
+        f"select rowid, message, author, sent from comments where parent_id = {id} order by sent desc"
     ).fetchall()
     reps = []
     for reply in replies:
