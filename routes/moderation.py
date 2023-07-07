@@ -378,7 +378,7 @@ def change_status(proj: int):
 
     try:
         data["action"]
-    except:
+    except KeyError:
         return "action is missing", 400
 
     conn = sqlite3.connect(config.DATA + "data.db")
@@ -435,7 +435,7 @@ def change_status(proj: int):
     elif data["action"] == "disable":
         try:
             data["message"]
-        except:
+        except KeyError:
             return "message is missing, its a disable", 400
         else:
             conn.execute(
@@ -460,7 +460,7 @@ def change_status(proj: int):
     elif data["action"] == "write_note":
         try:
             data["message"]
-        except:
+        except KeyError:
             return "message is missing, its a freaking write note action", 400
         else:
             conn.execute(

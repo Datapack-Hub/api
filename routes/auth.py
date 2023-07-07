@@ -91,7 +91,8 @@ def callback_dc():
     headers = {"Content-Type": "application/x-www-form-urlencoded"}
 
     access_token = requests.post(
-        "https://discord.com/api/v10/oauth2/token", data=data, headers=headers
+        "https://discord.com/api/v10/oauth2/token", data=data, headers=headers,
+        timeout=10000
     ).json()["access_token"]
 
     # Get discord ID
@@ -163,7 +164,8 @@ def link_discord():
     headers = {"Content-Type": "application/x-www-form-urlencoded"}
 
     access_token = requests.post(
-        "https://discord.com/api/v10/oauth2/token", data=data, headers=headers
+        "https://discord.com/api/v10/oauth2/token", data=data, headers=headers,
+        timeout=10000
     ).json()["access_token"]
 
     # Get discord ID
@@ -178,7 +180,7 @@ def link_discord():
         conn.execute(
             f"update users set discord_id = {discord_id} where rowid = {usr.id};"
         )
-    except:
+    except sqlite3.Error:
         conn.rollback()
         conn.close()
         return "Something went wrong!", 500
@@ -223,7 +225,7 @@ def link_github():
         conn.execute(
             f"update users set github_id = {github['id']} where rowid = {usr.id};"
         )
-    except:
+    except sqlite3.Error:
         conn.rollback()
         conn.close()
         return "Something went wrong!", 500

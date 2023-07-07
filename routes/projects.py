@@ -389,7 +389,7 @@ def new_project():
         data["description"]
         data["body"]
         data["category"]
-    except:
+    except KeyError:
         return "Missing field", 400
 
     if data["type"] not in config.valid_types:
@@ -506,7 +506,7 @@ def edit(id: int):
         data["description"]
         data["body"]
         data["category"]
-    except:
+    except KeyError:
         return "Missing field", 400
 
     if len(data["title"]) > 50:
@@ -545,7 +545,7 @@ def edit(id: int):
                 category = '{util.sanitise(data["category"])}' 
                 where rowid = {id}"""
             )
-    except:
+    except sqlite3.Error:
         conn.rollback()
         util.post.error("Error updating project", traceback.format_exc())
         return "Something went wrong.", 500
@@ -677,7 +677,7 @@ def report(id):
     # now onto the fun stuff >:)
     try:
         report_data["message"]
-    except:
+    except KeyError:
         return "Please provide a `message` field."
     else:
         conn.execute(
@@ -764,7 +764,7 @@ def feature(id):
     dat = request.get_json(force=True)
     try:
         dat["expires"]
-    except:
+    except KeyError:
         return "Expiry parameter missing", 400
 
     # Validate project
@@ -789,7 +789,7 @@ def feature(id):
         conn.execute(
             f"UPDATE projects SET featured_until = {str(expiry)} WHERE rowid = {str(id)}"
         )
-    except:
+    except sqlite3.Error:
         conn.rollback()
         conn.close()
         return "There was an error."

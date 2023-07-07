@@ -92,7 +92,7 @@ def code(id: int, code: str):
                 conn.execute(
                     f"DELETE FROM versions WHERE version_code = '{code}' AND project = {id}"
                 ).fetchone()
-            except:
+            except sqlite3.Error:
                 return "There was an error deleting that version!", 500
             else:
                 conn.commit()
@@ -189,7 +189,7 @@ def new(project: int):
         )
         try:
             data["resource_pack_download"]
-        except:
+        except BadRequestKeyError:
             conn.execute(
                 f"INSERT INTO versions(name,description,primary_download,minecraft_versions,version_code,project) VALUES ('{data['name']}', '{data['description']}', '{dpath}','{','.join(data['minecraft_versions'])}', '{data['version_code']}', {str(project)})"
             )
