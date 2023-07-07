@@ -100,24 +100,12 @@ def reset(table: str):
     # Comment data
     connection.execute(
         """CREATE TABLE comments (
-                project_id INTEGER,
+                thread_id INT,
                 message TEXT NOT NULL,
                 author INT NOT NULL,
-                left_boundary INT,
-                right_boundary INT,
+                sent INT NOT NULL,
                 parent_id INT,
-                FOREIGN KEY (parent_id) REFERENCES comments(rowid)
             );"""
-    )
-
-    # Trigger to auto add new comment row for every new project
-    connection.execute(
-        """CREATE TRIGGER insert_other_table_trigger
-        AFTER INSERT ON other_table
-        BEGIN
-            INSERT INTO comments (project_id, message, author, left_boundary, right_boundary, parent_id)
-            VALUES (NEW.ID, 'New comment', 123, NULL, NULL, NULL);
-        END;"""
     )
 
     # save and exit
