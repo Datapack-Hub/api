@@ -43,7 +43,7 @@ app.register_blueprint(comments)
 
 # Database things
 if not exists(config.DATA + "data.db"):
-    gen_example_data.reset()
+    gen_example_data.reset("no-drop")
 
 # Run the app
 if __name__ == "__main__":

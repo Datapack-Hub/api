@@ -12,11 +12,8 @@ def reset(table: str):
     # SQLite optimizations
     connection.execute("PRAGMA synchronous = NORMAL")
 
-    # ! This operation may not be supported on all OSes, disable if you run into issues
+    # ! This operation may not be supported, disable if you run into issues
     connection.execute("PRAGMA journal_mode = wal")
-
-    # Enable foreign keys
-    connection.execute("PRAGMA foreign_keys = ON")
 
     # Projects Data
     connection.execute(
