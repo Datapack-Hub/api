@@ -48,10 +48,11 @@ class CommentTree:
     def show_tree(self) -> None:
         """Prints tree for debugging"""
         print(self.comment_tree.nodes)
-        
+
     def to_json(self) -> str:
         for n in self.comment_tree.all_nodes():
             print(n.data)
+
 
 def get_comment_chain(parent: int):
     conn = sqlite3.connect(config.DATA + "data.db")
