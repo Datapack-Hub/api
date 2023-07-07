@@ -91,8 +91,10 @@ def callback_dc():
     headers = {"Content-Type": "application/x-www-form-urlencoded"}
 
     access_token = requests.post(
-        "https://discord.com/api/v10/oauth2/token", data=data, headers=headers,
-        timeout=10000
+        "https://discord.com/api/v10/oauth2/token",
+        data=data,
+        headers=headers,
+        timeout=10000,
     ).json()["access_token"]
 
     # Get discord ID
@@ -164,8 +166,10 @@ def link_discord():
     headers = {"Content-Type": "application/x-www-form-urlencoded"}
 
     access_token = requests.post(
-        "https://discord.com/api/v10/oauth2/token", data=data, headers=headers,
-        timeout=10000
+        "https://discord.com/api/v10/oauth2/token",
+        data=data,
+        headers=headers,
+        timeout=10000,
     ).json()["access_token"]
 
     # Get discord ID
