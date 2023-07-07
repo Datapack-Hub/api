@@ -40,3 +40,4 @@ def messages_from_thread(thread: int):
                 "replies": reps,
             }
         )
+    return {"count":out.__len__(), "result":out}
