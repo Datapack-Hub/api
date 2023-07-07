@@ -93,3 +93,55 @@ def post_msg(thread: int):
     conn.close()
 
     return "Posted comment!", 200
+
+
+@comments.route("/id/<int:id>")
+def get_comment(id: int):
+    conn = sqlite3.connect(config.DATA + "data.db")
+    comment = conn.execute(
+        f"select rowid, message, author, sent from comments where rowid = {id} and parent_id is null order by sent desc"
+    ).fetchall()
+    
+    if len(comment) == 0:
+        return "Not found.", 404
+    
+    comment = comment[0]
+    
+    author = util.get_user.from_id(comment[2])
+
+    replies = conn.execute(
+        f"select rowid, message, author, sent from comments where and parent_id = {id} order by sent desc"
+    ).fetchall()
+    reps = []
+    for reply in replies:
+        repl_auth = util.get_user.from_id(reply[2])
+        reps.append(
+            {
+                "id": reply[0],
+                "message": reply[1],
+                "author": {
+                    "username": repl_auth.username,
+                    "id": repl_auth.id,
+                    "role": repl_auth.role,
+                    "bio": repl_auth.bio,
+                    "profile_icon": repl_auth.profile_icon,
+                    "badges": repl_auth.badges,
+                },
+                "sent": reply[3],
+            }
+        )
+    
+    return {
+        "id": comment[0],
+        "message": comment[1],
+        "author": {
+            "username": author.username,
+            "id": author.id,
+            "role": author.role,
+            "bio": author.bio,
+            "profile_icon": author.profile_icon,
+            "badges": author.badges,
+        },
+        "sent": comment[3],
+        "replies": reps,
+    }
