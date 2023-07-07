@@ -101,12 +101,12 @@ def get_comment(id: int):
     comment = conn.execute(
         f"select rowid, message, author, sent from comments where rowid = {id} and parent_id is null order by sent desc"
     ).fetchall()
-    
+
     if len(comment) == 0:
         return "Not found.", 404
-    
+
     comment = comment[0]
-    
+
     author = util.get_user.from_id(comment[2])
 
     replies = conn.execute(
@@ -130,7 +130,7 @@ def get_comment(id: int):
                 "sent": reply[3],
             }
         )
-    
+
     return {
         "id": comment[0],
         "message": comment[1],
