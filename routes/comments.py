@@ -88,10 +88,12 @@ def post_msg(thread: int):
         conn.execute(
             f"INSERT INTO comments VALUES ({thread}, '{util.sanitise(cmt_data['message'])}', {usr.id}, {time.time()}, {cmt_data['parent_id']})"
         )
-        
+
     # Notify author of project
-    auth = conn.execute("select author, title from projects where rowid = " + thread).fetchone()
-    
+    auth = conn.execute(
+        "select author, title from projects where rowid = " + thread
+    ).fetchone()
+
     conn.execute(
         f"INSERT INTO notifs VALUES ('New comment', '{usr.username} left a comment on your project {auth[1]}.', False,  'default', {auth[0]})"
     )
@@ -108,12 +110,12 @@ def get_comment(id: int):
     comment = conn.execute(
         f"select rowid, message, author, sent from comments where rowid = {id} and parent_id is null order by sent desc"
     ).fetchall()
-    
+
     if len(comment) == 0:
         return "Not found.", 404
-    
+
     comment = comment[0]
-    
+
     author = util.get_user.from_id(comment[2])
 
     replies = conn.execute(
@@ -137,7 +139,7 @@ def get_comment(id: int):
                 "sent": reply[3],
             }
         )
-    
+
     return {
         "id": comment[0],
         "message": comment[1],
