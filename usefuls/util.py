@@ -360,9 +360,7 @@ def user_owns_project(project: int, author: int):
         f"select rowid from projects where rowid = {str(project)} and author = {str(author)}"
     ).fetchall()
     conn.close()
-    if len(proj) == 1:
-        return True
-    return False
+    return len(proj) == 1
 
 
 def sanitise(query: str):

@@ -144,7 +144,7 @@ def delete(id):
     try:
         conn.execute("DELETE FROM notifs WHERE rowid = " + str(id))
         conn.commit()
-    except:
+    except sqlite3.Error:
         return "Something bad happened", 500
     else:
         conn.close()

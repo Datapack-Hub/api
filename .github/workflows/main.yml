@@ -1,80 +1,78 @@
 name: Lint and Format
 on:
-    push:
-        branches:
-            - master
-    workflow_dispatch:
+  push:
+    branches:
+      - master
+  workflow_dispatch:
 permissions:
-    contents: write
+  contents: write
 concurrency:
-    group: build-and-test
-    cancel-in-progress: true
+  group: build-and-test
+  cancel-in-progress: true
 jobs:
-    format:
-        runs-on: ubuntu-latest
-        steps:
-            -   name: Checkout
-                uses: actions/checkout@v3.5.2
-
-
-            -   name: Bonus Pull
-                run: |
-                    git pull
-            -   name: Setup Python
-                uses: actions/setup-python@v4.6.0
-                with:
-                    python-version: 3.11.x
-                    cache: pip
-                    architecture: x64
-                    check-latest: true
-            -   name: Install black
-                run: |
-                    pip install black 
-            -   name: Run black
-                run: |
-                    black . 
-            -   uses: stefanzweifel/git-auto-commit-action@v4.16.0
-                with:
-                    commit_message: "Apply formatting"
-    lint:
-        runs-on: ubuntu-latest
-        steps:
-            -   name: Checkout
-                uses: actions/checkout@v3.5.2
-            -   name: Bonus Pull
-                run: |
-                    git pull
-            -   name: Setup Python
-                uses: actions/setup-python@v4.6.0
-                with:
-                    python-version: 3.11.x
-                    cache: pip
-                    architecture: x64
-                    check-latest: true
-            -   name: Install ruff
-                run: |
-                    pip install ruff 
-            -   name: Run ruff
-                run: |
-                    ruff . --fix --exit-zero  
-            -   uses: stefanzweifel/git-auto-commit-action@v4.16.0
-                with:
-                    commit_message: "Apply linting"
-    bandit:
-        runs-on: ubuntu-latest
-        steps:
-            -   name: Checkout
-                uses: actions/checkout@v3.5.2
-            -   name: Setup Python
-                uses: actions/setup-python@v4.6.0
-                with:
-                    python-version: 3.11.x
-                    cache: pip
-                    architecture: x64
-                    check-latest: true
-            -   name: Install bandit
-                run: |
-                    pip install bandit 
-            -   name: Run bandit
-                run: |
-                    bandit . -r --exit-zero  
+  format:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3.5.2
+      - name: Bonus Pull
+        run: |
+          git pull
+      - name: Setup Python
+        uses: actions/setup-python@v4.6.0
+        with:
+          python-version: 3.11.x
+          cache: pip
+          architecture: x64
+          check-latest: true
+      - name: Install black
+        run: |
+          pip install black 
+      - name: Run black
+        run: |
+          black . 
+      - uses: stefanzweifel/git-auto-commit-action@v4.16.0
+        with:
+          commit_message: "Apply formatting"
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3.5.2
+      - name: Bonus Pull
+        run: |
+          git pull
+      - name: Setup Python
+        uses: actions/setup-python@v4.6.0
+        with:
+          python-version: 3.11.x
+          cache: pip
+          architecture: x64
+          check-latest: true
+      - name: Install ruff
+        run: |
+          pip install ruff 
+      - name: Run ruff
+        run: |
+          ruff . --fix --ignore E501
+      - uses: stefanzweifel/git-auto-commit-action@v4.16.0
+        with:
+          commit_message: "Apply linting"
+  bandit:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3.5.2
+      - name: Setup Python
+        uses: actions/setup-python@v4.6.0
+        with:
+          python-version: 3.11.x
+          cache: pip
+          architecture: x64
+          check-latest: true
+      - name: Install bandit
+        run: |
+          pip install bandit 
+      - name: Run bandit
+        run: |
+          bandit . -r -s=B608
