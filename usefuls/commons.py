@@ -49,3 +49,10 @@ class Version:
     RP_download_url: str
     minecraft_versions: str
     project_id: int
+
+@dataclass(frozen=True)
+class Comment:
+    id: int
+    author: int
+    content: str
+    replies: int

@@ -8,10 +8,19 @@ def reset(table: str):
 
     if table != "no-drop":
         connection.execute(f"DROP TABLE {table}")
+    
+    # SQLite optimizations
+    connection.execute("PRAGMA synchronous = NORMAL")
+
+    # ! This operation may not be supported on all OSes, disable if you run into issues
+    connection.execute("PRAGMA journal_mode = wal")
+    
+    # Enable foreign keys
+    connection.execute("PRAGMA foreign_keys = ON")
 
     # Projects Data
     connection.execute(
-        """create table IF NOT EXISTS projects(
+     """CREATE TABLE IF NOT EXISTS projects(
         type TEXT NOT NULL, 
         author INT NOT NULL, 
         title TEXT NOT NULL, 
@@ -31,7 +40,7 @@ def reset(table: str):
 
     # Versions Data
     connection.execute(
-        """create table if not exists versions(
+     """CREATE TABLE IF NOT EXISTS versions(
         name TEXT NOT NULL,
         description TEXT NOT NULL,
         primary_download TEXT NOT NULL,
@@ -45,7 +54,7 @@ def reset(table: str):
 
     # User data
     connection.execute(
-        """create table IF NOT EXISTS users (
+     """CREATE TABLE IF NOT EXISTS users (
         username TEXT NOT NULL UNIQUE, 
         token TEXT NOT NULL UNIQUE, 
         role TEXT NOT NULL, 
@@ -59,7 +68,7 @@ def reset(table: str):
 
     # Banned User Data
     connection.execute(
-        """create table IF NOT EXISTS banned_users (
+     """CREATE TABLE IF NOT EXISTS banned_users (
         id int NOT NULL UNIQUE,
         expires int,
         reason TEXT
@@ -68,7 +77,7 @@ def reset(table: str):
 
     # Notification Data
     connection.execute(
-        """create table if not exists notifs(
+     """CREATE TABLE IF NOT EXISTS notifs(
         message TEXT NOT NULL,
         description TEXT NOT NULL,
         read BOOL NOT NULL,
@@ -80,32 +89,37 @@ def reset(table: str):
 
     # Report Data
     connection.execute(
-        """create table if not exists reports(
+     """CREATE TABLE IF NOT EXISTS reports(
         message TEXT NOT NULL,
         reporter INT NOT NULL,
         project INT NOT NULL
     );
     """
     )
-
-    # Report Data
+    
+    # Comment data
+    connection.execute(                
+         """CREATE TABLE comments (
+                project_id INTEGER,
+                message TEXT NOT NULL,
+                author INT NOT NULL,
+                left_boundary INT,
+                right_boundary INT,
+                parent_id INT,
+                FOREIGN KEY (parent_id) REFERENCES comments(rowid)
+            );"""
+        )
+    
+    # Trigger to auto add new comment row for every new project
     connection.execute(
-        """create table if not exists comments(
-        message TEXT NOT NULL,
-        author INT NOT NULL,
-        replies TEXT,
-        replied_to INT,
-        thread INT NOT NULL,
-        sent INT NOT NULL
-    );
-    """
-    )
+     """CREATE TRIGGER insert_other_table_trigger
+        AFTER INSERT ON other_table
+        BEGIN
+            INSERT INTO comments (project_id, message, author, left_boundary, right_boundary, parent_id)
+            VALUES (NEW.ID, 'New comment', 123, NULL, NULL, NULL);
+        END;"""
+)
 
-    # SQLite optimizations
-    connection.execute("PRAGMA synchronous = NORMAL")
-
-    # ! This operation may not be supported on all OSes, disable if you run into issues
-    connection.execute("PRAGMA journal_mode = wal")
 
     # save and exit
     connection.commit()
