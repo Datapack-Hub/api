@@ -91,7 +91,7 @@ def post_msg(thread: int):
 
     # Notify author of project
     auth = conn.execute(
-        "select author, title from projects where rowid = " + thread
+        "select author, title from projects where rowid = " + str(thread)
     ).fetchone()
 
     conn.execute(
