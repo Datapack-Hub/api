@@ -92,7 +92,7 @@ def post_msg(thread: int):
             ).fetchone()
 
             conn.execute(
-                f"INSERT INTO notifs VALUES ('New comment', '[{usr.username}](https://datapackhub.net/user/{usr.username}) left a comment on your project [{auth[1]}](https://datapackhub.net/project/{proj[2]}).', False,  'default', {auth[0]})"
+                f"INSERT INTO notifs VALUES ('New comment', '[{usr.username}](https://datapackhub.net/user/{usr.username}) left a comment on your project [{auth[1]}](https://datapackhub.net/project/{auth[2]}).', False,  'default', {auth[0]})"
             )
         else:
             conn.execute(
