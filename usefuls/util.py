@@ -364,7 +364,7 @@ def user_owns_project(project: int, author: int):
 
 
 def sanitise(query: str):
-    return query.replace("'", r"\'").replace(";", r"\;")
+    return query.replace("'", r"''").replace(";", r"\;")
 
 
 if __name__ == "__main__":
