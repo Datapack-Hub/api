@@ -795,7 +795,7 @@ def feature(id):
         return "There was an error."
     else:
         conn.execute(
-            f"INSERT INTO notifs VALUES ('Project Featured', 'Your project, [{proj[2]}](https://datapackhub.net/project/{proj[3]}), was featured by a moderator for {dat['expires']} days. During this time, it will be visible on the front page and higher up in search results. Congrats! :D', False,  'default', {proj[0]})"
+            f"INSERT INTO notifs VALUES ('Project Featured', 'Your project, [{proj[2]}](https://datapackhub.net/project/{proj[3]}), was featured by a moderator for {dat['expires']} days. During this time, it will be visible on the front page and higher up in search results. Congrats! :D', False,  'announcement', {proj[0]})"
         )
         conn.commit()
         conn.close()
