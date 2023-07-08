@@ -79,37 +79,42 @@ def post_msg(thread: int):
         return "You need to provide a message field!", 400
 
     try:
-        cmt_data["parent_id"]
+        try:
+            cmt_data["parent_id"]
+        except:
+            conn.execute(
+                f"INSERT INTO comments VALUES ({thread}, '{util.sanitise(cmt_data['message'])}', {usr.id}, {time.time()}, null)"
+            )
+
+            # Notify author
+            auth = conn.execute(
+                "select author, title, url from projects where rowid = " + str(thread)
+            ).fetchone()
+
+            conn.execute(
+                f"INSERT INTO notifs VALUES ('New comment', '[{usr.username}](https://datapackhub.net/user/{usr.username}) left a comment on your project [{auth[1]}](https://datapackhub.net/project/{proj[2]}).', False,  'default', {auth[0]})"
+            )
+        else:
+            conn.execute(
+                f"INSERT INTO comments VALUES ({thread}, '{util.sanitise(cmt_data['message'])}', {usr.id}, {time.time()}, {cmt_data['parent_id']})"
+            )
+
+            # Notify author
+            proj = conn.execute(
+                "select title, url from projects where rowid = " + str(thread)
+            ).fetchone()
+
+            auth = conn.execute(
+                "select author from comments where rowid = " + str(cmt_data["parent_id"])
+            ).fetchone()
+
+            conn.execute(
+                f"INSERT INTO notifs VALUES ('New reply', '[{usr.username}](https://datapackhub.net/user/{usr.username}) left a reply to your comment on project [{proj[0]}](https://datapackhub.net/project/{proj[1]}).', False,  'default', {auth[0]})"
+            )
     except:
-        conn.execute(
-            f"INSERT INTO comments VALUES ({thread}, '{util.sanitise(cmt_data['message'])}', {usr.id}, {time.time()}, null)"
-        )
-
-        # Notify author
-        auth = conn.execute(
-            "select author, title, url from projects where rowid = " + str(thread)
-        ).fetchone()
-
-        conn.execute(
-            f"INSERT INTO notifs VALUES ('New comment', '[{usr.username}](https://datapackhub.net/user/{usr.username}) left a comment on your project [{auth[1]}](https://datapackhub.net/project/{proj[2]}).', False,  'default', {auth[0]})"
-        )
-    else:
-        conn.execute(
-            f"INSERT INTO comments VALUES ({thread}, '{util.sanitise(cmt_data['message'])}', {usr.id}, {time.time()}, {cmt_data['parent_id']})"
-        )
-
-        # Notify author
-        proj = conn.execute(
-            "select title, url from projects where rowid = " + str(thread)
-        ).fetchone()
-
-        auth = conn.execute(
-            "select author from comments where rowid = " + str(cmt_data["parent_id"])
-        ).fetchone()
-
-        conn.execute(
-            f"INSERT INTO notifs VALUES ('New reply', '[{usr.username}](https://datapackhub.net/user/{usr.username}) left a reply to your comment on project [{proj[0]}](https://datapackhub.net/project/{proj[1]}).', False,  'default', {auth[0]})"
-        )
+        conn.rollback()
+        conn.close()
+        return "There was an error!", 500
 
     conn.commit()
     conn.close()
