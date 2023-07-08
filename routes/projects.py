@@ -770,7 +770,7 @@ def feature(id):
     # Validate project
     conn = sqlite3.connect(config.DATA + "data.db")
     proj = conn.execute(
-        "select author, status from projects where rowid = " + str(id)
+        "select author, status, title, url from projects where rowid = " + str(id)
     ).fetchall()
 
     if len(proj) == 0:
@@ -794,6 +794,9 @@ def feature(id):
         conn.close()
         return "There was an error."
     else:
+        conn.execute(
+            f"INSERT INTO notifs VALUES ('Project Featured', 'Your project, [{proj[2]}](https://datapackhub.net/project/{proj[3]}), was featured by a moderator for {dat['expires']} days. During this time, it will be visible on the front page and higher up in search results. Congrats! :D', False,  'default', {proj[0]})"
+        )
         conn.commit()
         conn.close()
         # util.post.fea(user.username, project[2], project[4], project[5], project[3], data["message"])
