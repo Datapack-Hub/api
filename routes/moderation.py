@@ -481,7 +481,7 @@ def dismiss(proj: int):
     # Authenticate user
     user = util.authenticate(request.headers.get("Authorization"))
     if user == 32:
-        return "Please make sure authorization type = Basic"
+        return "Please make sure authorization type = Basic", 401
     if user == 33:
         return "Token Expired", 498
 
