@@ -105,7 +105,8 @@ def post_msg(thread: int):
             ).fetchone()
 
             auth = conn.execute(
-                "select author from comments where rowid = " + str(cmt_data["parent_id"])
+                "select author from comments where rowid = "
+                + str(cmt_data["parent_id"])
             ).fetchone()
 
             conn.execute(
