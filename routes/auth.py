@@ -151,7 +151,7 @@ def link_discord():
 
     usr = util.authenticate(request.headers.get("Authorization"))
     if usr == 32:
-        return "Please make sure authorization type = Basic"
+        return "Please make sure authorization type = Basic", 401
     if usr == 33:
         return "Token Expired", 498
 
@@ -213,7 +213,7 @@ def link_github():
 
     usr = util.authenticate(request.headers.get("Authorization"))
     if usr == 32:
-        return "Please make sure authorization type = Basic"
+        return "Please make sure authorization type = Basic", 401
     if usr == 33:
         return "Token Expired", 498
 
