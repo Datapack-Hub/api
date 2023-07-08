@@ -87,11 +87,11 @@ def post_msg(thread: int):
 
         # Notify author
         auth = conn.execute(
-            "select author, title from projects where rowid = " + str(thread)
+            "select author, title, url from projects where rowid = " + str(thread)
         ).fetchone()
 
         conn.execute(
-            f"INSERT INTO notifs VALUES ('New comment', '{usr.username} left a comment on your project {auth[1]}.', False,  'default', {auth[0]})"
+            f"INSERT INTO notifs VALUES ('New comment', '[{usr.username}](https://datapackhub.net/user/{usr.username}) left a comment on your project [{auth[1]}](https://datapackhub.net/project/{proj[2]}).', False,  'default', {auth[0]})"
         )
     else:
         conn.execute(
@@ -100,7 +100,7 @@ def post_msg(thread: int):
 
         # Notify author
         proj = conn.execute(
-            "select title from projects where rowid = " + str(thread)
+            "select title, url from projects where rowid = " + str(thread)
         ).fetchone()
 
         auth = conn.execute(
@@ -108,7 +108,7 @@ def post_msg(thread: int):
         ).fetchone()
 
         conn.execute(
-            f"INSERT INTO notifs VALUES ('New reply', '{usr.username} left a reply to your comment on project {proj[0]}.', False,  'default', {auth[0]})"
+            f"INSERT INTO notifs VALUES ('New reply', '[{usr.username}](https://datapackhub.net/user/{usr.username}) left a reply to your comment on project [{proj[0]}](https://datapackhub.net/project/{proj[1]}).', False,  'default', {auth[0]})"
         )
 
     conn.commit()
