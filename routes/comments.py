@@ -112,10 +112,10 @@ def post_msg(thread: int):
             conn.execute(
                 f"INSERT INTO notifs VALUES ('New reply', '[{usr.username}](https://datapackhub.net/user/{usr.username}) left a reply to your comment on project [{proj[0]}](https://datapackhub.net/project/{proj[1]}).', False,  'default', {auth[0]})"
             )
-    except:
+    except sqlite3.Error as er:
         conn.rollback()
         conn.close()
-        return "There was an error!", 500
+        return "There was an error! " + " ".join(er.args), 500
 
     conn.commit()
     conn.close()

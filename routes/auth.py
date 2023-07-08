@@ -104,8 +104,6 @@ def callback_dc():
         timeout=120,
     ).json()
 
-    print(discord)
-
     # Get DH user
     u = util.get_user.from_discord_id(discord["id"])
 
