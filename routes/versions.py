@@ -180,7 +180,6 @@ def new(project: int):
         else:
             sq = False
 
-        print("got here")
         dpath = files.upload_zipfile(
             data["primary_download"],
             f"project/{project}/{data['version_code']}/{data['filename']}",

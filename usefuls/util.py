@@ -35,7 +35,6 @@ def authenticate(auth: str):
     conn.close()
 
     if u[5]:
-        print(u[5])
         badges = json.loads(u[5])
     else:
         badges = None
@@ -134,7 +133,6 @@ class get_user:
         conn.close()
 
         if u[5]:
-            print(u[5])
             badges = json.loads(u[5])
         else:
             badges = None
