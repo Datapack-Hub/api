@@ -39,8 +39,8 @@ def staff(role):
                 "id": i[1],
                 "username": i[0],
                 "role": role,
-                "bio": i[3],
-                "profile_icon": i[4],
+                "bio": i[2],
+                "profile_icon": i[3],
             }
         )
     return {"count": len(finale), "values": finale}
