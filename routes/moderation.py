@@ -500,7 +500,7 @@ def dismiss(proj: int):
     project = project[0]
 
     # Check if user owns project.
-    if project[2] != user.id:
+    if not (project[2] != user.id or user.role in ["admin","moderator"]):
         return "You don't own this project!", 403
 
     # Check status of project
