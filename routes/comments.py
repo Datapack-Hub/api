@@ -75,13 +75,13 @@ def post_msg(thread: int):
     cmt_data = request.get_json(True)
     try:
         cmt_data["message"]
-    except:
+    except KeyError:
         return "You need to provide a message field!", 400
 
     try:
         try:
             cmt_data["parent_id"]
-        except:
+        except KeyError:
             conn.execute(
                 f"INSERT INTO comments VALUES ({thread}, '{util.sanitise(cmt_data['message'])}', {usr.id}, {time.time()}, null)"
             )
