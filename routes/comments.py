@@ -89,7 +89,8 @@ def post_msg(thread: int):
             # Notify author
             if usr.id != cmt_data["author"]:
                 auth = conn.execute(
-                    "select author, title, url from projects where rowid = " + str(thread)
+                    "select author, title, url from projects where rowid = "
+                    + str(thread)
                 ).fetchone()
 
                 conn.execute(
@@ -101,7 +102,9 @@ def post_msg(thread: int):
             )
 
             # Notify author
-            if usr.id != cmt_data["author"]: # I got bored and added my suggestion myself -HoodieRocks
+            if (
+                usr.id != cmt_data["author"]
+            ):  # I got bored and added my suggestion myself -HoodieRocks
                 proj = conn.execute(
                     "select title, url from projects where rowid = " + str(thread)
                 ).fetchone()
