@@ -145,13 +145,13 @@ def link_discord():
 
     # Get signed-in user
     if not request.headers.get("Authorization"):
-        return "Authorization required", 401
+        return "Authorization required", 400
 
     usr = util.authenticate(request.headers.get("Authorization"))
     if usr == 32:
-        return "Please make sure authorization type = Basic", 401
+        return "Please make sure authorization type = Basic", 400
     if usr == 33:
-        return "Token Expired", 498
+        return "Token Expired", 401
 
     # Get discord user info
     data = {
@@ -207,13 +207,13 @@ def link_github():
 
     # Get signed-in user
     if not request.headers.get("Authorization"):
-        return "Authorization required", 401
+        return "Authorization required", 400
 
     usr = util.authenticate(request.headers.get("Authorization"))
     if usr == 32:
-        return "Please make sure authorization type = Basic", 401
+        return "Please make sure authorization type = Basic", 400
     if usr == 33:
-        return "Token Expired", 498
+        return "Token Expired", 401
 
     # Get github ID
     github = requests.get(

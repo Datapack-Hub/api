@@ -87,9 +87,9 @@ def get_user_id(id):
 
         usr = util.authenticate(request.headers.get("Authorization"))
         if usr == 32:
-            return "Please make sure authorization type = Basic", 401
+            return "Please make sure authorization type = Basic", 400
         if usr == 33:
-            return "Token Expired", 498
+            return "Token Expired", 401
 
         banned = util.get_user_ban_data(usr.id)
         if banned is not None:
@@ -138,9 +138,9 @@ def me():
 
     usr = util.authenticate(request.headers.get("Authorization"))
     if usr == 32:
-        return "Please make sure authorization type = Basic", 401
+        return "Please make sure authorization type = Basic", 400
     if usr == 33:
-        return "Token Expired", 498
+        return "Token Expired", 401
 
     # User Data
     userdata = {
@@ -189,7 +189,7 @@ def user_projects(username):
     if authed == 32:
         return "Make sure authorization is basic!", 400
     elif authed == 33:
-        return "Token expired!", 429
+        return "Token expired!", 401
 
     if t:
         if authed.id == user.id:

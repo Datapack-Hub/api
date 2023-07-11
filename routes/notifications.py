@@ -20,10 +20,10 @@ def all():
     usr = util.authenticate(request.headers.get("Authorization"))
 
     if usr == 32:
-        return "Please make sure authorization type = Basic", 401
+        return "Please make sure authorization type = Basic", 400
 
     if usr == 33:
-        return "Token Expired", 498
+        return "Token Expired", 401
 
     conn = sqlite3.connect(config.DATA + "data.db")
     notifs = conn.execute(
@@ -62,10 +62,10 @@ def unread():
     usr = util.authenticate(request.headers.get("Authorization"))
 
     if usr == 32:
-        return "Please make sure authorization type = Basic", 401
+        return "Please make sure authorization type = Basic", 400
 
     if usr == 33:
-        return "Token Expired", 498
+        return "Token Expired", 401
 
     conn = sqlite3.connect(config.DATA + "data.db")
     notifs = conn.execute(
@@ -98,9 +98,9 @@ def send(target):
 
     usr = util.authenticate(request.headers.get("Authorization"))
     if usr == 32:
-        return "Please make sure authorization type = Basic", 401
+        return "Please make sure authorization type = Basic", 400
     if usr == 33:
-        return "Token Expired", 498
+        return "Token Expired", 401
 
     if usr.role not in ["admin", "developer", "moderator", "helper"]:
         return "You are not allowed to do this!", 403
@@ -131,10 +131,10 @@ def send(target):
 def delete(id):
     usr = util.authenticate(request.headers.get("Authorization"))
     if usr == 32:
-        return "Please make sure authorization type = Basic", 401
+        return "Please make sure authorization type = Basic", 400
 
     if usr == 33:
-        return "Token Expired", 498
+        return "Token Expired", 401
 
     conn = sqlite3.connect(config.DATA + "data.db")
     notif = conn.execute("SELECT user FROM notifs WHERE rowid = " + str(id)).fetchone()

@@ -84,7 +84,7 @@ def code(id: int, code: str):
         elif usr == 32:
             return "Make sure authorization is basic!", 400
         elif usr == 33:
-            return "Token expired!", 429
+            return "Token expired!", 401
 
         if util.user_owns_project(id, usr.id):
             conn = sqlite3.connect(f"{config.DATA}data.db")
@@ -126,9 +126,9 @@ def new(project: int):
     # Authenticate user
     usr = util.authenticate(request.headers.get("Authorization"))
     if usr == 32:
-        return "Please make sure authorization type = Basic", 401
+        return "Please make sure authorization type = Basic", 400
     if usr == 33:
-        return "Token Expired", 498
+        return "Token Expired", 401
 
     # Check if user is banned
     banned = util.get_user_ban_data(usr.id)
