@@ -64,12 +64,12 @@ def messages_from_thread(thread: int):
 @comments.route("/thread/<int:thread>/post", methods=["POST"])
 def post_msg(thread: int):
     if not request.headers.get("Authorization"):
-        return "Authorization required", 401
+        return "Authorization required", 400
     usr = util.authenticate(request.headers.get("Authorization"))
     if usr == 32:
-        return "Please make sure authorization type = Basic", 401
+        return "Please make sure authorization type = Basic", 400
     if usr == 33:
-        return "Token Expired", 498
+        return "Token Expired", 401
 
     conn = sqlite3.connect(config.DATA + "data.db")
     cmt_data = request.get_json(True)
@@ -192,14 +192,14 @@ def get_comment(id: int):
 
         if not request.headers.get("Authorization"):
             conn.close()
-            return "Authorization required", 401
+            return "Authorization required", 400
         usr = util.authenticate(request.headers.get("Authorization"))
         if usr == 32:
             conn.close()
-            return "Please make sure authorization type = Basic", 401
+            return "Please make sure authorization type = Basic", 400
         if usr == 33:
             conn.close()
-            return "Token Expired", 498
+            return "Token Expired", 401
 
         if not (usr.id == comment[2] or usr.role in ["admin", "moderator"]):
             conn.close()

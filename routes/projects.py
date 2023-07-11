@@ -162,7 +162,7 @@ def get_proj(id):
     if this_user == 32:
         return "Make sure authorization is basic!", 400
     elif this_user == 33:
-        return "Token expired!", 429
+        return "Token expired!", 401
 
     proj = conn.execute(
         f"select type, author, title, icon, url, description, rowid, category, status, uploaded, updated, body, downloads, featured_until from projects where rowid = {id}"
@@ -233,7 +233,7 @@ def get_project(slug: str):
     if this_user == 32:
         return "Make sure authorization is basic!", 400
     elif this_user == 33:
-        return "Token expired!", 429
+        return "Token expired!", 401
 
     # gimme dat project and gtfo
     proj = conn.execute(
@@ -370,7 +370,7 @@ def new_project():
     if user == 32:
         return "Make sure authorization is basic!", 400
     elif user == 33:
-        return "Token expired!", 429
+        return "Token expired!", 401
 
     banned = util.get_user_ban_data(user.id)
     if banned is not None:
@@ -483,7 +483,7 @@ def edit(id: int):
     if user == 32:
         return "Make sure authorization is basic!", 400
     elif user == 33:
-        return "Token expired!", 429
+        return "Token expired!", 401
 
     banned = util.get_user_ban_data(user.id)
     if banned is not None:
@@ -571,7 +571,7 @@ def publish(id):
     if user == 32:
         return "Make sure authorization is basic!", 400
     elif user == 33:
-        return "Token expired!", 429
+        return "Token expired!", 401
 
     conn = sqlite3.connect(config.DATA + "data.db")
     proj = conn.execute(
@@ -626,7 +626,7 @@ def draft(id):
     if user == 32:
         return "Make sure authorization is basic!", 400
     elif user == 33:
-        return "Token expired!", 429
+        return "Token expired!", 401
 
     conn = sqlite3.connect(config.DATA + "data.db")
     proj = conn.execute(
@@ -662,7 +662,7 @@ def report(id):
     if user == 32:
         return "Make sure authorization is basic!", 400
     elif user == 33:
-        return "Token expired!", 429
+        return "Token expired!", 401
 
     conn = sqlite3.connect(config.DATA + "data.db")
     proj = conn.execute(
@@ -698,7 +698,7 @@ def remove(id):
     if user == 32:
         return "Make sure authorization is basic!", 400
     elif user == 33:
-        return "Token expired!", 429
+        return "Token expired!", 401
 
     conn = sqlite3.connect(config.DATA + "data.db")
     proj = conn.execute(
@@ -757,7 +757,7 @@ def feature(id):
     if user == 32:
         return "Make sure authorization is basic!", 400
     elif user == 33:
-        return "Token expired!", 429
+        return "Token expired!", 401
     if user.role not in ["admin", "moderator"]:
         return "You don't have permission to do this", 403
 

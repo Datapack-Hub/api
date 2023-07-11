@@ -69,7 +69,7 @@ def console():
 
     # Check user authentication status
     if not util.get_user.from_token(request.headers.get("Authorization")[6:]):
-        return "hey u! sign in again plz (i am not hax)", 429
+        return "hey u! sign in again plz (i am not hax)", 401
 
     util.post.site_log(
         util.get_user.from_token(request.headers.get("Authorization")[6:]).username,
@@ -481,9 +481,9 @@ def dismiss(proj: int):
     # Authenticate user
     user = util.authenticate(request.headers.get("Authorization"))
     if user == 32:
-        return "Please make sure authorization type = Basic", 401
+        return "Please make sure authorization type = Basic", 400
     if user == 33:
-        return "Token Expired", 498
+        return "Token Expired", 401
 
     # Get project.
     conn = sqlite3.connect(config.DATA + "data.db")
