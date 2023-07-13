@@ -68,7 +68,7 @@ def search():
             "url": item[4],
             "description": item[5],
             "ID": item[6],
-            "category": item[7],
+            "category": str(item[7]).split(","),
             "downloads": item[10],
             "featured": False,
         }
@@ -131,7 +131,7 @@ def query():
             "url": item[4],
             "description": item[5],
             "ID": item[6],
-            "category": item[7],
+            "category": str(item[7]).split(","),
             "downloads": item[10],
             "featured": False,
         }
@@ -197,7 +197,7 @@ def get_proj(id):
         "url": proj[4],
         "description": proj[5],
         "ID": proj[6],
-        "category": proj[7],
+        "category": str(proj[7]).split(","),
         "status": proj[8],
         "uploaded": proj[9],
         "updated": proj[10],
@@ -270,7 +270,7 @@ def get_project(slug: str):
         "url": proj[4],
         "description": proj[5],
         "ID": proj[6],
-        "category": proj[7],
+        "category": str(proj[7]).split(","),
         "status": proj[8],
         "uploaded": proj[9],
         "updated": proj[10],
@@ -321,7 +321,7 @@ def random():
             "url": i[4],
             "description": i[5],
             "ID": i[6],
-            "category": i[7],
+            "category": str(i[7]).split(","),
             "uploaded": i[9],
             "updated": i[10],
             "body": i[11],
@@ -400,6 +400,9 @@ def new_project():
 
     if len(data["description"]) > 200:
         return "Description exceeds max length", 400
+    
+    if len(data["category"]) > 3:
+        return "Categories exceed 3", 400
 
     if not re.match(r'^[\w!@$()`.+,"\-\']{3,64}$', data["url"]):
         return "URL is bad", 400
@@ -413,6 +416,8 @@ def new_project():
 
     # Update database
     conn = sqlite3.connect(config.DATA + "data.db")
+    
+    cat_str = ",".join(data["category"])
 
     if "icon" in data and data["icon"]:
         conn.execute(
@@ -433,7 +438,7 @@ def new_project():
                         '{util.sanitise(data['title'])}', 
                         '{util.sanitise(data['description'])}', 
                         '{util.sanitise(data['body'])}',
-                        '{util.sanitise(data['category'])}', 
+                        '{util.sanitise(cat_str)}', 
                         '{util.sanitise(data['url'])}', 
                         'unpublished',
                         {str(int(time.time()))},
@@ -458,7 +463,7 @@ def new_project():
                         '{util.sanitise(data['title'])}', 
                         '{util.sanitise(data['description'])}', 
                         '{util.sanitise(data['body'])}',
-                        '{util.sanitise(data['category'])}', 
+                        '{util.sanitise(cat_str)}', 
                         '{util.sanitise(data['url'])}', 
                         'draft',
                         {str(int(time.time()))},
@@ -514,6 +519,9 @@ def edit(id: int):
 
     if len(data["description"]) > 200:
         return "Description exceeds max length", 400
+    
+    if len(data["category"]) > 3:
+        return "Categories exceed 3", 400
 
     if "icon" in data and data["icon"]:
         icon = files.upload_file(
@@ -524,6 +532,8 @@ def edit(id: int):
 
     # Update database
     conn = sqlite3.connect(config.DATA + "data.db")
+    
+    cat_str = ",".join(data["category"])
 
     try:
         if "icon" in data and data["icon"]:
@@ -532,7 +542,7 @@ def edit(id: int):
                 title = '{util.sanitise(data["title"])}',
                 description = '{util.sanitise(data["description"])}',
                 body = '{util.sanitise(data["body"])}',
-                category = '{util.sanitise(data["category"])}',
+                category = '{util.sanitise(cat_str)}',
                 icon = '{icon}' 
                 where rowid = {id}"""
             )
@@ -542,7 +552,7 @@ def edit(id: int):
                 title = '{util.sanitise(data["title"])}',
                 description = '{util.sanitise(data["description"])}',
                 body = '{util.sanitise(data["body"])}',
-                category = '{util.sanitise(data["category"])}' 
+                category = '{util.sanitise(cat_str)}' 
                 where rowid = {id}"""
             )
     except sqlite3.Error:
@@ -831,7 +841,7 @@ def featured():
                 "url": i[4],
                 "description": i[5],
                 "ID": i[6],
-                "category": i[7],
+                "category": str(i[7]).split(","),
                 "uploaded": i[9],
                 "updated": i[10],
                 "body": i[11],

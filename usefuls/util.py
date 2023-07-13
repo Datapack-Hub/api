@@ -10,7 +10,7 @@ import config
 from usefuls.commons import User
 
 
-def authenticate(auth: str):
+def authenticate(auth: str) -> int | User:
     """
     `dict` - If success returns user details\n
     `31` - If auth not supplied\n
@@ -40,9 +40,8 @@ def authenticate(auth: str):
         badges = None
     return User(u[1], u[0], u[2], u[3], profile_icon=u[4], badges=badges)
 
-
 class get_user:
-    def from_username(self: str):
+    def from_username(self: str) -> User | None:
         conn = sqlite3.connect(config.DATA + "data.db")
 
         # Select
@@ -61,7 +60,7 @@ class get_user:
             badges = None
         return User(u[1], u[0], u[2], u[3], profile_icon=u[4], badges=badges)
 
-    def from_id(self: int):
+    def from_id(self: int) -> User | None:
         conn = sqlite3.connect(config.DATA + "data.db")
 
         # Select
@@ -80,7 +79,7 @@ class get_user:
             badges = None
         return User(u[1], u[0], u[2], u[3], profile_icon=u[4], badges=badges)
 
-    def from_github_id(self: int):
+    def from_github_id(self: int) -> User | None:
         conn = sqlite3.connect(config.DATA + "data.db")
 
         # Select
@@ -99,7 +98,7 @@ class get_user:
             badges = None
         return User(u[1], u[0], u[2], u[3], profile_icon=u[4], badges=badges)
 
-    def from_discord_id(self: int):
+    def from_discord_id(self: int) -> User | None:
         conn = sqlite3.connect(config.DATA + "data.db")
 
         # Select
@@ -118,7 +117,7 @@ class get_user:
             badges = None
         return User(u[1], u[0], u[2], u[3], profile_icon=u[4], badges=badges)
 
-    def from_token(token: str):
+    def from_token(token: str) -> User | None:
         conn = sqlite3.connect(config.DATA + "data.db")
 
         # Select
@@ -140,7 +139,7 @@ class get_user:
 
 
 @lru_cache
-def get_user_token(github_id: int):
+def get_user_token(github_id: int) -> str | None:
     conn = sqlite3.connect(config.DATA + "data.db")
 
     # Select
@@ -157,7 +156,7 @@ def get_user_token(github_id: int):
 
 
 @lru_cache
-def get_user_token_from_discord_id(discord: int):
+def get_user_token_from_discord_id(discord: int) -> str | None:
     conn = sqlite3.connect(config.DATA + "data.db")
 
     # Select
