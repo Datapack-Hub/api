@@ -400,7 +400,7 @@ def new_project():
 
     if len(data["description"]) > 200:
         return "Description exceeds max length", 400
-    
+
     if len(data["category"]) > 3:
         return "Categories exceed 3", 400
 
@@ -416,7 +416,7 @@ def new_project():
 
     # Update database
     conn = sqlite3.connect(config.DATA + "data.db")
-    
+
     cat_str = ",".join(data["category"])
 
     if "icon" in data and data["icon"]:
@@ -519,7 +519,7 @@ def edit(id: int):
 
     if len(data["description"]) > 200:
         return "Description exceeds max length", 400
-    
+
     if len(data["category"]) > 3:
         return "Categories exceed 3", 400
 
@@ -532,7 +532,7 @@ def edit(id: int):
 
     # Update database
     conn = sqlite3.connect(config.DATA + "data.db")
-    
+
     cat_str = ",".join(data["category"])
 
     try:
