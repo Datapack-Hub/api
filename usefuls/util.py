@@ -40,6 +40,7 @@ def authenticate(auth: str) -> int | User:
         badges = None
     return User(u[1], u[0], u[2], u[3], profile_icon=u[4], badges=badges)
 
+
 class get_user:
     def from_username(self: str) -> User | None:
         conn = sqlite3.connect(config.DATA + "data.db")
