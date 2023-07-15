@@ -7,7 +7,9 @@ import sqlite3
 from flask import Blueprint, request
 
 import config
-import usefuls.util as util
+import utilities.auth_utils
+import utilities.post
+import utilities.util as util
 
 notifs = Blueprint("notifications", __name__, url_prefix="/notifs")
 
@@ -17,7 +19,7 @@ def all():
     if not request.headers.get("Authorization"):
         return "Authorization required", 401
 
-    usr = util.authenticate(request.headers.get("Authorization"))
+    usr = utilities.auth_utils.authenticate(request.headers.get("Authorization"))
 
     if usr == 32:
         return "Please make sure authorization type = Basic", 400
@@ -59,7 +61,7 @@ def unread():
     if not request.headers.get("Authorization"):
         return "Authorization required", 401
 
-    usr = util.authenticate(request.headers.get("Authorization"))
+    usr = utilities.auth_utils.authenticate(request.headers.get("Authorization"))
 
     if usr == 32:
         return "Please make sure authorization type = Basic", 400
@@ -96,7 +98,7 @@ def send(target):
     if not request.headers.get("Authorization"):
         return "Authorization required", 401
 
-    usr = util.authenticate(request.headers.get("Authorization"))
+    usr = utilities.auth_utils.authenticate(request.headers.get("Authorization"))
     if usr == 32:
         return "Please make sure authorization type = Basic", 400
     if usr == 33:
@@ -110,7 +112,7 @@ def send(target):
     conn = sqlite3.connect(config.DATA + "data.db")
     try:
         conn.execute(
-            f"INSERT INTO notifs VALUES ('{util.sanitise(notif_data['message'])}', '{util.sanitise(notif_data['description'])}', False,  '{util.sanitise(notif_data['type'])}', {target})"
+            f"INSERT INTO notifs VALUES ('{util.clean(notif_data['message'])}', '{util.clean(notif_data['description'])}', False,  '{util.clean(notif_data['type'])}', {target})"
         )
     except sqlite3.Error as er:
         return "There was a problem: " " ".join(er.args), 500
@@ -118,7 +120,7 @@ def send(target):
     conn.commit()
     conn.close()
 
-    util.post.site_log(
+    utilities.post.site_log(
         usr.username,
         "Sent a notification",
         f"Sent a `{notif_data['type']}` notification to `{target}`",
@@ -129,7 +131,7 @@ def send(target):
 
 @notifs.route("/delete/<int:id>", methods=["DELETE"])
 def delete(id):
-    usr = util.authenticate(request.headers.get("Authorization"))
+    usr = utilities.auth_utils.authenticate(request.headers.get("Authorization"))
     if usr == 32:
         return "Please make sure authorization type = Basic", 400
 

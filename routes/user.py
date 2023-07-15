@@ -10,7 +10,11 @@ from flask import Blueprint, request
 from flask_cors import CORS
 
 import config
-import usefuls.util as util
+from routes.moderation import auth
+import utilities.auth_utils
+import utilities.get_user
+import utilities.post
+import utilities.util as util
 
 ADMINS = ["Silabear", "Flynecraft", "HoodieRocks"]
 user = Blueprint("user", __name__, url_prefix="/user")
@@ -24,13 +28,42 @@ CORS(user)
 #     return resp
 
 
+@user.route("/badges/<int:id>", methods=["POST", "GET"])
+def badges(id: int):
+    conn = sqlite3.connect(config.DATA + "data.db")
+
+    if request.method == "GET":
+        return utilities.get_user.from_id(id).badges
+    if request.method == "POST":
+        if not auth(
+            request.headers.get("Authorization"), ["moderator", "developer", "admin"]
+        ):
+            return "You can't do this!", 403
+
+        body = request.get_json(force=True)
+        badges = utilities.get_user.from_id(id).badges
+        badges.extend(util.clean(body))
+
+        try:
+            conn.execute(
+                f"UPDATE users SET badges = {util.clean(json.dumps(badges))} WHERE rowid = {util.clean(id)}"
+            )
+        except sqlite3.Error:
+            conn.rollback()
+            return "Database Error", 500
+        else:
+            conn.commit()
+            conn.close()
+            return "Success!"
+
+
 @user.route("/staff/<role>")
 def staff(role):
     conn = sqlite3.connect(config.DATA + "data.db")
     if role == "default":
         return "Role has to be staff role", 400
     list = conn.execute(
-        f"select username, rowid, bio, profile_icon from users where role = '{util.sanitise(role)}'"
+        f"select username, rowid, bio, profile_icon from users where role = '{util.clean(role)}'"
     ).fetchall()
     finale = []
     for i in list:
@@ -54,7 +87,7 @@ def roles():
 @user.route("/<string:username>", methods=["GET", "PATCH"])
 def get_user(username):
     # TODO mods can see banned users
-    u = util.get_user.from_username(username)
+    u = utilities.get_user.from_username(username)
     if not u:
         return "User does not exist", 404
     return {
@@ -71,7 +104,7 @@ def get_user(username):
 def get_user_id(id):
     # TODO mods can see banned users
     if request.method == "GET":
-        u = util.get_user.from_id(id)
+        u = utilities.get_user.from_id(id)
         if not u:
             return "User does not exist", 404
         return {
@@ -85,7 +118,7 @@ def get_user_id(id):
     elif request.method == "PATCH":
         dat = request.get_json(force=True)
 
-        usr = util.authenticate(request.headers.get("Authorization"))
+        usr = utilities.auth_utils.authenticate(request.headers.get("Authorization"))
         if usr == 32:
             return "Please make sure authorization type = Basic", 400
         if usr == 33:
@@ -110,16 +143,16 @@ def get_user_id(id):
         conn = sqlite3.connect(config.DATA + "data.db")
         try:
             conn.execute(
-                f"UPDATE users SET username = '{util.sanitise(dat['username'])}' where rowid = {id}"
+                f"UPDATE users SET username = '{util.clean(dat['username'])}' where rowid = {id}"
             )
             conn.execute(
-                f"UPDATE users SET bio = '{util.sanitise(dat['bio'])}' where rowid = {id}"
+                f"UPDATE users SET bio = '{util.clean(dat['bio'])}' where rowid = {id}"
             )
             if usr.role == "admin":
                 conn.execute(
-                    f"UPDATE users SET role = '{util.sanitise(dat['role'])}' where rowid = {id}"
+                    f"UPDATE users SET role = '{util.clean(dat['role'])}' where rowid = {id}"
                 )
-                util.post.site_log(
+                utilities.post.site_log(
                     usr.username,
                     "Edited user",
                     f"Edited user data of {dat['username']}",
@@ -136,7 +169,7 @@ def me():
     if not request.headers.get("Authorization"):
         return "Authorization required", 401
 
-    usr = util.authenticate(request.headers.get("Authorization"))
+    usr = utilities.auth_utils.authenticate(request.headers.get("Authorization"))
     if usr == 32:
         return "Please make sure authorization type = Basic", 400
     if usr == 33:
@@ -171,7 +204,7 @@ def me():
     # failsafe
     if usr.username in ADMINS:
         conn.execute(
-            f"update users set role = 'admin' where username = '{util.sanitise(usr.username)}'"
+            f"update users set role = 'admin' where username = '{util.clean(usr.username)}'"
         )
         conn.commit()
     conn.close()
@@ -184,8 +217,8 @@ def user_projects(username):
 
     # Check if user is authenticated
     t = request.headers.get("Authorization")
-    user = util.get_user.from_username(username)
-    authed = util.authenticate(t)
+    user = utilities.get_user.from_username(username)
+    authed = utilities.auth_utils.authenticate(t)
     if authed == 32:
         return "Make sure authorization is basic!", 400
     elif authed == 33:

@@ -13,8 +13,10 @@ from flask import Blueprint, request
 from flask_cors import CORS
 
 import config
-import usefuls.files as files
-import usefuls.util as util
+import utilities.auth_utils
+import utilities.files as files
+import utilities.post
+import utilities.util as util
 
 projects = Blueprint("projects", __name__, url_prefix="/projects")
 
@@ -44,11 +46,11 @@ def search():
     conn = sqlite3.connect(config.DATA + "data.db")
     if sort == "updated":
         r = conn.execute(
-            f"select type, author, title, icon, url, description, rowid, category, uploaded, updated, downloads, featured_until from projects where status = 'live' and trim(title) LIKE '%{util.sanitise(query)}%' ORDER BY updated DESC"
+            f"select type, author, title, icon, url, description, rowid, category, uploaded, updated, downloads, featured_until from projects where status = 'live' and trim(title) LIKE '%{util.clean(query)}%' ORDER BY updated DESC"
         ).fetchall()
     elif sort == "downloads":
         r = conn.execute(
-            f"select type, author, title, icon, url, description, rowid, category, uploaded, updated, downloads, featured_until from projects where status = 'live' and trim(title) LIKE '%{util.sanitise(query)}%' ORDER BY downloads DESC"
+            f"select type, author, title, icon, url, description, rowid, category, uploaded, updated, downloads, featured_until from projects where status = 'live' and trim(title) LIKE '%{util.clean(query)}%' ORDER BY downloads DESC"
         ).fetchall()
     else:
         return "Unknown sorting method.", 400
@@ -158,7 +160,7 @@ def query():
 def get_proj(id):
     conn = sqlite3.connect(config.DATA + "data.db")
 
-    this_user = util.authenticate(request.headers.get("Authorization"))
+    this_user = utilities.auth_utils.authenticate(request.headers.get("Authorization"))
     if this_user == 32:
         return "Make sure authorization is basic!", 400
     elif this_user == 33:
@@ -229,7 +231,7 @@ def get_project(slug: str):
     # do we have auth? yes
     # this is an accurate representation of minecraft 1.15
     # auth:
-    this_user = util.authenticate(request.headers.get("Authorization"))
+    this_user = utilities.auth_utils.authenticate(request.headers.get("Authorization"))
     if this_user == 32:
         return "Make sure authorization is basic!", 400
     elif this_user == 33:
@@ -237,7 +239,7 @@ def get_project(slug: str):
 
     # gimme dat project and gtfo
     proj = conn.execute(
-        f"select type, author, title, icon, url, description, rowid, category, status, uploaded, updated, body, mod_message, downloads, featured_until from projects where url = '{util.sanitise(slug)}'"
+        f"select type, author, title, icon, url, description, rowid, category, status, uploaded, updated, body, mod_message, downloads, featured_until from projects where url = '{util.clean(slug)}'"
     ).fetchone()
 
     latest_version = conn.execute(
@@ -304,7 +306,7 @@ def random():
 
     conn = sqlite3.connect(config.DATA + "data.db")
     proj = conn.execute(
-        f"SELECT type, author, title, icon, url, description, rowid, category, status, uploaded, updated, body, downloads, featured_until FROM projects where status = 'live' ORDER BY RANDOM() LIMIT {util.sanitise(count)}"
+        f"SELECT type, author, title, icon, url, description, rowid, category, status, uploaded, updated, body, downloads, featured_until FROM projects where status = 'live' ORDER BY RANDOM() LIMIT {util.clean(count)}"
     ).fetchall()
 
     out = []
@@ -366,7 +368,7 @@ def new_project():
     if not tok:
         return "Not authenticated! You gotta log in first :P", 401
 
-    user = util.authenticate(tok)
+    user = utilities.auth_utils.authenticate(tok)
     if user == 32:
         return "Make sure authorization is basic!", 400
     elif user == 33:
@@ -433,13 +435,13 @@ def new_project():
                     uploaded,
                     updated,
                     icon) values (
-                        '{util.sanitise(data['type'])}', 
+                        '{util.clean(data['type'])}', 
                         {user.id}, 
-                        '{util.sanitise(data['title'])}', 
-                        '{util.sanitise(data['description'])}', 
-                        '{util.sanitise(data['body'])}',
-                        '{util.sanitise(cat_str)}', 
-                        '{util.sanitise(data['url'])}', 
+                        '{util.clean(data['title'])}', 
+                        '{util.clean(data['description'])}', 
+                        '{util.clean(data['body'])}',
+                        '{util.clean(cat_str)}', 
+                        '{util.clean(data['url'])}', 
                         'unpublished',
                         {str(int(time.time()))},
                         {str(int(time.time()))},
@@ -458,13 +460,13 @@ def new_project():
                     status,
                     uploaded,
                     updated) values (
-                        '{util.sanitise(data['type'])}', 
+                        '{util.clean(data['type'])}', 
                         {user.id}, 
-                        '{util.sanitise(data['title'])}', 
-                        '{util.sanitise(data['description'])}', 
-                        '{util.sanitise(data['body'])}',
-                        '{util.sanitise(cat_str)}', 
-                        '{util.sanitise(data['url'])}', 
+                        '{util.clean(data['title'])}', 
+                        '{util.clean(data['description'])}', 
+                        '{util.clean(data['body'])}',
+                        '{util.clean(cat_str)}', 
+                        '{util.clean(data['url'])}', 
                         'draft',
                         {str(int(time.time()))},
                         {str(int(time.time()))})"""
@@ -484,7 +486,7 @@ def edit(id: int):
     if not tok:
         return "Not authenticated! You gotta log in first :P", 401
 
-    user = util.authenticate(tok)
+    user = utilities.auth_utils.authenticate(tok)
     if user == 32:
         return "Make sure authorization is basic!", 400
     elif user == 33:
@@ -539,32 +541,32 @@ def edit(id: int):
         if "icon" in data and data["icon"]:
             conn.execute(
                 f"""update projects set
-                title = '{util.sanitise(data["title"])}',
-                description = '{util.sanitise(data["description"])}',
-                body = '{util.sanitise(data["body"])}',
-                category = '{util.sanitise(cat_str)}',
+                title = '{util.clean(data["title"])}',
+                description = '{util.clean(data["description"])}',
+                body = '{util.clean(data["body"])}',
+                category = '{util.clean(cat_str)}',
                 icon = '{icon}' 
                 where rowid = {id}"""
             )
         else:
             conn.execute(
                 f"""update projects set
-                title = '{util.sanitise(data["title"])}',
-                description = '{util.sanitise(data["description"])}',
-                body = '{util.sanitise(data["body"])}',
-                category = '{util.sanitise(cat_str)}' 
+                title = '{util.clean(data["title"])}',
+                description = '{util.clean(data["description"])}',
+                body = '{util.clean(data["body"])}',
+                category = '{util.clean(cat_str)}' 
                 where rowid = {id}"""
             )
     except sqlite3.Error:
         conn.rollback()
-        util.post.error("Error updating project", traceback.format_exc())
+        utilities.post.error("Error updating project", traceback.format_exc())
         return "Something went wrong.", 500
 
     conn.commit()
     conn.close()
 
     if user.role in ["admin", "moderator"]:
-        util.post.site_log(
+        utilities.post.site_log(
             user.username, "Edited project", f"Edited the project {data['title']}"
         )
 
@@ -577,7 +579,7 @@ def publish(id):
     if not tok:
         return "Not authenticated! You gotta log in first :P", 401
 
-    user = util.authenticate(tok)
+    user = utilities.auth_utils.authenticate(tok)
     if user == 32:
         return "Make sure authorization is basic!", 400
     elif user == 33:
@@ -605,7 +607,7 @@ def publish(id):
 
         conn.commit()
         conn.close()
-        util.post.in_queue(proj[2], proj[3], proj[4], proj[0], proj[5])
+        utilities.post.in_queue(proj[2], proj[3], proj[4], proj[0], proj[5])
         return "The project is now in the publish queue.", 200
     elif proj[1] == "draft":
         conn.execute("update projects set status = 'live' where rowid = " + str(id))
@@ -620,7 +622,7 @@ def publish(id):
 
         conn.commit()
         conn.close()
-        util.post.in_queue(proj[2], proj[3], proj[4], proj[0], proj[5])
+        utilities.post.in_queue(proj[2], proj[3], proj[4], proj[0], proj[5])
         return "The project is now in the review queue.", 200
     else:
         return "This project is not in a valid state to be published!", 400
@@ -632,7 +634,7 @@ def draft(id):
     if not tok:
         return "Not authenticated! You gotta log in first :P", 401
 
-    user = util.authenticate(tok)
+    user = utilities.auth_utils.authenticate(tok)
     if user == 32:
         return "Make sure authorization is basic!", 400
     elif user == 33:
@@ -668,7 +670,7 @@ def report(id):
     if not tok:
         return "Not authenticated! You gotta log in first :P", 401
 
-    user = util.authenticate(tok)
+    user = utilities.auth_utils.authenticate(tok)
     if user == 32:
         return "Make sure authorization is basic!", 400
     elif user == 33:
@@ -691,7 +693,7 @@ def report(id):
         return "Please provide a `message` field."
     else:
         conn.execute(
-            f"insert into reports values ('{util.sanitise(report_data['message'])}', {user.id}, {id})"
+            f"insert into reports values ('{util.clean(report_data['message'])}', {user.id}, {id})"
         )
         conn.commit()
         conn.close()
@@ -704,7 +706,7 @@ def remove(id):
     if not tok:
         return "Not authenticated! You gotta log in first :P", 401
 
-    user = util.authenticate(tok)
+    user = utilities.auth_utils.authenticate(tok)
     if user == 32:
         return "Make sure authorization is basic!", 400
     elif user == 33:
@@ -763,7 +765,7 @@ def feature(id):
     tok = request.headers.get("Authorization")
     if not tok:
         return "Not authenticated! You gotta log in first :P", 401
-    user = util.authenticate(tok)
+    user = utilities.auth_utils.authenticate(tok)
     if user == 32:
         return "Make sure authorization is basic!", 400
     elif user == 33:
