@@ -16,7 +16,10 @@ from flask_cors import CORS
 
 import config
 import gen_example_data
-import usefuls.util as util
+import utilities.auth_utils
+import utilities.get_user
+import utilities.post
+import utilities.util as util
 
 console_commands = [
     "sql",
@@ -34,7 +37,7 @@ def auth(token: str, perm_levels: list[str]):
     if not token:
         return False
 
-    user = util.authenticate(token)
+    user = utilities.auth_utils.authenticate(token)
 
     if user == 33:
         return 33
@@ -68,11 +71,13 @@ def console():
             return f"Error: Command {cmd} not found.", 400
 
     # Check user authentication status
-    if not util.get_user.from_token(request.headers.get("Authorization")[6:]):
+    if not utilities.get_user.from_token(request.headers.get("Authorization")[6:]):
         return "hey u! sign in again plz (i am not hax)", 401
 
-    util.post.site_log(
-        util.get_user.from_token(request.headers.get("Authorization")[6:]).username,
+    utilities.post.site_log(
+        utilities.get_user.from_token(
+            request.headers.get("Authorization")[6:]
+        ).username,
         "Ran console command",
         f"Ran the console command: `{data['command']}`",
     )
@@ -134,7 +139,9 @@ def console():
         return "Beep boop! Hi!"
     elif cmd == "reset":
         if (
-            util.get_user.from_token(request.headers.get("Authorization")[6:]).username
+            utilities.get_user.from_token(
+                request.headers.get("Authorization")[6:]
+            ).username
             != "Silabear"
         ):
             return "Only Silabear can run this command!", 403
@@ -187,12 +194,14 @@ def logout():
         return 403
 
     try:
-        util.log_user_out(id)
+        utilities.auth_utils.log_user_out(id)
     except:
         return "Failed", 500
     else:
-        util.post.site_log(
-            util.get_user.from_token(request.headers.get("Authorization")[6:]).username,
+        utilities.post.site_log(
+            utilities.get_user.from_token(
+                request.headers.get("Authorization")[6:]
+            ).username,
             "Logged user out",
             f"Logged out user`{id}`",
         )
@@ -214,19 +223,19 @@ def ban(user: int):
         conn = sqlite3.connect(config.DATA + "data.db")
         try:
             conn.execute(
-                f"insert into banned_users values ({user}, {expiry}, '{util.sanitise(dat['message'])}')"
+                f"insert into banned_users values ({user}, {expiry}, '{util.clean(dat['message'])}')"
             )
         except sqlite3.Error as er:
             return " ".join(er.args)
         else:
             conn.commit()
             conn.close()
-            util.post.site_log(
-                util.get_user.from_token(
+            utilities.post.site_log(
+                utilities.get_user.from_token(
                     request.headers.get("Authorization")[6:]
                 ).username,
                 "Banned User",
-                f"Banned user `{util.get_user.from_id(user)}` for reason `{dat['message']}`",
+                f"Banned user `{utilities.get_user.from_id(user)}` for reason `{dat['message']}`",
             )
             return "worked fine"
     else:
@@ -239,12 +248,12 @@ def ban(user: int):
         else:
             conn.commit()
             conn.close()
-            util.post.site_log(
-                util.get_user.from_token(
+            utilities.post.site_log(
+                utilities.get_user.from_token(
                     request.headers.get("Authorization")[6:]
                 ).username,
                 "Unbanned User",
-                f"Unbanned user `{util.get_user.from_id(user)}` for reason `{dat['message']}`",
+                f"Unbanned user `{utilities.get_user.from_id(user)}` for reason `{dat['message']}`",
             )
             return "worked fine"
 
@@ -335,7 +344,7 @@ def queue(type: str):
                 f"select type, author, title, icon, url, description, rowid, status from projects where rowid = {item[2]}"
             ).fetchone()
 
-            usr = util.get_user.from_id(item[1])
+            usr = utilities.get_user.from_id(item[1])
 
             out.append(
                 {
@@ -400,7 +409,7 @@ def change_status(proj: int):
         )
         conn.commit()
         conn.close()
-        util.post.approval(
+        utilities.post.approval(
             user.username, project[2], project[4], project[5], project[3], project[6]
         )
         return "yep i did the thing", 200
@@ -410,9 +419,9 @@ def change_status(proj: int):
         )
         if "message" in data:
             conn.execute(
-                f"INSERT INTO notifs VALUES ('Project {project[2]} deleted', 'Your project was deleted for the following reason: {util.sanitise(data['message'])}', False, 'important', {project[3]})"
+                f"INSERT INTO notifs VALUES ('Project {project[2]} deleted', 'Your project was deleted for the following reason: {util.clean(data['message'])}', False, 'important', {project[3]})"
             )
-        util.post.deletion(
+        utilities.post.deletion(
             user.username,
             project[2],
             project[4],
@@ -439,15 +448,15 @@ def change_status(proj: int):
             return "message is missing, its a disable", 400
         else:
             conn.execute(
-                f"update projects set status = 'disabled', mod_message = '{util.sanitise(data['message'])}' where rowid = "
+                f"update projects set status = 'disabled', mod_message = '{util.clean(data['message'])}' where rowid = "
                 + str(proj)
             )
             conn.execute(
-                f"INSERT INTO notifs VALUES ('Project {project[2]} disabled', 'Your project, {project[2]}, was disabled. You need to make changes and then submit it for review. Reason: {util.sanitise(data['message'])}', False, 'important', {project[3]})"
+                f"INSERT INTO notifs VALUES ('Project {project[2]} disabled', 'Your project, {project[2]}, was disabled. You need to make changes and then submit it for review. Reason: {util.clean(data['message'])}', False, 'important', {project[3]})"
             )
             conn.commit()
             conn.close()
-            util.post.disabled(
+            utilities.post.disabled(
                 user.username,
                 project[2],
                 project[4],
@@ -464,7 +473,7 @@ def change_status(proj: int):
             return "message is missing, its a freaking write note action", 400
         else:
             conn.execute(
-                f"update projects set mod_message = '{util.sanitise(data['message'])}' where rowid = {str(proj)}"
+                f"update projects set mod_message = '{util.clean(data['message'])}' where rowid = {str(proj)}"
             )
             conn.execute(
                 f"INSERT INTO notifs VALUES ('New Mod Message', 'A moderator left a message on your project {project[2]}.', False, 'important', {project[3]})"
@@ -479,7 +488,7 @@ def change_status(proj: int):
 @mod.route("/project/<int:proj>/dismiss_message", methods=["DELETE"])
 def dismiss(proj: int):
     # Authenticate user
-    user = util.authenticate(request.headers.get("Authorization"))
+    user = utilities.auth_utils.authenticate(request.headers.get("Authorization"))
     if user == 32:
         return "Please make sure authorization type = Basic", 400
     if user == 33:

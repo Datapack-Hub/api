@@ -10,8 +10,9 @@ from flask_cors import CORS
 from werkzeug.exceptions import BadRequestKeyError
 
 import config
-import usefuls.files as files
-import usefuls.util as util
+import utilities.auth_utils
+import utilities.files as files
+import utilities.util as util
 
 versions = Blueprint("versions", __name__, url_prefix="/versions")
 
@@ -48,7 +49,7 @@ def project_from_str(id: str):
     conn = sqlite3.connect(f"{config.DATA}data.db")
     # Get the project
     p = conn.execute(
-        f"SELECT rowid FROM projects WHERE url = '{util.sanitise(id)}';"
+        f"SELECT rowid FROM projects WHERE url = '{util.clean(id)}';"
     ).fetchall()
     if len(p) == 0:
         return "Project not found", 404
@@ -78,7 +79,7 @@ def project_from_str(id: str):
 @versions.route("/project/<int:id>/<string:code>", methods=["GET", "DELETE"])
 def code(id: int, code: str):
     if request.method == "DELETE":
-        usr = util.authenticate(request.headers.get("Authorization"))
+        usr = utilities.auth_utils.authenticate(request.headers.get("Authorization"))
         if usr == 31:
             return "You need to be signed in!"
         elif usr == 32:
@@ -124,7 +125,7 @@ def code(id: int, code: str):
 @versions.route("/new/<int:project>", methods=["post"])
 def new(project: int):
     # Authenticate user
-    usr = util.authenticate(request.headers.get("Authorization"))
+    usr = utilities.auth_utils.authenticate(request.headers.get("Authorization"))
     if usr == 32:
         return "Please make sure authorization type = Basic", 400
     if usr == 33:

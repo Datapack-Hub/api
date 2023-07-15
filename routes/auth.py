@@ -10,7 +10,9 @@ import requests
 from flask import request
 
 import config
-import usefuls.util as util
+import utilities.auth_utils
+import utilities.get_user
+import utilities.util as util
 
 auth = flask.Blueprint("auth", __name__, url_prefix="/auth")
 
@@ -49,7 +51,7 @@ def callback_gh():
     ).json()
 
     # Get DH user
-    u = util.get_user.from_github_id(github["id"])
+    u = utilities.get_user.from_github_id(github["id"])
 
     if not u:
         # Make account
@@ -61,7 +63,7 @@ def callback_gh():
 
         return resp
     else:
-        t = util.get_user_token(github["id"])
+        t = utilities.auth_utils.get_user_token(github["id"])
 
         if not t:
             return (
@@ -105,7 +107,7 @@ def callback_dc():
     ).json()
 
     # Get DH user
-    u = util.get_user.from_discord_id(discord["id"])
+    u = utilities.get_user.from_discord_id(discord["id"])
 
     if not u:
         # Make account
@@ -122,7 +124,7 @@ def callback_dc():
 
         return resp
     else:
-        t = util.get_user_token_from_discord_id(discord["id"])
+        t = utilities.auth_utils.get_user_token_from_discord_id(discord["id"])
 
         if not t:
             return (
@@ -147,7 +149,7 @@ def link_discord():
     if not request.headers.get("Authorization"):
         return "Authorization required", 400
 
-    usr = util.authenticate(request.headers.get("Authorization"))
+    usr = utilities.auth_utils.authenticate(request.headers.get("Authorization"))
     if usr == 32:
         return "Please make sure authorization type = Basic", 400
     if usr == 33:
@@ -209,7 +211,7 @@ def link_github():
     if not request.headers.get("Authorization"):
         return "Authorization required", 400
 
-    usr = util.authenticate(request.headers.get("Authorization"))
+    usr = utilities.auth_utils.authenticate(request.headers.get("Authorization"))
     if usr == 32:
         return "Please make sure authorization type = Basic", 400
     if usr == 33:

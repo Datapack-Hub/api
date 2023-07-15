@@ -5,7 +5,9 @@
 import sqlite3
 from flask import Blueprint, request
 import config
-import usefuls.util as util
+import utilities.auth_utils
+import utilities.get_user
+import utilities.util as util
 import time
 
 comments = Blueprint("comments", __name__, url_prefix="/comments")
@@ -20,13 +22,13 @@ def messages_from_thread(thread: int):
 
     out = []
     for cmt in cmts:
-        author = util.get_user.from_id(cmt[2])
+        author = utilities.get_user.from_id(cmt[2])
         replies = conn.execute(
             f"select rowid, message, author, sent from comments where thread_id = {thread} and parent_id = {cmt[0]} order by sent desc"
         ).fetchall()
         reps = []
         for reply in replies:
-            repl_auth = util.get_user.from_id(reply[2])
+            repl_auth = utilities.get_user.from_id(reply[2])
             reps.append(
                 {
                     "id": reply[0],
@@ -65,7 +67,7 @@ def messages_from_thread(thread: int):
 def post_msg(thread: int):
     if not request.headers.get("Authorization"):
         return "Authorization required", 400
-    usr = util.authenticate(request.headers.get("Authorization"))
+    usr = utilities.auth_utils.authenticate(request.headers.get("Authorization"))
     if usr == 32:
         return "Please make sure authorization type = Basic", 400
     if usr == 33:
@@ -83,7 +85,7 @@ def post_msg(thread: int):
             cmt_data["parent_id"]
         except KeyError:
             conn.execute(
-                f"INSERT INTO comments VALUES ({thread}, '{util.sanitise(cmt_data['message'])}', {usr.id}, {time.time()}, null)"
+                f"INSERT INTO comments VALUES ({thread}, '{util.clean(cmt_data['message'])}', {usr.id}, {time.time()}, null)"
             )
 
             # Notify author
@@ -98,7 +100,7 @@ def post_msg(thread: int):
                 )
         else:
             conn.execute(
-                f"INSERT INTO comments VALUES ({thread}, '{util.sanitise(cmt_data['message'])}', {usr.id}, {time.time()}, {cmt_data['parent_id']})"
+                f"INSERT INTO comments VALUES ({thread}, '{util.clean(cmt_data['message'])}', {usr.id}, {time.time()}, {cmt_data['parent_id']})"
             )
 
             # Notify author
@@ -141,14 +143,14 @@ def get_comment(id: int):
 
         comment = comment[0]
 
-        author = util.get_user.from_id(comment[2])
+        author = utilities.get_user.from_id(comment[2])
 
         replies = conn.execute(
             f"select rowid, message, author, sent from comments where parent_id = {id} order by sent desc"
         ).fetchall()
         reps = []
         for reply in replies:
-            repl_auth = util.get_user.from_id(reply[2])
+            repl_auth = utilities.get_user.from_id(reply[2])
             reps.append(
                 {
                     "id": reply[0],
@@ -193,7 +195,7 @@ def get_comment(id: int):
         if not request.headers.get("Authorization"):
             conn.close()
             return "Authorization required", 400
-        usr = util.authenticate(request.headers.get("Authorization"))
+        usr = utilities.auth_utils.authenticate(request.headers.get("Authorization"))
         if usr == 32:
             conn.close()
             return "Please make sure authorization type = Basic", 400
