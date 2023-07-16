@@ -1,11 +1,11 @@
 import config
-import get_user
+import utilities.get_user
 import disnake
 import datetime
 
 
 def site_log(user: str, action: str, content: str):
-    usr = get_user.from_username(user)
+    usr = utilities.get_user.from_username(user)
 
     webhook = disnake.SyncWebhook.from_url(config.MOD_LOGS)
     emb = disnake.Embed(
@@ -31,7 +31,7 @@ def error(title: str, message: str):
 def approval(
     approver: str, title: str, description: str, icon: str, author: int, url: str
 ):
-    author_obj = get_user.from_id(author)
+    author_obj = utilities.get_user.from_id(author)
 
     webhook = disnake.SyncWebhook.from_url(config.PROJ_LOGS)
     emb = (
@@ -61,7 +61,7 @@ def deletion(
     reason: str,
     url: str,
 ):
-    author_obj = get_user.from_id(author)
+    author_obj = utilities.get_user.from_id(author)
 
     webhook = disnake.SyncWebhook.from_url(config.PROJ_LOGS)
     emb = (
@@ -92,7 +92,7 @@ def disabled(
     reason: str,
     url: str,
 ):
-    author_obj = get_user.from_id(author)
+    author_obj = utilities.get_user.from_id(author)
 
     webhook = disnake.SyncWebhook.from_url(config.PROJ_LOGS)
     emb = (
@@ -115,7 +115,7 @@ def disabled(
 
 
 def in_queue(title: str, description: str, icon: str, author: int, url: str):
-    author_obj = get_user.from_id(author)
+    author_obj = utilities.get_user.from_id(author)
 
     webhook = disnake.SyncWebhook.from_url(config.PROJ_LOGS)
     emb = (
