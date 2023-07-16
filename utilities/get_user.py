@@ -7,7 +7,7 @@ import json
 import sqlite3
 
 
-def from_username(self: str) -> User | None:
+def from_username(self: str):
     conn = sqlite3.connect(config.DATA + "data.db")
 
     # Select
@@ -27,7 +27,7 @@ def from_username(self: str) -> User | None:
     return User(u[1], u[0], u[2], u[3], profile_icon=u[4], badges=badges)
 
 
-def from_id(self: int) -> User | None:
+def from_id(self: int):
     conn = sqlite3.connect(config.DATA + "data.db")
 
     # Select
@@ -47,7 +47,7 @@ def from_id(self: int) -> User | None:
     return User(u[1], u[0], u[2], u[3], profile_icon=u[4], badges=badges)
 
 
-def from_github_id(self: int) -> User | None:
+def from_github_id(self: int):
     conn = sqlite3.connect(config.DATA + "data.db")
 
     # Select
@@ -67,7 +67,7 @@ def from_github_id(self: int) -> User | None:
     return User(u[1], u[0], u[2], u[3], profile_icon=u[4], badges=badges)
 
 
-def from_discord_id(self: int) -> User | None:
+def from_discord_id(self: int):
     conn = sqlite3.connect(config.DATA + "data.db")
 
     # Select
@@ -87,7 +87,7 @@ def from_discord_id(self: int) -> User | None:
     return User(u[1], u[0], u[2], u[3], profile_icon=u[4], badges=badges)
 
 
-def from_token(token: str) -> User | None:
+def from_token(token: str):
     conn = sqlite3.connect(config.DATA + "data.db")
 
     # Select
