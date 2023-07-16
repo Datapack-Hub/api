@@ -1,6 +1,5 @@
 import secrets
 import sqlite3
-from functools import lru_cache
 import config
 import utilities.post as post
 
@@ -25,7 +24,7 @@ def create_user_account(
     return token
 
 
-@lru_cache
+
 def get_user_ban_data(id: int):
     conn = sqlite3.connect(config.DATA + "data.db")
 
