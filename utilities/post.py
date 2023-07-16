@@ -1,5 +1,5 @@
 import config
-import utilities.get_user as get_user
+import get_user
 import disnake
 import datetime
 
