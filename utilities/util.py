@@ -55,7 +55,7 @@ def clean(query: str):
     return query.replace("'", r"''").replace(";", r"\;")
 
 
-# def get_user_data(id: int, data: list[str]) -> list:
+# def get_user_data(id: int, data: list[str])
 #     conn = sqlite3.connect(config.DATA + "data.db")
 #     query_props = ",".join(data)
 #     user = conn.execute(
