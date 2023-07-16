@@ -33,7 +33,7 @@ def badges(id: int):
     conn = sqlite3.connect(config.DATA + "data.db")
 
     if request.method == "GET":
-        return utilities.get_user.from_id(id).badges
+        return {"badges": utilities.get_user.from_id(id).badges}
     if request.method == "POST":
         if not auth(
             request.headers.get("Authorization"), ["moderator", "developer", "admin"]
