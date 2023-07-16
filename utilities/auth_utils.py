@@ -7,7 +7,7 @@ import json
 import sqlite3
 
 
-def authenticate(auth: str) -> int | User:
+def authenticate(auth: str):
     """
     `dict` - If success returns user details\n
     `31` - If auth not supplied\n
@@ -38,7 +38,7 @@ def authenticate(auth: str) -> int | User:
     return User(u[1], u[0], u[2], u[3], profile_icon=u[4], badges=badges)
 
 
-def get_user_token(github_id: int) -> str | None:
+def get_user_token(github_id: int):
     conn = sqlite3.connect(config.DATA + "data.db")
 
     # Select
@@ -54,7 +54,7 @@ def get_user_token(github_id: int) -> str | None:
     return u[0]
 
 
-def get_user_token_from_discord_id(discord: int) -> str | None:
+def get_user_token_from_discord_id(discord: int):
     conn = sqlite3.connect(config.DATA + "data.db")
 
     # Select
