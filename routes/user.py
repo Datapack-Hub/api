@@ -19,7 +19,7 @@ import utilities.util as util
 ADMINS = ["Silabear", "Flynecraft", "HoodieRocks"]
 user = Blueprint("user", __name__, url_prefix="/user")
 
-CORS(user)
+# CORS(user)
 
 
 # @user.after_request
