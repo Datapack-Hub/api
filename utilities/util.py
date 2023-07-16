@@ -24,7 +24,6 @@ def create_user_account(
     return token
 
 
-
 def get_user_ban_data(id: int):
     conn = sqlite3.connect(config.DATA + "data.db")
 
