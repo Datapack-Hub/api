@@ -1,3 +1,4 @@
+from functools import lru_cache
 import secrets
 import sqlite3
 import config
@@ -24,6 +25,7 @@ def create_user_account(
     return token
 
 
+@lru_cache
 def get_user_ban_data(id: int):
     conn = sqlite3.connect(config.DATA + "data.db")
 
@@ -39,6 +41,7 @@ def get_user_ban_data(id: int):
     return {"reason": banned_user[0], "expires": banned_user[1]}
 
 
+@lru_cache
 def user_owns_project(project: int, author: int):
     conn = sqlite3.connect(config.DATA + "data.db")
     proj = conn.execute(
