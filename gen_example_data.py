@@ -123,7 +123,7 @@ if __name__ == "__main__":
     # conn.execute(
     #     'update users set badges = \'{"badges": ["contributor"]}\' WHERE rowid = 1'
     # )
-    
+
     print(conn.execute("""SELECT * FROM users WHERE rowid = 1""").fetchone())
 
     conn.commit()
