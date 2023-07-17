@@ -7,14 +7,13 @@ import sqlite3
 import time
 
 from flask import Blueprint, request
-from flask_cors import CORS
 
 import config
-from routes.moderation import auth
 import utilities.auth_utils
 import utilities.get_user
 import utilities.post
 import utilities.util as util
+from routes.moderation import auth
 
 ADMINS = ["Silabear", "Flynecraft", "HoodieRocks"]
 user = Blueprint("user", __name__, url_prefix="/user")
@@ -42,7 +41,7 @@ def badges(id: int):
 
         body = request.get_json(force=True)
         badges = utilities.get_user.from_id(id).badges
-        badges.extend(util.clean(body))
+        badges.extend(util.clean(body["badges"]))
 
         try:
             conn.execute(
