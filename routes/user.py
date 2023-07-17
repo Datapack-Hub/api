@@ -41,7 +41,7 @@ def badges(id: int):
 
         body = request.get_json(force=True)
         badges = utilities.get_user.from_id(id).badges
-        badges.extend(util.clean(body["badges"]))
+        badges.extend(body["badges"])
 
         try:
             conn.execute(
