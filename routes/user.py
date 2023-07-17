@@ -48,12 +48,12 @@ def badges(id: int):
         try:
             conn.execute(
                 f"""UPDATE users 
-                    SET badges = "{util.clean(str(body["badges"]))}"
-                    WHERE rowid = {id}"""
+                    SET badges = '{util.clean(str(body.badges))}'
+                    WHERE rowid = {util.clean(id)}"""
             )
         except sqlite3.Error:
             conn.rollback()
-            print(traceback.format_exc())
+            conn.close()
             return "Database Error", 500
         else:
             conn.commit()
