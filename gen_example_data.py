@@ -13,7 +13,7 @@ def reset(table: str):
     connection.execute("PRAGMA synchronous = NORMAL")
 
     # ! This operation may not be supported, disable if you run into issues
-    connection.execute("PRAGMA journal_mode = wal")
+    # connection.execute("PRAGMA journal_mode = wal")
 
     # Projects Data
     connection.execute(
@@ -115,8 +115,16 @@ if __name__ == "__main__":
     reset("no-drop")
 
     conn = sqlite3.connect(config.DATA + "data.db")
-    print(
-        conn.execute(
-            "select * from projects where url = 'realistic-item-drops'"
-        ).fetchone()
-    )
+
+    # conn.execute("""INSERT INTO users
+    #              (username, token, role, bio, github_id, discord_id, badges, profile_icon)
+    #              VALUES ("HoodieRocks", "LOREMIPSUM", "admin", "rock", 123897432978, 2394872397, "{'badges': ['contributor']}", "example.com")""")
+
+    # conn.execute(
+    #     'update users set badges = \'{"badges": ["contributor"]}\' WHERE rowid = 1'
+    # )
+    
+    print(conn.execute("""SELECT * FROM users WHERE rowid = 1""").fetchone())
+
+    conn.commit()
+    conn.close()

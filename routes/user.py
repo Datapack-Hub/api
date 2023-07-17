@@ -5,6 +5,7 @@
 import json
 import sqlite3
 import time
+import traceback
 
 from flask import Blueprint, request
 
@@ -27,16 +28,15 @@ user = Blueprint("user", __name__, url_prefix="/user")
 #     return resp
 
 
-@user.route("/badges/<int:id>", methods=["POST", "GET"])
+@user.route("/badges/<int:id>", methods=["PATCH", "GET"])
 def badges(id: int):
     conn = sqlite3.connect(config.DATA + "data.db")
 
     if request.method == "GET":
         return {"badges": utilities.get_user.from_id(id).badges}
-    if request.method == "POST":
+    if request.method == "PATCH":
         if not auth(
-            request.headers.get("Authorization"), 
-            ["moderator", "developer", "admin"]
+            request.headers.get("Authorization"), ["moderator", "developer", "admin"]
         ):
             return "You can't do this!", 403
 
@@ -44,16 +44,16 @@ def badges(id: int):
             body = request.get_json(force=True)
         except KeyError:
             return "Malformed request", 400
-            
 
         try:
             conn.execute(
                 f"""UPDATE users 
-                    SET badges = {util.clean(str(body.badges))} 
-                    WHERE rowid = {util.clean(id)}"""
+                    SET badges = "{util.clean(str(body["badges"]))}"
+                    WHERE rowid = {id}"""
             )
         except sqlite3.Error:
             conn.rollback()
+            print(traceback.format_exc())
             return "Database Error", 500
         else:
             conn.commit()
