@@ -116,9 +116,7 @@ if __name__ == "__main__":
 
     conn = sqlite3.connect(config.DATA + "data.db")
 
-    # conn.execute("""INSERT INTO users
-    #              (username, token, role, bio, github_id, discord_id, badges, profile_icon)
-    #              VALUES ("HoodieRocks", "LOREMIPSUM", "admin", "rock", 123897432978, 2394872397, "{'badges': ['contributor']}", "example.com")""")
+    conn.execute("""INSERT INTO users (username, token, role, bio, github_id, profile_icon) VALUES ("HoodieRocks", "LOREMIPSUM", "admin", "rock", 123897432978, "example.com")""")
 
     # conn.execute(
     #     'update users set badges = \'{"badges": ["contributor"]}\' WHERE rowid = 1'
