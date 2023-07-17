@@ -35,8 +35,7 @@ def badges(id: int):
         return {"badges": utilities.get_user.from_id(id).badges}
     if request.method == "POST":
         if not auth(
-            request.headers.get("Authorization"), 
-            ["moderator", "developer", "admin"]
+            request.headers.get("Authorization"), ["moderator", "developer", "admin"]
         ):
             return "You can't do this!", 403
 
@@ -44,7 +43,6 @@ def badges(id: int):
             body = request.get_json(force=True)
         except KeyError:
             return "Malformed request", 400
-            
 
         try:
             conn.execute(
