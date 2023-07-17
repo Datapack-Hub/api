@@ -40,12 +40,12 @@ def badges(id: int):
             return "You can't do this!", 403
 
         body = request.get_json(force=True)
-        badges = utilities.get_user.from_id(id).badges
-        badges.extend(body["badges"])
 
         try:
             conn.execute(
-                f"UPDATE users SET badges = {util.clean(json.dumps(badges))} WHERE rowid = {util.clean(id)}"
+                f"""UPDATE users 
+                    SET badges = {util.clean(str(body.badges))} 
+                    WHERE rowid = {util.clean(id)}"""
             )
         except sqlite3.Error:
             conn.rollback()
