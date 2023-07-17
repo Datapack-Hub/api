@@ -46,12 +46,17 @@ def badges(id: int):
             return "Malformed request", 400
 
         try:
+            badge_str = str(body["badges"]).replace("'", "\\\"")
+            
+            print(badge_str)
+            
             conn.execute(
                 f"""UPDATE users 
-                    SET badges = '{util.clean(str(body.badges))}'
-                    WHERE rowid = {util.clean(id)}"""
+                    SET badges = '{badge_str}'
+                    WHERE rowid = {id}"""
             )
         except sqlite3.Error:
+            print(traceback.print_exc())
             conn.rollback()
             conn.close()
             return "Database Error", 500
