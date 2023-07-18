@@ -46,7 +46,7 @@ def badges(id: int):
             return "Malformed request", 400
 
         try:
-            badge_str = str(body["badges"]).replace("'", '\\"')
+            badge_str = str(body["badges"]).replace("'", '\"')
 
             print(badge_str)
 
