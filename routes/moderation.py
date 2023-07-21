@@ -404,14 +404,21 @@ def change_status(proj: int):
 
     if data["action"] == "publish":
         if project["status"] != "live":
-            conn.execute("update projects set status = 'live' where rowid = " + str(proj))
+            conn.execute(
+                "update projects set status = 'live' where rowid = " + str(proj)
+            )
             conn.execute(
                 f"INSERT INTO notifs VALUES ('Published {project[2]}', 'Your project, {project[2]}, was published by a staff member.', False, 'default', {project[3]})"
             )
             conn.commit()
             conn.close()
             utilities.post.approval(
-                user.username, project[2], project[4], project[5], project[3], project[6]
+                user.username,
+                project[2],
+                project[4],
+                project[5],
+                project[3],
+                project[6],
             )
             return "yep i did the thing", 200
         else:
