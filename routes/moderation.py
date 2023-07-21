@@ -403,16 +403,19 @@ def change_status(proj: int):
         return "project not found", 404
 
     if data["action"] == "publish":
-        conn.execute("update projects set status = 'live' where rowid = " + str(proj))
-        conn.execute(
-            f"INSERT INTO notifs VALUES ('Published {project[2]}', 'Your project, {project[2]}, was published by a staff member.', False, 'default', {project[3]})"
-        )
-        conn.commit()
-        conn.close()
-        utilities.post.approval(
-            user.username, project[2], project[4], project[5], project[3], project[6]
-        )
-        return "yep i did the thing", 200
+        if project["status"] != "live":
+            conn.execute("update projects set status = 'live' where rowid = " + str(proj))
+            conn.execute(
+                f"INSERT INTO notifs VALUES ('Published {project[2]}', 'Your project, {project[2]}, was published by a staff member.', False, 'default', {project[3]})"
+            )
+            conn.commit()
+            conn.close()
+            utilities.post.approval(
+                user.username, project[2], project[4], project[5], project[3], project[6]
+            )
+            return "yep i did the thing", 200
+        else:
+            return "already live!", 400
     elif data["action"] == "delete":
         conn.execute(
             "update projects set status = 'deleted' where rowid = " + str(proj)
