@@ -249,7 +249,14 @@ def user_projects(username):
 
                 temp = {
                     "type": item[0],
-                    "author": item[1],
+                    "author": {
+                        "username": user.username,
+                        "id": user.id,
+                        "role": user.role,
+                        "bio": user.bio,
+                        "profile_icon": user.profile_icon,
+                        "badges": user.badges,
+                    },
                     "title": item[2],
                     "icon": item[3],
                     "url": item[4],
@@ -284,7 +291,14 @@ def user_projects(username):
                 out.append(
                     {
                         "type": item[0],
-                        "author": item[1],
+                        "author": {
+                            "username": user.username,
+                            "id": user.id,
+                            "role": user.role,
+                            "bio": user.bio,
+                            "profile_icon": user.profile_icon,
+                            "badges": user.badges,
+                        },
                         "title": item[2],
                         "icon": item[3],
                         "url": item[4],
@@ -310,7 +324,14 @@ def user_projects(username):
             out.append(
                 {
                     "type": item[0],
-                    "author": item[1],
+                    "author": {
+                        "username": user.username,
+                        "id": user.id,
+                        "role": user.role,
+                        "bio": user.bio,
+                        "profile_icon": user.profile_icon,
+                        "badges": user.badges,
+                    },
                     "title": item[2],
                     "icon": item[3],
                     "url": item[4],

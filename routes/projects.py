@@ -17,6 +17,7 @@ import utilities.auth_utils
 import utilities.files as files
 import utilities.post
 import utilities.util as util
+import utilities.get_user as get_user
 
 projects = Blueprint("projects", __name__, url_prefix="/projects")
 
@@ -61,10 +62,19 @@ def search():
         latest_version = conn.execute(
             f"SELECT * FROM versions WHERE project = {item[6]} ORDER BY rowid DESC"
         ).fetchall()
-
+        
+        user = get_user.from_id(item[1])
+        
         temp = {
             "type": item[0],
-            "author": item[1],
+            "author": {
+                "username": user.username,
+                "id": user.id,
+                "role": user.role,
+                "bio": user.bio,
+                "profile_icon": user.profile_icon,
+                "badges": user.badges,
+            },
             "title": item[2],
             "icon": item[3],
             "url": item[4],
@@ -124,10 +134,19 @@ def query():
         latest_version = conn.execute(
             f"SELECT * FROM versions WHERE project = {item[6]} ORDER BY rowid DESC"
         ).fetchall()
+        
+        user = get_user.from_id(item[1])
 
         temp = {
             "type": item[0],
-            "author": item[1],
+            "author": {
+                "username": user.username,
+                "id": user.id,
+                "role": user.role,
+                "bio": user.bio,
+                "profile_icon": user.profile_icon,
+                "badges": user.badges,
+            },
             "title": item[2],
             "icon": item[3],
             "url": item[4],
@@ -190,10 +209,19 @@ def get_proj(id):
             return "Not found", 404
         if proj[1] != this_user.id and this_user.role not in ["admin", "moderator"]:
             return "Not found", 404
+        
+    user = get_user.from_id(proj[1])
 
     temp = {
         "type": proj[0],
-        "author": proj[1],
+        "author": {
+            "username": user.username,
+            "id": user.id,
+            "role": user.role,
+            "bio": user.bio,
+            "profile_icon": user.profile_icon,
+            "badges": user.badges,
+        },
         "title": proj[2],
         "icon": proj[3],
         "url": proj[4],
@@ -257,10 +285,19 @@ def get_project(slug: str):
             return "Not found", 404
         if proj[1] != this_user.id and this_user.role not in ["admin", "moderator"]:
             return "Not found", 404
+    
+    user = get_user.from_id(proj[1])
 
     project_data = {
         "type": proj[0],
-        "author": proj[1],
+        "author": {
+            "username": user.username,
+            "id": user.id,
+            "role": user.role,
+            "bio": user.bio,
+            "profile_icon": user.profile_icon,
+            "badges": user.badges,
+        },
         "title": proj[2],
         "icon": proj[3],
         "url": proj[4],
@@ -309,9 +346,18 @@ def random():
             f"SELECT * FROM versions WHERE project = {i[6]} ORDER BY rowid DESC"
         ).fetchall()
 
+        user = get_user.from_id(i[1])
+
         temp = {
             "type": i[0],
-            "author": i[1],
+            "author": {
+                "username": user.username,
+                "id": user.id,
+                "role": user.role,
+                "bio": user.bio,
+                "profile_icon": user.profile_icon,
+                "badges": user.badges,
+            },
             "title": i[2],
             "icon": i[3],
             "url": i[4],
