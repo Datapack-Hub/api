@@ -5,7 +5,7 @@
 from prod import PROD
 
 MOD_LOGS = "https://discord.com/api/webhooks/1102975443746959460/KTC6Ep2qfvnKXfmcr3lazHD2rT8NdFiJkx20H7ataxOVjQlbWJgSwiaRRVwsPY9fpCVT"
-PROJ_LOGS = "https://discord.com/api/webhooks/1122512713831174176/Ihze07U1HQ8h4YDcm0TPuRPR8syySm9mkG6OFVFDTWsPBOT6jg3MEnWPfB5jmv-cmLP_"
+PROJ_LOGS = "https://discord.com/api/webhooks/1132308706202239056/MwfECKhw0-jvFek_7n1RLmakdCf4_veRqN3a7nU4F4nowJj7TF815JF2ybd8MjiCMzdg"
 FILES_TOKEN = "torsoHowardzetta6"
 BACKUPS_TOKEN = "supersecrettoken69"
 
