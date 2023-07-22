@@ -62,9 +62,9 @@ def search():
         latest_version = conn.execute(
             f"SELECT * FROM versions WHERE project = {item[6]} ORDER BY rowid DESC"
         ).fetchall()
-        
+
         user = get_user.from_id(item[1])
-        
+
         temp = {
             "type": item[0],
             "author": {
@@ -134,7 +134,7 @@ def query():
         latest_version = conn.execute(
             f"SELECT * FROM versions WHERE project = {item[6]} ORDER BY rowid DESC"
         ).fetchall()
-        
+
         user = get_user.from_id(item[1])
 
         temp = {
@@ -209,7 +209,7 @@ def get_proj(id):
             return "Not found", 404
         if proj[1] != this_user.id and this_user.role not in ["admin", "moderator"]:
             return "Not found", 404
-        
+
     user = get_user.from_id(proj[1])
 
     temp = {
@@ -285,7 +285,7 @@ def get_project(slug: str):
             return "Not found", 404
         if proj[1] != this_user.id and this_user.role not in ["admin", "moderator"]:
             return "Not found", 404
-    
+
     user = get_user.from_id(proj[1])
 
     project_data = {
