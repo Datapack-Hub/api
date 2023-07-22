@@ -403,7 +403,7 @@ def change_status(proj: int):
         return "project not found", 404
 
     if data["action"] == "publish":
-        if project["status"] != "live":
+        if project[1] != "live":
             conn.execute(
                 "update projects set status = 'live' where rowid = " + str(proj)
             )
