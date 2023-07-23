@@ -87,14 +87,14 @@ def post_msg(thread: int):
             conn.execute(
                 f"INSERT INTO comments VALUES ({thread}, '{util.clean(cmt_data['message'])}', {usr.id}, {time.time()}, null)"
             )
+            
+            auth = conn.execute(
+                "select author, title, url from projects where rowid = "
+                + str(thread)
+            ).fetchone()
 
             # Notify author
-            if usr.id != cmt_data["author"]:
-                auth = conn.execute(
-                    "select author, title, url from projects where rowid = "
-                    + str(thread)
-                ).fetchone()
-
+            if usr.id != auth[0]:
                 conn.execute(
                     f"INSERT INTO notifs VALUES ('New comment', '[{usr.username}](https://datapackhub.net/user/{usr.username}) left a comment on your project [{auth[1]}](https://datapackhub.net/project/{auth[2]}).', False,  'default', {auth[0]})"
                 )
@@ -103,17 +103,17 @@ def post_msg(thread: int):
                 f"INSERT INTO comments VALUES ({thread}, '{util.clean(cmt_data['message'])}', {usr.id}, {time.time()}, {cmt_data['parent_id']})"
             )
 
+            auth = conn.execute(
+                "select author from comments where rowid = "
+                + str(cmt_data["parent_id"])
+            ).fetchone()
+            
             # Notify author
             if (
-                usr.id != cmt_data["author"]
+                usr.id != auth[0]
             ):  # I got bored and added my suggestion myself -HoodieRocks
                 proj = conn.execute(
                     "select title, url from projects where rowid = " + str(thread)
-                ).fetchone()
-
-                auth = conn.execute(
-                    "select author from comments where rowid = "
-                    + str(cmt_data["parent_id"])
                 ).fetchone()
 
                 conn.execute(
