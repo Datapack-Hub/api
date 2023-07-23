@@ -62,9 +62,9 @@ def search():
         latest_version = conn.execute(
             f"SELECT * FROM versions WHERE project = {item[6]} ORDER BY rowid DESC"
         ).fetchall()
-
+        
         user = get_user.from_id(item[1])
-
+        
         temp = {
             "type": item[0],
             "author": {
@@ -134,7 +134,7 @@ def query():
         latest_version = conn.execute(
             f"SELECT * FROM versions WHERE project = {item[6]} ORDER BY rowid DESC"
         ).fetchall()
-
+        
         user = get_user.from_id(item[1])
 
         temp = {
@@ -209,7 +209,7 @@ def get_proj(id):
             return "Not found", 404
         if proj[1] != this_user.id and this_user.role not in ["admin", "moderator"]:
             return "Not found", 404
-
+        
     user = get_user.from_id(proj[1])
 
     temp = {
@@ -285,7 +285,7 @@ def get_project(slug: str):
             return "Not found", 404
         if proj[1] != this_user.id and this_user.role not in ["admin", "moderator"]:
             return "Not found", 404
-
+    
     user = get_user.from_id(proj[1])
 
     project_data = {
@@ -867,6 +867,8 @@ def featured():
         latest_version = conn.execute(
             f"SELECT * FROM versions WHERE project = {i[6]} ORDER BY rowid DESC"
         ).fetchall()
+        
+        author = get_user.from_id(i[1])
 
         current = time.time()
         if current > i[13]:
@@ -877,7 +879,14 @@ def featured():
         else:
             temp = {
                 "type": i[0],
-                "author": i[1],
+                "author": {
+                    "username": author.username,
+                    "id": author.id,
+                    "role": author.role,
+                    "bio": author.bio,
+                    "profile_icon": author.profile_icon,
+                    "badges": author.badges,
+                },
                 "title": i[2],
                 "icon": i[3],
                 "url": i[4],
