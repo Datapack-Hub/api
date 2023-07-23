@@ -17,7 +17,7 @@ from flask_cors import CORS
 import config
 import gen_example_data
 import utilities.auth_utils
-import utilities.get_user
+import utilities.get_user as get_user
 import utilities.post
 import utilities.util as util
 
@@ -296,10 +296,18 @@ def queue(type: str):
         # Form array
         out = []
         for item in r:
+            author = get_user.from_id(item[1])
             out.append(
                 {
                     "type": item[0],
-                    "author": item[1],
+                    "author": {
+                        "username": author.username,
+                        "id": author.id,
+                        "role": author.role,
+                        "bio": author.bio,
+                        "profile_icon": author.profile_icon,
+                        "badges": author.badges,
+                    },
                     "title": item[2],
                     "icon": item[3],
                     "url": item[4],
@@ -319,10 +327,18 @@ def queue(type: str):
         # Form array
         out = []
         for item in r:
+            author = get_user.from_id(item[1])
             out.append(
                 {
                     "type": item[0],
-                    "author": item[1],
+                    "author": {
+                        "username": author.username,
+                        "id": author.id,
+                        "role": author.role,
+                        "bio": author.bio,
+                        "profile_icon": author.profile_icon,
+                        "badges": author.badges,
+                    },
                     "title": item[2],
                     "icon": item[3],
                     "url": item[4],
@@ -344,7 +360,9 @@ def queue(type: str):
                 f"select type, author, title, icon, url, description, rowid, status from projects where rowid = {item[2]}"
             ).fetchone()
 
-            usr = utilities.get_user.from_id(item[1])
+            usr = get_user.from_id(item[1])
+            
+            author = get_user.from_id(proj[1])
 
             out.append(
                 {
@@ -359,7 +377,14 @@ def queue(type: str):
                     },
                     "project": {
                         "type": proj[0],
-                        "author": proj[1],
+                        "author": {
+                            "username": author.username,
+                            "id": author.id,
+                            "role": author.role,
+                            "bio": author.bio,
+                            "profile_icon": author.profile_icon,
+                            "badges": author.badges,
+                        },
                         "title": proj[2],
                         "icon": proj[3],
                         "url": proj[4],
