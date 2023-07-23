@@ -87,10 +87,9 @@ def post_msg(thread: int):
             conn.execute(
                 f"INSERT INTO comments VALUES ({thread}, '{util.clean(cmt_data['message'])}', {usr.id}, {time.time()}, null)"
             )
-            
+
             auth = conn.execute(
-                "select author, title, url from projects where rowid = "
-                + str(thread)
+                "select author, title, url from projects where rowid = " + str(thread)
             ).fetchone()
 
             # Notify author
@@ -107,7 +106,7 @@ def post_msg(thread: int):
                 "select author from comments where rowid = "
                 + str(cmt_data["parent_id"])
             ).fetchone()
-            
+
             # Notify author
             if (
                 usr.id != auth[0]
