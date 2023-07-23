@@ -361,7 +361,7 @@ def queue(type: str):
             ).fetchone()
 
             usr = get_user.from_id(item[1])
-            
+
             author = get_user.from_id(proj[1])
 
             out.append(
