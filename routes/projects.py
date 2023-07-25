@@ -248,7 +248,7 @@ def random():
 
     conn = sqlite3.connect(config.DATA + "data.db")
     proj = conn.execute(
-        f"SELECT rowid, * FROM projects where status = 'live' ORDER BY RANDOM() LIMIT {util.clean(count)}"
+        f"SELECT rowid, * FROM projects where status = 'live' ORDER BY RANDOM() LIMIT {count}"
     ).fetchall()
 
     out = []
