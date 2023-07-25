@@ -221,10 +221,6 @@ def get_project(slug: str):
         f"select rowid, * from projects where url = '{util.clean(slug)}'"
     ).fetchone()
 
-    latest_version = conn.execute(
-        f"SELECT rowid, * FROM versions WHERE project = {proj[6]} ORDER BY rowid DESC"
-    ).fetchall()
-
     # hey u didn't give me a project, hate u
     if not proj:
         return "Not found", 404
