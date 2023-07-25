@@ -15,6 +15,7 @@ import utilities.get_user
 import utilities.post
 import utilities.util as util
 from routes.moderation import auth
+from routes.projects import parse_project
 
 ADMINS = ["Silabear", "Flynecraft", "HoodieRocks"]
 user = Blueprint("user", __name__, url_prefix="/user")
@@ -237,42 +238,18 @@ def user_projects(username):
         if authed.id == user.id:
             # Get all submissions
             r = conn.execute(
-                f"select type, author, title, icon, url, description, rowid, status, downloads from projects where author = {user.id} and status != 'deleted'"
+                f"select rowid, * from projects where author = {user.id} and status != 'deleted'"
             ).fetchall()
 
             # Form array
             out = []
             for item in r:
-                latest_version = conn.execute(
-                    f"SELECT * FROM versions WHERE project = {item[6]} ORDER BY rowid DESC"
-                ).fetchall()
-
-                temp = {
-                    "type": item[0],
-                    "author": {
-                        "username": user.username,
-                        "id": user.id,
-                        "role": user.role,
-                        "bio": user.bio,
-                        "profile_icon": user.profile_icon,
-                        "badges": user.badges,
-                    },
-                    "title": item[2],
-                    "icon": item[3],
-                    "url": item[4],
-                    "description": item[5],
-                    "ID": item[6],
-                    "status": item[7],
-                    "downloads": item[8],
-                }
-
-                if len(latest_version) != 0:
-                    temp["latest_version"] = {
-                        "name": latest_version[0][0],
-                        "description": latest_version[0][1],
-                        "minecraft_versions": latest_version[0][4],
-                        "version_code": latest_version[0][5],
-                    }
+                try:
+                    temp = parse_project(item, conn)
+                except:
+                    conn.rollback()
+                    conn.close()
+                    return "Something bad happened", 500
 
                 out.append(temp)
 
@@ -282,64 +259,42 @@ def user_projects(username):
         else:
             # Get all PUBLIC submissions
             r = conn.execute(
-                f"select type, author, title, icon, url, description, rowid, status, downloads from projects where author = {user.id} and status == 'live'"
+                f"select rowid, * from projects where author = {user.id} and status = 'live'"
             ).fetchall()
 
             # Form array
             out = []
             for item in r:
-                out.append(
-                    {
-                        "type": item[0],
-                        "author": {
-                            "username": user.username,
-                            "id": user.id,
-                            "role": user.role,
-                            "bio": user.bio,
-                            "profile_icon": user.profile_icon,
-                            "badges": user.badges,
-                        },
-                        "title": item[2],
-                        "icon": item[3],
-                        "url": item[4],
-                        "description": item[5],
-                        "ID": item[6],
-                        "status": item[7],
-                        "downloads": item[8],
-                    }
-                )
+                try:
+                    temp = parse_project(item, conn)
+                except:
+                    conn.rollback()
+                    conn.close()
+                    return "Something bad happened", 500
+
+                out.append(temp)
 
             conn.close()
 
             return {"count": len(out), "result": out}
     else:
         # Get all PUBLIC submissions
-        r = conn.execute(
-            f"select type, author, title, icon, url, description, rowid from projects where author = {user.id} and status == 'live'"
-        ).fetchall()
+            r = conn.execute(
+                f"select rowid, * from projects where author = {user.id} and status = 'live'"
+            ).fetchall()
 
-        # Form array
-        out = []
-        for item in r:
-            out.append(
-                {
-                    "type": item[0],
-                    "author": {
-                        "username": user.username,
-                        "id": user.id,
-                        "role": user.role,
-                        "bio": user.bio,
-                        "profile_icon": user.profile_icon,
-                        "badges": user.badges,
-                    },
-                    "title": item[2],
-                    "icon": item[3],
-                    "url": item[4],
-                    "description": item[5],
-                    "ID": item[6],
-                }
-            )
+            # Form array
+            out = []
+            for item in r:
+                try:
+                    temp = parse_project(item, conn)
+                except:
+                    conn.rollback()
+                    conn.close()
+                    return "Something bad happened", 500
 
-        conn.close()
+                out.append(temp)
 
-        return {"count": len(out), "result": out}
+            conn.close()
+
+            return {"count": len(out), "result": out}
