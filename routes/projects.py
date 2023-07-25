@@ -31,6 +31,7 @@ def after(resp):
     # Other headers can be added here if needed
     return resp
 
+
 def parse_project(output: tuple, conn: sqlite3.Connection):
     latest_version = conn.execute(
         f"SELECT * FROM versions WHERE project = {output[0]} ORDER BY rowid DESC"
@@ -51,7 +52,7 @@ def parse_project(output: tuple, conn: sqlite3.Connection):
         },
         "title": output[3],
         "description": output[4],
-        "body":output[5],
+        "body": output[5],
         "icon": output[6],
         "url": output[7],
         "status": output[8],
@@ -61,7 +62,7 @@ def parse_project(output: tuple, conn: sqlite3.Connection):
         "downloads": output[13],
         "featured": False,
         "licence": output[15],
-        "dependencies": str(output[9]).split(",")
+        "dependencies": str(output[9]).split(","),
     }
 
     if output[14]:
@@ -74,8 +75,9 @@ def parse_project(output: tuple, conn: sqlite3.Connection):
             "minecraft_versions": latest_version[0][4],
             "version_code": latest_version[0][5],
         }
-    
+
     return temp
+
 
 @projects.route("/search", methods=["GET"])
 def search():
@@ -170,9 +172,7 @@ def get_proj(id):
     elif this_user == 33:
         return "Token expired!", 401
 
-    proj = conn.execute(
-        f"select rowid, * from projects where rowid = {id}"
-    ).fetchone()
+    proj = conn.execute(f"select rowid, * from projects where rowid = {id}").fetchone()
 
     if not proj:
         return "Not found", 404
@@ -195,7 +195,7 @@ def get_proj(id):
         conn.rollback()
         conn.close()
         return "Something bad happened", 500
-    
+
     conn.close()
 
     return temp
@@ -268,6 +268,7 @@ def random():
 
     conn.close()
     return {"count": count, "result": out}
+
 
 @projects.route("/count")
 def count():
