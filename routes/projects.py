@@ -254,7 +254,7 @@ def random():
     out = []
     for i in proj:
         try:
-            temp = parse_project(proj, conn)
+            temp = parse_project(i, conn)
         except:
             conn.rollback()
             conn.close()
