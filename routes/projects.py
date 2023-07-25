@@ -737,7 +737,7 @@ def feature(id):
 def featured():
     conn = sqlite3.connect(config.DATA + "data.db")
     proj = conn.execute(
-        "SELECT * FROM projects where status = 'live' and featured_until > 0"
+        "SELECT rowid, * FROM projects where status = 'live' and featured_until > 0"
     ).fetchall()
 
     out = []
