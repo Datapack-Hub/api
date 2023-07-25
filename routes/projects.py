@@ -31,6 +31,51 @@ def after(resp):
     # Other headers can be added here if needed
     return resp
 
+def parse_project(output: tuple, conn: sqlite3.Connection):
+    latest_version = conn.execute(
+        f"SELECT * FROM versions WHERE project = {output[0]} ORDER BY rowid DESC"
+    ).fetchall()
+
+    user = get_user.from_id(output[2])
+
+    temp = {
+        "ID": output[0],
+        "type": output[1],
+        "author": {
+            "username": user.username,
+            "id": user.id,
+            "role": user.role,
+            "bio": user.bio,
+            "profile_icon": user.profile_icon,
+            "badges": user.badges,
+        },
+        "title": output[3],
+        "description": output[4],
+        "body":output[5],
+        "icon": output[6],
+        "url": output[7],
+        "status": output[8],
+        "category": str(output[9]).split(","),
+        "uploaded": output[10],
+        "updated": output[11],
+        "downloads": output[13],
+        "featured": False,
+        "licence": output[15],
+        "dependencies": str(output[9]).split(",")
+    }
+
+    if output[14]:
+        temp["featured"] is True
+
+    if len(latest_version) != 0:
+        temp["latest_version"] = {
+            "name": latest_version[0][0],
+            "description": latest_version[0][1],
+            "minecraft_versions": latest_version[0][4],
+            "version_code": latest_version[0][5],
+        }
+    
+    return temp
 
 @projects.route("/search", methods=["GET"])
 def search():
@@ -47,11 +92,11 @@ def search():
     conn = sqlite3.connect(config.DATA + "data.db")
     if sort == "updated":
         r = conn.execute(
-            f"select type, author, title, icon, url, description, rowid, category, uploaded, updated, downloads, featured_until from projects where status = 'live' and trim(title) LIKE '%{util.clean(query)}%' ORDER BY updated DESC"
+            f"select rowid, * from projects where status = 'live' and trim(title) LIKE '%{util.clean(query)}%' ORDER BY updated DESC"
         ).fetchall()
     elif sort == "downloads":
         r = conn.execute(
-            f"select type, author, title, icon, url, description, rowid, category, uploaded, updated, downloads, featured_until from projects where status = 'live' and trim(title) LIKE '%{util.clean(query)}%' ORDER BY downloads DESC"
+            f"select rowid, * from projects where status = 'live' and trim(title) LIKE '%{util.clean(query)}%' ORDER BY downloads DESC"
         ).fetchall()
     else:
         return "Unknown sorting method.", 400
@@ -59,42 +104,12 @@ def search():
     out = []
 
     for item in r[(page - 1) * 20 : page * 20 - 1]:
-        latest_version = conn.execute(
-            f"SELECT * FROM versions WHERE project = {item[6]} ORDER BY rowid DESC"
-        ).fetchall()
-
-        user = get_user.from_id(item[1])
-
-        temp = {
-            "type": item[0],
-            "author": {
-                "username": user.username,
-                "id": user.id,
-                "role": user.role,
-                "bio": user.bio,
-                "profile_icon": user.profile_icon,
-                "badges": user.badges,
-            },
-            "title": item[2],
-            "icon": item[3],
-            "url": item[4],
-            "description": item[5],
-            "ID": item[6],
-            "category": str(item[7]).split(","),
-            "downloads": item[10],
-            "featured": False,
-        }
-
-        if item[11]:
-            temp["featured"] is True
-
-        if len(latest_version) != 0:
-            temp["latest_version"] = {
-                "name": latest_version[0][0],
-                "description": latest_version[0][1],
-                "minecraft_versions": latest_version[0][4],
-                "version_code": latest_version[0][5],
-            }
+        try:
+            temp = parse_project(item, conn)
+        except:
+            conn.rollback()
+            conn.close()
+            return "Something bad happened", 500
 
         out.append(temp)
 
@@ -119,11 +134,11 @@ def query():
     conn = sqlite3.connect(config.DATA + "data.db")
     if sort == "updated":
         r = conn.execute(
-            "select type, author, title, icon, url, description, rowid, category, uploaded, updated, downloads, featured_until from projects where status = 'live' ORDER BY updated DESC"
+            "select rowid, * from projects where status = 'live' ORDER BY updated DESC"
         ).fetchall()
     elif sort == "downloads":
         r = conn.execute(
-            "select type, author, title, icon, url, description, rowid, category, uploaded, updated, downloads, featured_until from projects where status = 'live' ORDER BY downloads DESC"
+            "select rowid, * from projects where status = 'live' ORDER BY downloads DESC"
         ).fetchall()
     else:
         return "Unknown sorting method.", 400
@@ -131,42 +146,12 @@ def query():
     out = []
 
     for item in r[(page - 1) * 20 : page * 20 - 1]:
-        latest_version = conn.execute(
-            f"SELECT * FROM versions WHERE project = {item[6]} ORDER BY rowid DESC"
-        ).fetchall()
-
-        user = get_user.from_id(item[1])
-
-        temp = {
-            "type": item[0],
-            "author": {
-                "username": user.username,
-                "id": user.id,
-                "role": user.role,
-                "bio": user.bio,
-                "profile_icon": user.profile_icon,
-                "badges": user.badges,
-            },
-            "title": item[2],
-            "icon": item[3],
-            "url": item[4],
-            "description": item[5],
-            "ID": item[6],
-            "category": str(item[7]).split(","),
-            "downloads": item[10],
-            "featured": False,
-        }
-
-        if item[11]:
-            temp["featured"] is True
-
-        if len(latest_version) != 0:
-            temp["latest_version"] = {
-                "name": latest_version[0][0],
-                "description": latest_version[0][1],
-                "minecraft_versions": latest_version[0][4],
-                "version_code": latest_version[0][5],
-            }
+        try:
+            temp = parse_project(item, conn)
+        except:
+            conn.rollback()
+            conn.close()
+            return "Something bad happened", 500
 
         out.append(temp)
 
@@ -186,14 +171,8 @@ def get_proj(id):
         return "Token expired!", 401
 
     proj = conn.execute(
-        f"select type, author, title, icon, url, description, rowid, category, status, uploaded, updated, body, downloads, featured_until from projects where rowid = {id}"
+        f"select rowid, * from projects where rowid = {id}"
     ).fetchone()
-
-    latest_version = conn.execute(
-        f"SELECT * FROM versions WHERE project = {id} ORDER BY rowid DESC"
-    ).fetchall()
-
-    conn.close()
 
     if not proj:
         return "Not found", 404
@@ -210,42 +189,14 @@ def get_proj(id):
         if proj[1] != this_user.id and this_user.role not in ["admin", "moderator"]:
             return "Not found", 404
 
-    user = get_user.from_id(proj[1])
-
-    temp = {
-        "type": proj[0],
-        "author": {
-            "username": user.username,
-            "id": user.id,
-            "role": user.role,
-            "bio": user.bio,
-            "profile_icon": user.profile_icon,
-            "badges": user.badges,
-        },
-        "title": proj[2],
-        "icon": proj[3],
-        "url": proj[4],
-        "description": proj[5],
-        "ID": proj[6],
-        "category": str(proj[7]).split(","),
-        "status": proj[8],
-        "uploaded": proj[9],
-        "updated": proj[10],
-        "body": proj[11],
-        "downloads": proj[12],
-        "featured": False,
-    }
-
-    if proj[13]:
-        temp["featured"] is True
-
-    if len(latest_version) != 0:
-        temp["latest_version"] = {
-            "name": latest_version[0][0],
-            "description": latest_version[0][1],
-            "minecraft_versions": latest_version[0][4],
-            "version_code": latest_version[0][5],
-        }
+    try:
+        temp = parse_project(proj, conn)
+    except:
+        conn.rollback()
+        conn.close()
+        return "Something bad happened", 500
+    
+    conn.close()
 
     return temp
 
@@ -267,14 +218,12 @@ def get_project(slug: str):
 
     # gimme dat project and gtfo
     proj = conn.execute(
-        f"select type, author, title, icon, url, description, rowid, category, status, uploaded, updated, body, mod_message, downloads, featured_until from projects where url = '{util.clean(slug)}'"
+        f"select rowid, * from projects where url = '{util.clean(slug)}'"
     ).fetchone()
 
     latest_version = conn.execute(
-        f"SELECT * FROM versions WHERE project = {proj[6]} ORDER BY rowid DESC"
+        f"SELECT rowid, * FROM versions WHERE project = {proj[6]} ORDER BY rowid DESC"
     ).fetchall()
-
-    conn.close()
 
     # hey u didn't give me a project, hate u
     if not proj:
@@ -286,49 +235,15 @@ def get_project(slug: str):
         if proj[1] != this_user.id and this_user.role not in ["admin", "moderator"]:
             return "Not found", 404
 
-    user = get_user.from_id(proj[1])
+    try:
+        temp = parse_project(proj, conn)
+    except:
+        conn.rollback()
+        conn.close()
+        return "Something bad happened", 500
 
-    project_data = {
-        "type": proj[0],
-        "author": {
-            "username": user.username,
-            "id": user.id,
-            "role": user.role,
-            "bio": user.bio,
-            "profile_icon": user.profile_icon,
-            "badges": user.badges,
-        },
-        "title": proj[2],
-        "icon": proj[3],
-        "url": proj[4],
-        "description": proj[5],
-        "ID": proj[6],
-        "category": str(proj[7]).split(","),
-        "status": proj[8],
-        "uploaded": proj[9],
-        "updated": proj[10],
-        "body": proj[11],
-        "downloads": proj[13],
-        "featured": False,
-    }
-
-    if proj[14]:
-        project_data["featured"] is True
-
-    if this_user != 31:
-        if proj[1] == this_user.id or this_user.role in ["admin", "moderator"]:
-            project_data["mod_message"] = proj[12]
-
-    if len(latest_version) != 0:
-        project_data["latest_version"] = {
-            "name": latest_version[0][0],
-            "description": latest_version[0][1],
-            "minecraft_versions": latest_version[0][4],
-            "version_code": latest_version[0][5],
-        }
-
-    # alr fine I give up take the project
-    return project_data
+    conn.close()
+    return temp
 
 
 @projects.route("/random")
@@ -337,56 +252,22 @@ def random():
 
     conn = sqlite3.connect(config.DATA + "data.db")
     proj = conn.execute(
-        f"SELECT type, author, title, icon, url, description, rowid, category, status, uploaded, updated, body, downloads, featured_until FROM projects where status = 'live' ORDER BY RANDOM() LIMIT {util.clean(count)}"
+        f"SELECT rowid, * FROM projects where status = 'live' ORDER BY RANDOM() LIMIT {util.clean(count)}"
     ).fetchall()
 
     out = []
     for i in proj:
-        latest_version = conn.execute(
-            f"SELECT * FROM versions WHERE project = {i[6]} ORDER BY rowid DESC"
-        ).fetchall()
-
-        user = get_user.from_id(i[1])
-
-        temp = {
-            "type": i[0],
-            "author": {
-                "username": user.username,
-                "id": user.id,
-                "role": user.role,
-                "bio": user.bio,
-                "profile_icon": user.profile_icon,
-                "badges": user.badges,
-            },
-            "title": i[2],
-            "icon": i[3],
-            "url": i[4],
-            "description": i[5],
-            "ID": i[6],
-            "category": str(i[7]).split(","),
-            "uploaded": i[9],
-            "updated": i[10],
-            "body": i[11],
-            "downloads": i[12],
-            "featured": False,
-        }
-
-        if i[13]:
-            temp["featured"] is True
-
-        if len(latest_version) != 0:
-            temp["latest_version"] = {
-                "name": latest_version[0][0],
-                "description": latest_version[0][1],
-                "minecraft_versions": latest_version[0][4],
-                "version_code": latest_version[0][5],
-            }
+        try:
+            temp = parse_project(proj, conn)
+        except:
+            conn.rollback()
+            conn.close()
+            return "Something bad happened", 500
 
         out.append(temp)
 
     conn.close()
     return {"count": count, "result": out}
-
 
 @projects.route("/count")
 def count():
@@ -859,54 +740,23 @@ def feature(id):
 def featured():
     conn = sqlite3.connect(config.DATA + "data.db")
     proj = conn.execute(
-        "SELECT type, author, title, icon, url, description, rowid, category, status, uploaded, updated, body, downloads, featured_until FROM projects where status = 'live' and featured_until > 0"
+        "SELECT * FROM projects where status = 'live' and featured_until > 0"
     ).fetchall()
 
     out = []
     for i in proj:
-        latest_version = conn.execute(
-            f"SELECT * FROM versions WHERE project = {i[6]} ORDER BY rowid DESC"
-        ).fetchall()
-
-        author = get_user.from_id(i[1])
-
-        current = time.time()
-        if current > i[13]:
+        if time.time() > i[14]:
             conn.execute(
                 f"update projects set featured_until = null where rowid = {i[6]}"
             )
             conn.commit()
         else:
-            temp = {
-                "type": i[0],
-                "author": {
-                    "username": author.username,
-                    "id": author.id,
-                    "role": author.role,
-                    "bio": author.bio,
-                    "profile_icon": author.profile_icon,
-                    "badges": author.badges,
-                },
-                "title": i[2],
-                "icon": i[3],
-                "url": i[4],
-                "description": i[5],
-                "ID": i[6],
-                "category": str(i[7]).split(","),
-                "uploaded": i[9],
-                "updated": i[10],
-                "body": i[11],
-                "downloads": i[12],
-                "featured": True,
-            }
-
-            if len(latest_version) != 0:
-                temp["latest_version"] = {
-                    "name": latest_version[0][0],
-                    "description": latest_version[0][1],
-                    "minecraft_versions": latest_version[0][4],
-                    "version_code": latest_version[0][5],
-                }
+            try:
+                temp = parse_project(i, conn)
+            except:
+                conn.rollback()
+                conn.close()
+                return "Something bad happened", 500
 
             out.append(temp)
 
