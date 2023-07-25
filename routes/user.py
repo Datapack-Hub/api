@@ -279,22 +279,22 @@ def user_projects(username):
             return {"count": len(out), "result": out}
     else:
         # Get all PUBLIC submissions
-            r = conn.execute(
-                f"select rowid, * from projects where author = {user.id} and status = 'live'"
-            ).fetchall()
+        r = conn.execute(
+            f"select rowid, * from projects where author = {user.id} and status = 'live'"
+        ).fetchall()
 
-            # Form array
-            out = []
-            for item in r:
-                try:
-                    temp = parse_project(item, conn)
-                except:
-                    conn.rollback()
-                    conn.close()
-                    return "Something bad happened", 500
+        # Form array
+        out = []
+        for item in r:
+            try:
+                temp = parse_project(item, conn)
+            except:
+                conn.rollback()
+                conn.close()
+                return "Something bad happened", 500
 
-                out.append(temp)
+            out.append(temp)
 
-            conn.close()
+        conn.close()
 
-            return {"count": len(out), "result": out}
+        return {"count": len(out), "result": out}
