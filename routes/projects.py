@@ -744,7 +744,7 @@ def featured():
     for i in proj:
         if time.time() > i[14]:
             conn.execute(
-                f"update projects set featured_until = null where rowid = {i[6]}"
+                f"update projects set featured_until = null where rowid = {i[0]}"
             )
             conn.commit()
         else:
