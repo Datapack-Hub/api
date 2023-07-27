@@ -109,7 +109,7 @@ def code(id: int, code: str):
         ).fetchone()
         
         try:
-            v
+            v[0]
         except:
             return "Not found.", 400
 
