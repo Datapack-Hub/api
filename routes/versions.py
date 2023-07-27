@@ -111,7 +111,7 @@ def code(id: int, code: str):
         try:
             v[0]
         except:
-            return "Not found.", 400
+            return "Not found.", 404
 
         o = {
             "name": v[0],
