@@ -17,21 +17,23 @@ def reset(table: str):
 
     # Projects Data
     connection.execute(
-        """CREATE TABLE IF NOT EXISTS projects(
-        type TEXT NOT NULL, 
-        author INT NOT NULL, 
-        title TEXT NOT NULL, 
-        description TEXT NOT NULL,
-        body TEXT NOT NULL, 
-        icon TEXT, 
-        url TEXT NOT NULL UNIQUE, 
-        status TEXT NOT NULL DEFAULT "draft", 
-        category TEXT NOT NULL,
-        uploaded INT NOT NULL,
-        updated INT NOT NULL,
-        mod_message TEXT,
-        downloads INT NOT NULL DEFAULT 0,
-        featured_until INT);
+        """CREATE TABLE \"projects\"(
+            type TEXT NOT NULL,
+            author INT NOT NULL,
+            title TEXT NOT NULL,
+            description TEXT NOT NULL,
+            body TEXT NOT NULL,
+            icon TEXT,
+            url TEXT NOT NULL UNIQUE,
+            status TEXT NOT NULL DEFAULT \"draft\",
+            category TEXT NOT NULL,
+            uploaded INT NOT NULL,
+            updated INT NOT NULL,
+            mod_message TEXT,
+            downloads INT NOT NULL DEFAULT 0, 
+            featured_until INT, 
+            licence TEXT, 
+            dependencies TEXT)
     """
     )
 
