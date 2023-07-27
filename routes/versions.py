@@ -107,6 +107,11 @@ def code(id: int, code: str):
         v = conn.execute(
             f"SELECT * FROM versions WHERE version_code = '{code}' AND project = {id} ORDER BY rowid DESC"
         ).fetchone()
+        
+        try:
+            v
+        except:
+            return "Not found.", 400
 
         o = {
             "name": v[0],
