@@ -199,7 +199,7 @@ def new(project: int):
             ):
                 rpath = files.upload_zipfile(
                     data["resource_pack_download"],
-                    f"project/{project}/{data['version_code']}/{data['filename']}",
+                    f"project/{project}/{data['version_code']}/Resourcepack-{data['filename']}",
                     usr.username,
                 )
                 conn.execute(
