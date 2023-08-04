@@ -11,9 +11,10 @@ def reset(table: str):
 
     # SQLite optimizations
     connection.execute("PRAGMA synchronous = NORMAL")
+    connection.execute("PRAGMA mmap_size = 1000000000")
 
     # ! This operation may not be supported, disable if you run into issues
-    # connection.execute("PRAGMA journal_mode = wal")
+    connection.execute("PRAGMA journal_mode = WAL")
 
     # Projects Data
     connection.execute(
