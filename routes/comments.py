@@ -87,7 +87,8 @@ def post_msg(thread: int):
             user = utilities.get_user.from_username(user)
             if user:
                 auth = conn.execute(
-                    "select author, title, url from projects where rowid = " + str(thread)
+                    "select author, title, url from projects where rowid = "
+                    + str(thread)
                 ).fetchone()
                 conn.execute(
                     f"INSERT INTO notifs VALUES ('You were mentioned', '[{usr.username}](https://datapackhub.net/user/{usr.username}) mentioned you in a comment on project [{auth[1]}](https://datapackhub.net/project/{auth[2]}).', False,  'default', {auth[0]})"
