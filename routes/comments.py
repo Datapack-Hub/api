@@ -9,6 +9,7 @@ import utilities.auth_utils
 import utilities.get_user
 import utilities.util as util
 import time
+import regex
 
 comments = Blueprint("comments", __name__, url_prefix="/comments")
 
@@ -81,6 +82,16 @@ def post_msg(thread: int):
         return "You need to provide a message field!", 400
 
     try:
+        mentions = regex.findall("@(\w+)")
+        for user in mentions:
+            user = utilities.get_user.from_username(user)
+            if user:
+                auth = conn.execute(
+                    "select author, title, url from projects where rowid = " + str(thread)
+                ).fetchone()
+                conn.execute(
+                    f"INSERT INTO notifs VALUES ('You were mentioned', '[{usr.username}](https://datapackhub.net/user/{usr.username}) mentioned you in a comment on project [{auth[1]}](https://datapackhub.net/project/{auth[2]}).', False,  'default', {auth[0]})"
+                )
         try:
             cmt_data["parent_id"]
         except KeyError:
