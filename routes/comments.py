@@ -82,9 +82,9 @@ def post_msg(thread: int):
         return "You need to provide a message field!", 400
 
     try:
-        mentions = regex.findall("@(\w+)")
+        mentions = regex.findall("@(\w+)",cmt_data['message'])
         for user in mentions:
-            user = utilities.get_user.from_username(cmt_data['message'])
+            user = utilities.get_user.from_username(user)
             if user:
                 auth = conn.execute(
                     "select author, title, url from projects where rowid = "
