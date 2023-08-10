@@ -186,7 +186,7 @@ def console():
 
 
 @mod.route("/log_out/<int:id>", methods=["post"])
-def logout(id:int):
+def logout(id: int):
     # Check auth
     if not auth(
         request.headers.get("Authorization"), ["admin", "moderator", "developer"]
