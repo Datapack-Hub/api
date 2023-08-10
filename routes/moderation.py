@@ -185,8 +185,8 @@ def console():
         return "Notified the user!"
 
 
-@mod.route("/log_out/<int:self>", methods=["post"])
-def logout():
+@mod.route("/log_out/<int:id>", methods=["post"])
+def logout(id:int):
     # Check auth
     if not auth(
         request.headers.get("Authorization"), ["admin", "moderator", "developer"]
