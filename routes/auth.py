@@ -121,7 +121,7 @@ def callback_dc():
         resp = flask.make_response(
             flask.redirect(f"https://datapackhub.net?login=1&token={token}")
         )
-        
+
         conn.commit()
         conn.close()
 
