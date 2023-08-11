@@ -34,7 +34,7 @@ def after(resp):
 
 def parse_project(output: tuple, conn: sqlite3.Connection):
     this_user = utilities.auth_utils.authenticate(request.headers.get("Authorization"))
-
+    
     latest_version = conn.execute(
         f"SELECT * FROM versions WHERE project = {output[0]} ORDER BY rowid DESC"
     ).fetchall()
@@ -66,9 +66,9 @@ def parse_project(output: tuple, conn: sqlite3.Connection):
         "licence": output[15],
         "dependencies": str(output[9]).split(","),
     }
-
+    
     if this_user.id == output[0] and output[12]:
-        temp["mod_message"] = output[12]
+        temp["mod_message"] = output[12]        
 
     if output[14]:
         temp["featured"] is True
@@ -258,12 +258,7 @@ def random():
 
     out = []
     for i in proj:
-        try:
-            temp = parse_project(i, conn)
-        except:
-            conn.rollback()
-            conn.close()
-            return "Something bad happened", 500
+        temp = parse_project(i,conn)
 
         out.append(temp)
 
