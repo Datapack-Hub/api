@@ -5,6 +5,7 @@
 import sqlite3
 
 from flask import Blueprint, request
+from sqlalchemy import create_engine, text
 
 import config
 import utilities.auth_utils
@@ -29,7 +30,10 @@ def all():
 
     conn = create_engine(config.DATA + "data.db")
     notifs = conn.execute(
-        f"select rowid, message, description, read, type from notifs where user = {usr.id} order by rowid desc limit 20"
+        text(
+            "select rowid, message, description, read, type from notifs where user = :id order by rowid desc limit 20"
+        ),
+        id=usr.id,
     ).fetchall()
 
     res = []
@@ -48,7 +52,9 @@ def all():
     # Mark as read
     for i in res:
         if i["read"] is False:
-            conn.execute("UPDATE notifs SET read = 1 WHERE rowid = " + str(i["id"]))
+            conn.execute(
+                text("UPDATE notifs SET read = 1 WHERE rowid = :id"), id=i["id"]
+            )
 
     conn.commit()
     conn.close()
@@ -71,7 +77,10 @@ def unread():
 
     conn = create_engine(config.DATA + "data.db")
     notifs = conn.execute(
-        f"select rowid, message, description, read, type from notifs where user = {usr.id} and read = 0 order by rowid desc"
+        text(
+            "select rowid, message, description, read, type from notifs where user = :id and read = 0 order by rowid desc"
+        ),
+        id=usr.id,
     ).fetchall()
 
     res = []
@@ -112,7 +121,11 @@ def send(target):
     conn = create_engine(config.DATA + "data.db")
     try:
         conn.execute(
-            f"INSERT INTO notifs VALUES ('{util.clean(notif_data['message'])}', '{util.clean(notif_data['description'])}', False,  '{util.clean(notif_data['type'])}', {target})"
+            text("INSERT INTO notifs VALUES (:title, :msg, False, :type, :target)"),
+            title=util.clean(notif_data["message"]),
+            msg=util.clean(notif_data["description"]),
+            type=util.clean(notif_data["type"]),
+            target=target,
         )
     except sqlite3.Error as er:
         return "There was a problem: " " ".join(er.args), 500
@@ -139,12 +152,14 @@ def delete(id):
         return "Token Expired", 401
 
     conn = create_engine(config.DATA + "data.db")
-    notif = conn.execute("SELECT user FROM notifs WHERE rowid = " + str(id)).fetchone()
+    notif = conn.execute(
+        text("SELECT user FROM notifs WHERE rowid = :id"), id=id
+    ).fetchone()
 
     if usr.id != notif[0]:
         return "Not your notif!", 403
     try:
-        conn.execute("DELETE FROM notifs WHERE rowid = " + str(id))
+        conn.execute(text("DELETE FROM notifs WHERE rowid = :id"), id=id)
         conn.commit()
     except sqlite3.Error:
         return "Something bad happened", 500

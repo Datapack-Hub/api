@@ -8,6 +8,7 @@ import time
 import traceback
 
 from flask import Blueprint, request
+from sqlalchemy import create_engine, text
 
 import config
 import utilities.auth_utils
@@ -52,9 +53,13 @@ def badges(id: int):
             print(badge_str)
 
             conn.execute(
-                f"""UPDATE users 
-                    SET badges = '{badge_str}'
-                    WHERE rowid = {id}"""
+                text(
+                    """UPDATE users 
+                    SET badges = :badges
+                    WHERE rowid = :id"""
+                ),
+                badges=badge_str,
+                id=id,
             )
         except sqlite3.Error:
             print(traceback.print_exc())
@@ -73,7 +78,8 @@ def staff(role):
     if not role in ["admin", "moderator", "helper"]:
         return "Role has to be staff role", 400
     list = conn.execute(
-        f"select username, rowid, bio, profile_icon from users where role = '{util.clean(role)}'"
+        text("select username, rowid, bio, profile_icon from users where role = :role"),
+        role=util.clean(role),
     ).fetchall()
     finale = []
     for i in list:
@@ -119,7 +125,9 @@ def get_user(username):
 
         conn = create_engine(config.DATA + "data.db")
         followed = conn.execute(
-            f"select * from follows where follower = {usr.id} and followed = {u.id};"
+            text("select * from follows where follower = :fid and followed = :uid;"),
+            fid=u.id,
+            uid=usr.id,
         ).fetchall()
         if len(followed) == 0:
             return_data["followed"] = False
@@ -157,7 +165,11 @@ def get_user_id(id):
 
             conn = create_engine(config.DATA + "data.db")
             followed = conn.execute(
-                f"select * from follows where follower = {usr.id} and followed = {u.id};"
+                text(
+                    "select * from follows where follower = :fid and followed = :uid;"
+                ),
+                fid=u.id,
+                uid=usr.id,
             ).fetchall()
             if len(followed) == 0:
                 return_data["followed"] = False
@@ -193,14 +205,20 @@ def get_user_id(id):
         conn = create_engine(config.DATA + "data.db")
         try:
             conn.execute(
-                f"UPDATE users SET username = '{util.clean(dat['username'])}' where rowid = {id}"
+                text("UPDATE users SET username = :name where rowid = :id"),
+                name=util.clean(dat["username"]),
+                id=id,
             )
             conn.execute(
-                f"UPDATE users SET bio = '{util.clean(dat['bio'])}' where rowid = {id}"
+                text("UPDATE users SET bio = ':bio where rowid = :id"),
+                bio=util.clean(dat["bio"]),
+                id=id,
             )
             if usr.role == "admin":
                 conn.execute(
-                    f"UPDATE users SET role = '{util.clean(dat['role'])}' where rowid = {id}"
+                    text("UPDATE users SET role = :role where rowid = :id"),
+                    role=util.clean(dat["role"]),
+                    id=id,
                 )
                 utilities.post.site_log(
                     usr.username,
@@ -226,7 +244,7 @@ def me():
         return "Token Expired", 401
 
     # User Data
-    userdata = {
+    user_data = {
         "username": usr.username,
         "id": usr.id,
         "role": usr.role,
@@ -237,28 +255,30 @@ def me():
     # banned?
     conn = create_engine(config.DATA + "data.db")
     x = conn.execute(
-        "SELECT rowid, expires, reason from banned_users where id = " + str(usr.id)
+        text("SELECT rowid, expires, reason from banned_users where id = :id"),
+        id=usr.id,
     ).fetchall()
     if len(x) == 1:
         current = int(time.time())
         expires = x[0][1]
         if current > expires:
-            conn.execute(f"delete from banned_users where rowid = {str(x[0][0])}")
+            conn.execute(text("delete from banned_users where rowid = :id"), id=x[0][0])
             conn.commit()
         else:
-            userdata["banned"] = True
-            userdata["banData"] = {"message": x[0][2], "expires": expires}
+            user_data["banned"] = True
+            user_data["banData"] = {"message": x[0][2], "expires": expires}
     else:
-        userdata["banned"] = False
+        user_data["banned"] = False
 
-    # failsafe
+    # fail safe
     if usr.username in ADMINS:
         conn.execute(
-            f"update users set role = 'admin' where username = '{util.clean(usr.username)}'"
+            text("update users set role = 'admin' where username = :uname"),
+            uname=util.clean(usr.username),
         )
         conn.commit()
     conn.close()
-    return userdata
+    return user_data
 
 
 @user.route("/<string:username>/projects")
@@ -278,7 +298,10 @@ def user_projects(username):
         if authed.id == user.id:
             # Get all submissions
             r = conn.execute(
-                f"select rowid, * from projects where author = {user.id} and status != 'deleted'"
+                text(
+                    "select rowid, * from projects where author = :id and status != 'deleted'"
+                ),
+                id=user.id,
             ).fetchall()
 
             # Form array
@@ -299,7 +322,10 @@ def user_projects(username):
         else:
             # Get all PUBLIC submissions
             r = conn.execute(
-                f"select rowid, * from projects where author = {user.id} and status = 'live'"
+                text(
+                    "select rowid, * from projects where author = :id and status = 'live'"
+                ),
+                id=user.id,
             ).fetchall()
 
             # Form array
@@ -320,7 +346,10 @@ def user_projects(username):
     else:
         # Get all PUBLIC submissions
         r = conn.execute(
-            f"select rowid, * from projects where author = {user.id} and status = 'live'"
+            text(
+                "select rowid, * from projects where author = :id and status = 'live'"
+            ),
+            id=user.id,
         ).fetchall()
 
         # Form array
@@ -357,18 +386,28 @@ def follow(id):
 
     conn = create_engine(config.DATA + "data.db")
     fol = conn.execute(
-        f"select * from follows where follower = {follower.id} and followed = {follower.id};"
+        text("select * from follows where follower = :fid and followed = :fid;"),
+        fid=follower.id,
     ).fetchall()
     if len(fol) == 0:
         try:
-            conn.execute(f"insert into follows values ({follower.id}, {followed.id});")
+            conn.execute(
+                text("insert into follows values (:follower, :followed);"),
+                follower=follower.id,
+                followed=followed.id,
+            )
         except:
             conn.rollback()
             conn.close()
             return "Something went wrong.", 500
         else:
             conn.execute(
-                f"INSERT INTO notifs VALUES ('New follower', '[{follower.username}](https://datapackhub.net/user/{follower.username}) followed you!', False,  'default', {followed.id})"
+                text(
+                    "INSERT INTO notifs VALUES (:title, :msg, False, 'default', :fid)"
+                ),
+                title="New follower",
+                msg=f"[{follower.username}](https://datapackhub.net/user/{follower.username}) followed you!",
+                fid=followed.id,
             )
             conn.commit()
             conn.close()
@@ -376,7 +415,11 @@ def follow(id):
     else:
         try:
             conn.execute(
-                f"delete from follows where follower = {follower.id} and followed = {followed.id};"
+                text(
+                    "delete from follows where follower = :follower and followed = :followed;"
+                ),
+                follower=follower.id,
+                followed=followed.id,
             )
         except:
             conn.rollback()

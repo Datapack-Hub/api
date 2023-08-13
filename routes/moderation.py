@@ -3,7 +3,6 @@
 """
 
 import difflib
-import bleach
 import json
 import random
 import shlex
@@ -131,7 +130,10 @@ def console():
         try:
             conn = create_engine(config.DATA + "data.db")
             out = conn.execute(
-                text("select username, role, rowid from users where trim(username) like :uname"), uname=args[0]
+                text(
+                    "select username, role, rowid from users where trim(username) like :uname"
+                ),
+                uname=args[0],
             ).fetchall()
             conn.commit()
             conn.close()
@@ -183,7 +185,11 @@ def console():
         conn = create_engine(config.DATA + "data.db")
         try:
             conn.execute(
-                text("INSERT INTO notifs VALUES (:arg1, :arg2, False, :arg0, :arg3)"), arg0=args[0], arg1=args[1], arg2=args[2], arg3=args[3]
+                text("INSERT INTO notifs VALUES (:arg1, :arg2, False, :arg0, :arg3)"),
+                arg0=args[0],
+                arg1=args[1],
+                arg2=args[2],
+                arg3=args[3],
             )
         except sqlite3.Error as er:
             return "Error: " + " ".join(er.args), 400
@@ -230,7 +236,11 @@ def ban(user: int):
         conn = create_engine(config.DATA + "data.db")
         try:
             conn.execute(
-                text("insert into banned_users values (:user, :expiry, '{util.clean(dat['message'])}')"), user=user, expiry=expiry
+                text(
+                    "insert into banned_users values (:user, :expiry, '{util.clean(dat['message'])}')"
+                ),
+                user=user,
+                expiry=expiry,
             )
         except sqlite3.Error as er:
             return " ".join(er.args)
@@ -273,7 +283,9 @@ def user_data(id):
         return "You can't do this!", 403
 
     conn = create_engine(config.DATA + "data.db")
-    ban_data = conn.execute(text("SELECT * FROM banned_users WHERE id = :id"), id=id).fetchall()
+    ban_data = conn.execute(
+        text("SELECT * FROM banned_users WHERE id = :id"), id=id
+    ).fetchall()
 
     if len(ban_data) == 0:
         return {"banned": False, "banMessage": None, "banExpiry": None}
@@ -364,7 +376,10 @@ def queue(type: str):
         out = []
         for item in r:
             proj = conn.execute(
-                text("select type, author, title, icon, url, description, rowid, status from projects where rowid = :i2"), i2=item[2]
+                text(
+                    "select type, author, title, icon, url, description, rowid, status from projects where rowid = :i2"
+                ),
+                i2=item[2],
             ).fetchone()
 
             usr = get_user.from_id(item[1])
@@ -424,8 +439,10 @@ def change_status(proj: int):
 
     conn = create_engine(config.DATA + "data.db")
     project = conn.execute(
-        text("select rowid, status, title, author, description, icon, url from projects where rowid = :pid"), pid=proj
-        
+        text(
+            "select rowid, status, title, author, description, icon, url from projects where rowid = :pid"
+        ),
+        pid=proj,
     ).fetchall()
 
     project = project[0]
@@ -439,16 +456,26 @@ def change_status(proj: int):
     if data["action"] == "publish":
         if project[1] != "live":
             conn.execute(
-                text("update projects set status = 'live' where rowid = :pid"),pid=proj
+                text("update projects set status = 'live' where rowid = :pid"), pid=proj
             )
             conn.execute(
-                text("INSERT INTO notifs VALUES (:title, :msg, False, 'default', :uid)"), title=f'Published {project[2]}', msg=f'Your project, {project[2]}, was published by a staff member.', uid=usr.id
+                text(
+                    "INSERT INTO notifs VALUES (:title, :msg, False, 'default', :uid)"
+                ),
+                title=f"Published {project[2]}",
+                msg=f"Your project, {project[2]}, was published by a staff member.",
+                uid=usr.id,
             )
             followers = conn.execute(
-                text("select follower from follows where followed = :uid"),uid=usr.id
+                text("select follower from follows where followed = :uid"), uid=usr.id
             ).fetchall()
             for i in followers:
-                util.send_notif(conn, f'{usr.username} posted a project!', f'[{usr.username}](https://datapackhub.net/user/{usr.username}) just posted a new project: [{util.clean(project[2])}](https://datapackhub.net/project/{project[6]})', i[0])
+                util.send_notif(
+                    conn,
+                    f"{usr.username} posted a project!",
+                    f"[{usr.username}](https://datapackhub.net/user/{usr.username}) just posted a new project: [{util.clean(project[2])}](https://datapackhub.net/project/{project[6]})",
+                    i[0],
+                )
             conn.commit()
             conn.close()
             utilities.post.approval(
@@ -468,7 +495,11 @@ def change_status(proj: int):
         )
         if "message" in data:
             conn.execute(
-                text("INSERT INTO notifs VALUES (:title, :msg, False, 'important', :author)"), title=f"Project {project[2]} deleted', msg=f'Your project was deleted for the following reason: {util.clean(data['message'])}", author=project[3]
+                text(
+                    "INSERT INTO notifs VALUES (:title, :msg, False, 'important', :author)"
+                ),
+                title=f"Project {project[2]} deleted', msg=f'Your project was deleted for the following reason: {util.clean(data['message'])}",
+                author=project[3],
             )
         utilities.post.deletion(
             user.username,
@@ -483,9 +514,14 @@ def change_status(proj: int):
         conn.close()
         return "deleted project"
     elif data["action"] == "restore":
-        conn.execute("update projects set status = 'live' where rowid = " + str(proj))
         conn.execute(
-            f"INSERT INTO notifs VALUES ('Project {project[2]} restored', 'Your project, {project[2]}, was restored by staff.', False, 'important', {project[3]})"
+            text("update projects set status = 'live' where rowid = :id"), id=proj
+        )
+        conn.execute(
+            text("INSERT INTO notifs VALUES (:title, :msg, False, 'important', :id)"),
+            title=f"Project {project[2]} restored",
+            msg=f"Your project, {project[2]}, was restored by staff.",
+            id=project[3],
         )
         conn.commit()
         conn.close()
@@ -497,11 +533,19 @@ def change_status(proj: int):
             return "message is missing, its a disable", 400
         else:
             conn.execute(
-                f"update projects set status = 'disabled', mod_message = '{util.clean(data['message'])}' where rowid = "
-                + str(proj)
+                text(
+                    "update projects set status = 'disabled', mod_message = :msg where rowid = :id"
+                ),
+                msg=util.clean(data["message"]),
+                id=proj,
             )
             conn.execute(
-                f"INSERT INTO notifs VALUES ('Project {project[2]} disabled', 'Your project, {project[2]}, was disabled. You need to make changes and then submit it for review. Reason: {util.clean(data['message'])}', False, 'important', {project[3]})"
+                text(
+                    "INSERT INTO notifs VALUES (:title, :msg, False, 'important', :id)"
+                ),
+                title=f"Project {project[2]} disabled",
+                msg=f"Your project, {project[2]}, was disabled. You need to make changes and then submit it for review. Reason: {util.clean(data['message'])}",
+                id=project[3],
             )
             conn.commit()
             conn.close()
@@ -522,10 +566,17 @@ def change_status(proj: int):
             return "message is missing, its a freaking write note action", 400
         else:
             conn.execute(
-                f"update projects set mod_message = '{util.clean(data['message'])}' where rowid = {str(proj)}"
+                text("update projects set mod_message = :msg where rowid = :id"),
+                msg=util.clean(data["message"]),
+                id=proj,
             )
             conn.execute(
-                f"INSERT INTO notifs VALUES ('New Mod Message', 'A moderator left a message on your project {project[2]}.', False, 'important', {project[3]})"
+                text(
+                    "INSERT INTO notifs VALUES (:title, :msg, False, 'important', :id)"
+                ),
+                title="New Mod Message",
+                msg="A moderator left a message on your project {project[2]}.",
+                id=project[3],
             )
             conn.commit()
             conn.close()
@@ -546,8 +597,10 @@ def dismiss(proj: int):
     # Get project.
     conn = create_engine(config.DATA + "data.db")
     project = conn.execute(
-        "select rowid, status, author, mod_message from projects where rowid = "
-        + str(proj)
+        text(
+            "select rowid, status, author, mod_message from projects where rowid = :id"
+        ),
+        id=proj,
     ).fetchall()
 
     # Check existence of project.
@@ -566,7 +619,9 @@ def dismiss(proj: int):
         return "While the project is disabled, you can't delete the message", 400
 
     # Delete message
-    conn.execute("update projects set mod_message = null where rowid = " + str(proj))
+    conn.execute(
+        text("update projects set mod_message = null where rowid = :id"), id=id
+    )
     conn.commit()
     conn.close()
     return "did it", 200
@@ -582,11 +637,13 @@ def remove_report(id: int):
 
     conn = create_engine(config.DATA + "data.db")
 
-    rep = conn.execute(f"select rowid from reports where rowid = {str(id)}").fetchall()
+    rep = conn.execute(
+        text("select rowid from reports where rowid = :id"), id=id
+    ).fetchall()
     if len(rep) == 0:
         return "Report not found", 404
 
-    conn.execute(f"delete from reports where rowid = {str(id)}")
+    conn.execute(text("delete from reports where rowid = :id"), id=id)
     conn.commit()
     conn.close()
 

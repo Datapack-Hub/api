@@ -4,6 +4,7 @@
 
 import secrets
 import sqlite3
+from urllib.parse import quote
 
 import flask
 import requests
@@ -37,7 +38,7 @@ def callback_gh():
     # Get an access token
     code = request.args.get("code")
     access_token = requests.post(
-        f"https://github.com/login/oauth/access_token?client_id={config.github.client_id}&client_secret={config.github.client_secret}&code={code}",
+        quote(f"https://github.com/login/oauth/access_token?client_id={config.github.client_id}&client_secret={config.github.client_secret}&code={code}"),
         headers={"Accept": "application/json"},
         timeout=180,
     ).json()
@@ -115,8 +116,16 @@ def callback_dc():
         conn = create_engine(config.DATA + "data.db")
 
         token = secrets.token_urlsafe()
-        sql = text('INSERT INTO users (username, role, bio, discord_id, token, profile_icon) VALUES (:username, "default", "A new Datapack Hub user!", :d_id, :token, :avatar)')
-        conn.execute(sql, username=discord["username"],d_id=discord["id"],token=token,avatar=f"https://cdn.discordapp.com/avatars/{discord['id']}/{discord['avatar']}.png")
+        sql = text(
+            'INSERT INTO users (username, role, bio, discord_id, token, profile_icon) VALUES (:username, "default", "A new Datapack Hub user!", :d_id, :token, :avatar)'
+        )
+        conn.execute(
+            sql,
+            username=discord["username"],
+            d_id=discord["id"],
+            token=token,
+            avatar=f"https://cdn.discordapp.com/avatars/{discord['id']}/{discord['avatar']}.png",
+        )
 
         resp = flask.make_response(
             flask.redirect(f"https://datapackhub.net?login=1&token={token}")
@@ -186,7 +195,8 @@ def link_discord():
     try:
         conn.execute(
             text("update users set discord_id = :id where rowid = :user;"),
-            id=discord_id, user=usr.id
+            id=discord_id,
+            user=usr.id,
         )
     except sqlite3.Error:
         conn.rollback()
@@ -204,7 +214,7 @@ def link_github():
     code = request.args.get("code")
 
     access_token = requests.post(
-        f"https://github.com/login/oauth/access_token?client_id={config.github.client_id}&client_secret={config.github.client_secret}&code={code}",
+        quote(f"https://github.com/login/oauth/access_token?client_id={config.github.client_id}&client_secret={config.github.client_secret}&code={code}"),
         headers={"Accept": "application/json"},
         timeout=180,
     ).json()
@@ -232,7 +242,8 @@ def link_github():
     try:
         conn.execute(
             text("update users set github_id = :g_id where rowid = :id;"),
-            g_id=github['id'], id=usr.id
+            g_id=github["id"],
+            id=usr.id,
         )
     except sqlite3.Error:
         conn.rollback()

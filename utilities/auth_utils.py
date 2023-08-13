@@ -1,7 +1,8 @@
 import secrets
+
+from sqlalchemy import create_engine, text
 import config
 from utilities.commons import User
-
 
 import json
 import sqlite3
@@ -24,7 +25,10 @@ def authenticate(auth: str):
     conn = create_engine(config.DATA + "data.db")
 
     u = conn.execute(
-        f"select username, rowid, role, bio, profile_icon, badges from users where token = '{token}'"
+        text(
+            "select username, rowid, role, bio, profile_icon, badges from users where token = :token"
+        ),
+        token=token,
     ).fetchone()
     if not u:
         print("user doth not exists")
@@ -43,7 +47,7 @@ def get_user_token(github_id: int):
 
     # Select
     u = conn.execute(
-        f"select token from users where github_id = {github_id}"
+        text("select token from users where github_id = :g_id"), g_id=github_id
     ).fetchone()
 
     conn.close()
@@ -58,7 +62,9 @@ def get_user_token_from_discord_id(discord: int):
     conn = create_engine(config.DATA + "data.db")
 
     # Select
-    u = conn.execute(f"select token from users where discord_id = {discord}").fetchone()
+    u = conn.execute(
+        text("select token from users where discord_id = :discord"), discord=discord
+    ).fetchone()
 
     conn.close()
 
@@ -75,7 +81,11 @@ def log_user_out(id: int):
 
     # Create user entry in database
     try:
-        conn.execute(f'UPDATE users SET token = "{token}" WHERE rowid = {id}')
+        conn.execute(
+            text("UPDATE users SET token = :token WHERE rowid = :id"),
+            token=token,
+            id=id,
+        )
     except sqlite3.Error as err:
         return err
 

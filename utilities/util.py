@@ -2,13 +2,13 @@ from functools import lru_cache
 import secrets
 import sqlite3
 
-from sqlalchemy import Engine, text
+from sqlalchemy import Engine, create_engine, text
 import config
 import utilities.post as post
 
 
 def create_user_account(
-    ghubdata: dict,
+    github_data: dict,
 ):
     conn = create_engine(config.DATA + "data.db")
 
@@ -16,13 +16,19 @@ def create_user_account(
 
     # Create user entry in database
     conn.execute(
-        f'INSERT INTO users (username, role, bio, github_id, token, profile_icon) VALUES ("{ghubdata["login"]}", "default", "A new Datapack Hub user!", {ghubdata["id"]}, "{token}", "{ghubdata["avatar_url"]}")'
+        text(
+            'INSERT INTO users (username, role, bio, github_id, token, profile_icon) VALUES (:g_login, "default", "A new Datapack Hub user!", :id, :token, :avatar)'
+        ),
+        g_login=github_data["login"],
+        id=github_data["id"],
+        token=token,
+        avatar=github_data["avatar_url"],
     )
 
     conn.commit()
     conn.close()
 
-    print("CREATED USER: " + ghubdata["login"])
+    print("CREATED USER: " + github_data["login"])
 
     return token
 
@@ -32,7 +38,7 @@ def get_user_ban_data(id: int):
     conn = create_engine(config.DATA + "data.db")
 
     banned_user = conn.execute(
-        "select reason, expires from banned_users where id = " + str(id)
+        text("select reason, expires from banned_users where id = :id"), id=id
     ).fetchone()
 
     if not banned_user:
@@ -47,7 +53,7 @@ def get_user_ban_data(id: int):
 def user_owns_project(project: int, author: int):
     conn = create_engine(config.DATA + "data.db")
     proj = conn.execute(
-        f"select rowid from projects where rowid = {str(project)} and author = {str(author)}"
+        text("select rowid from projects where rowid = :project and author = :author"), project=project, author=author
     ).fetchall()
     conn.close()
     return len(proj) == 1
@@ -66,11 +72,14 @@ def clean(query: str):
 #     conn.close()
 #     return [*user]
 
+
 def send_notif(conn: Engine, title: str, msg: str, receiver: int):
     conn.execute(
-        text("INSERT INTO notifs VALUES (:title, :msg, False, 'default', :uid})"), title=title, msg=msg, uid=receiver
+        text("INSERT INTO notifs VALUES (:title, :msg, False, 'default', :uid})"),
+        title=title,
+        msg=msg,
+        uid=receiver,
     )
-    
 
 
 if __name__ == "__main__":
