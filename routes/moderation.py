@@ -422,7 +422,7 @@ def change_status(proj: int):
     ).fetchall()
 
     project = project[0]
-    
+
     usr = get_user.from_id(project[3])
 
     if len(project) == 0:
@@ -437,7 +437,9 @@ def change_status(proj: int):
             conn.execute(
                 f"INSERT INTO notifs VALUES ('Published {project[2]}', 'Your project, {project[2]}, was published by a staff member.', False, 'default', {usr.id})"
             )
-            followers = conn.execute(f"select follower from follows where followed = {usr.id}").fetchall()
+            followers = conn.execute(
+                f"select follower from follows where followed = {usr.id}"
+            ).fetchall()
             for i in followers:
                 conn.execute(
                     f"INSERT INTO notifs VALUES ('{usr.username} posted a project!', '[{usr.username}](https://datapackhub.net/user/{usr.username}) just posted a new project: [{util.clean(project[2])}](https://datapackhub.net/project/{project[6]})', False,  'default', {i[0]})"
