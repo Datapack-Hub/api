@@ -2,6 +2,7 @@
 **Versions API endpoints**
 """
 
+import html
 import sqlite3
 import time
 
@@ -188,7 +189,7 @@ def new(project: int):
 
         dpath = files.upload_zipfile(
             data["primary_download"],
-            f"project/{project}/{data['version_code']}/{data['filename']}",
+            html.escape(f"project/{project}/{data['version_code']}/{data['filename']}"),
             usr.username,
             sq,
         )
@@ -204,7 +205,7 @@ def new(project: int):
             ):
                 rpath = files.upload_zipfile(
                     data["resource_pack_download"],
-                    f"project/{project}/{data['version_code']}/Resourcepack-{data['filename']}",
+                    html.escape(f"project/{project}/{data['version_code']}/Resourcepack-{data['filename']}"),
                     usr.username,
                 )
                 conn.execute(

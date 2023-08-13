@@ -3,12 +3,14 @@
 """
 
 import difflib
+import bleach
 import json
 import random
 import shlex
 import sqlite3
 import time
 from datetime import date
+import bleach
 
 import requests
 from flask import Blueprint, request
@@ -55,20 +57,18 @@ CORS(mod, supports_credentials=True)
 @mod.route("/console", methods=["POST"])
 def console():
     data = json.loads(request.data)
-
     full = data["command"]
-
     args = shlex.split(data["command"])
-
     cmd = args[0]
+    
     del args[0]
 
     if cmd not in console_commands:
         closest = difflib.get_close_matches(cmd, console_commands)
         if len(closest) >= 1:
-            return f"Error: Command {cmd} not found. Did you mean {closest[0]}?", 400
+            return f"Error: Command {bleach.clean(cmd)} not found. Did you mean {bleach.clean(closest[0])}?", 400
         else:
-            return f"Error: Command {cmd} not found.", 400
+            return f"Error: Command {bleach.clean(cmd)} not found.", 400
 
     # Check user authentication status
     if not utilities.get_user.from_token(request.headers.get("Authorization")[6:]):
@@ -115,7 +115,7 @@ def console():
         except sqlite3.Error as error:
             return "SQL Error: " + (" ".join(error.args)), 400
         else:
-            return json.dumps(out, indent=3).replace("\n", "<br />"), 200
+            return bleach.clean(json.dumps(out, indent=3).replace("\n", "<br />"), ['br']), 200
     elif cmd == "user":
         if not auth(request.headers.get("Authorization"), ["admin", "moderator"]):
             return "You do not have permission to run this command!"
@@ -131,10 +131,10 @@ def console():
         except sqlite3.Error as error:
             return "SQL Error: " + (" ".join(error.args)), 400
         else:
-            returnthis = ""
+            return_this = ""
             for u in out:
-                returnthis = returnthis + f"{u[0]} (ID {u[2]}) | Role: {u[1]}\n"
-            return returnthis
+                return_this += f"{u[0]} (ID {u[2]}) | Role: {u[1]}\n"
+            return bleach.clean(return_this)
     elif cmd == "hello":
         return "Beep boop! Hi!"
     elif cmd == "reset":
