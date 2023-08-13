@@ -3,7 +3,7 @@ import secrets
 import sqlite3
 import config
 import utilities.post as post
-
+import random
 
 def create_user_account(
     ghubdata: dict,
@@ -11,10 +11,16 @@ def create_user_account(
     conn = sqlite3.connect(config.DATA + "data.db")
 
     token = secrets.token_urlsafe()
+    
+    check = conn.execute(f"select username from users where username = '{ghubdata['login']}';").fetchall()
+    if len(check) == 0:
+        username = ghubdata['login']
+    else:
+        username = ghubdata['login'] + str(random.randint(1,99999))
 
     # Create user entry in database
     conn.execute(
-        f'INSERT INTO users (username, role, bio, github_id, token, profile_icon) VALUES ("{ghubdata["login"]}", "default", "A new Datapack Hub user!", {ghubdata["id"]}, "{token}", "{ghubdata["avatar_url"]}")'
+        f'INSERT INTO users (username, role, bio, github_id, token, profile_icon) VALUES ("{username}", "default", "A new Datapack Hub user!", {ghubdata["id"]}, "{token}", "{ghubdata["avatar_url"]}")'
     )
 
     conn.commit()
