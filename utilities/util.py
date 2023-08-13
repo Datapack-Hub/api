@@ -16,7 +16,7 @@ def create_user_account(
 
     check = conn.execute(
         text("select username from users where username = :login;"),
-        login=github_data['login']
+        login=github_data["login"],
     ).fetchall()
     if len(check) == 0:
         username = github_data["login"]
