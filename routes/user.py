@@ -341,7 +341,7 @@ def user_projects(username):
 
 
 @user.route("/id/<int:id>/follow", methods=["POST"])
-def get_user_id(id):
+def follow(id):
     if not request.headers.get("Authorization"):
         return "Authorization required", 401
 
