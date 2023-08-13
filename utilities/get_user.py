@@ -1,3 +1,4 @@
+from sqlalchemy import create_engine, text
 import config
 from utilities.commons import User
 from utilities.util import clean
@@ -8,11 +9,14 @@ import sqlite3
 
 
 def from_username(self: str):
-    conn = sqlite3.connect(config.DATA + "data.db")
+    conn = create_engine(config.DATA + "data.db")
 
     # Select
     u = conn.execute(
-        f"select username, rowid, role, bio, profile_icon, badges from users where lower(username) = '{clean(self.lower())}'"
+        text(
+            "select username, rowid, role, bio, profile_icon, badges from users where lower(username) = :uname"
+        ),
+        uname=clean(self.lower()),
     ).fetchone()
 
     if not u:
@@ -28,11 +32,14 @@ def from_username(self: str):
 
 
 def from_id(self: int):
-    conn = sqlite3.connect(config.DATA + "data.db")
+    conn = create_engine(config.DATA + "data.db")
 
     # Select
     u = conn.execute(
-        f"select username, rowid, role, bio, profile_icon, badges from users where rowid = {self}"
+        text(
+            "select username, rowid, role, bio, profile_icon, badges from users where rowid = :id"
+        ),
+        id=self,
     ).fetchone()
 
     if not u:
@@ -48,11 +55,14 @@ def from_id(self: int):
 
 
 def from_github_id(self: int):
-    conn = sqlite3.connect(config.DATA + "data.db")
+    conn = create_engine(config.DATA + "data.db")
 
     # Select
     u = conn.execute(
-        f"select username, rowid, role, bio, profile_icon, badges from users where github_id = {self}"
+        text(
+            "select username, rowid, role, bio, profile_icon, badges from users where github_id = :id"
+        ),
+        id=self,
     ).fetchone()
 
     if not u:
@@ -68,11 +78,14 @@ def from_github_id(self: int):
 
 
 def from_discord_id(self: int):
-    conn = sqlite3.connect(config.DATA + "data.db")
+    conn = create_engine(config.DATA + "data.db")
 
     # Select
     u = conn.execute(
-        f"select username, rowid, role, bio, profile_icon, badges from users where discord_id = {self}"
+        text(
+            "select username, rowid, role, bio, profile_icon, badges from users where discord_id = :id"
+        ),
+        id=self,
     ).fetchone()
 
     if not u:
@@ -88,11 +101,14 @@ def from_discord_id(self: int):
 
 
 def from_token(token: str):
-    conn = sqlite3.connect(config.DATA + "data.db")
+    conn = create_engine(config.DATA + "data.db")
 
     # Select
     u = conn.execute(
-        f"select username, rowid, role, bio, profile_icon, badges from users where token = '{clean(token)}'"
+        text(
+            "select username, rowid, role, bio, profile_icon, badges from users where token = :token"
+        ),
+        token=clean(token),
     ).fetchone()
 
     if not u:
