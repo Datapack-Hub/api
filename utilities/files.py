@@ -5,6 +5,7 @@ This code does some weird ass stuff which should probably upload files to the cl
 import base64
 import os
 import shutil
+from urllib.parse import quote
 from zipfile import ZipFile
 
 import requests
@@ -29,14 +30,14 @@ def upload_zipfile(file: str, file_name: str, uploader: str, squash: bool = Fals
         os.system("packsquash '/var/www/html/api/squash.toml'")
 
     put = requests.put(
-        "https://files.datapackhub.net/" + file_name,
+        quote("https://files.datapackhub.net/" + file_name),
         open(config.DATA + "Temporary.zip", "rb"),
         headers={"Authorization": config.FILES_TOKEN, "Author": uploader},
         timeout=300000
     )
 
     if put.ok:
-        return "https://files.datapackhub.net/" + file_name
+        return quote("https://files.datapackhub.net/" + file_name)
     else:
         print(put.text)
     return False
@@ -54,14 +55,14 @@ def upload_file(file: str, file_name: str, uploader: str):
         out.close()
 
     put = requests.put(
-        "https://files.datapackhub.net/" + file_name,
+        quote("https://files.datapackhub.net/" + file_name),
         open(config.DATA + "tempfile", "rb"),
         headers={"Authorization": config.FILES_TOKEN, "Author": uploader},
         timeout=300,
     )
 
     if put.ok:
-        return "https://files.datapackhub.net/" + file_name
+        return quote("https://files.datapackhub.net/" + file_name)
     return "Error Uploading", 500
 
 
