@@ -119,7 +119,7 @@ def get_user(username):
 
         conn = sqlite3.connect(config.DATA + "data.db")
         followed = conn.execute(
-            f"select * from followers where follower = {usr.id} and followed = {u.id};"
+            f"select * from follows where follower = {usr.id} and followed = {u.id};"
         ).fetchall()
         if len(followed) == 0:
             return_data["followed"] = False
@@ -157,7 +157,7 @@ def get_user_id(id):
 
             conn = sqlite3.connect(config.DATA + "data.db")
             followed = conn.execute(
-                f"select * from followers where follower = {usr.id} and followed = {u.id};"
+                f"select * from follows where follower = {usr.id} and followed = {u.id};"
             ).fetchall()
             if len(followed) == 0:
                 return_data["followed"] = False
@@ -357,7 +357,7 @@ def follow(id):
 
     conn = sqlite3.connect(config.DATA + "data.db")
     fol = conn.execute(
-        f"select * from followers where follower = {follower.id} and followed = {follower.id};"
+        f"select * from follows where follower = {follower.id} and followed = {follower.id};"
     ).fetchall()
     if len(fol == 0):
         try:
