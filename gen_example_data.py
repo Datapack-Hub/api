@@ -4,7 +4,7 @@ import config
 
 
 def reset(table: str):
-    connection = sqlite3.connect(config.DATA + "data.db")
+    connection = create_engine(config.DATA + "data.db")
 
     if table != "no-drop":
         connection.execute(f"DROP TABLE {table}")
@@ -126,7 +126,7 @@ def reset(table: str):
 if __name__ == "__main__":
     reset("no-drop")
 
-    conn = sqlite3.connect(config.DATA + "data.db")
+    conn = create_engine(config.DATA + "data.db")
 
     conn.execute(
         """INSERT INTO users (username, token, role, bio, github_id, profile_icon) VALUES ("HoodieRocks", "LOREMIPSUM", "admin", "rock", 123897432978, "example.com")"""

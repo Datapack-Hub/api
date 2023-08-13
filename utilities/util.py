@@ -1,6 +1,8 @@
 from functools import lru_cache
 import secrets
 import sqlite3
+
+from sqlalchemy import Engine, text
 import config
 import utilities.post as post
 
@@ -8,7 +10,7 @@ import utilities.post as post
 def create_user_account(
     ghubdata: dict,
 ):
-    conn = sqlite3.connect(config.DATA + "data.db")
+    conn = create_engine(config.DATA + "data.db")
 
     token = secrets.token_urlsafe()
 
@@ -27,7 +29,7 @@ def create_user_account(
 
 @lru_cache
 def get_user_ban_data(id: int):
-    conn = sqlite3.connect(config.DATA + "data.db")
+    conn = create_engine(config.DATA + "data.db")
 
     banned_user = conn.execute(
         "select reason, expires from banned_users where id = " + str(id)
@@ -43,7 +45,7 @@ def get_user_ban_data(id: int):
 
 @lru_cache
 def user_owns_project(project: int, author: int):
-    conn = sqlite3.connect(config.DATA + "data.db")
+    conn = create_engine(config.DATA + "data.db")
     proj = conn.execute(
         f"select rowid from projects where rowid = {str(project)} and author = {str(author)}"
     ).fetchall()
@@ -56,13 +58,19 @@ def clean(query: str):
 
 
 # def get_user_data(id: int, data: list[str])
-#     conn = sqlite3.connect(config.DATA + "data.db")
+#     conn = create_engine(config.DATA + "data.db")
 #     query_props = ",".join(data)
 #     user = conn.execute(
 #         f"SELECT {clean(query_props)} FROM users WHERE rowid = {str(id)}"
 #     ).fetchone()
 #     conn.close()
 #     return [*user]
+
+def send_notif(conn: Engine, title: str, msg: str, receiver: int):
+    conn.execute(
+        text("INSERT INTO notifs VALUES (:title, :msg, False, 'default', :uid})"), title=title, msg=msg, uid=receiver
+    )
+    
 
 
 if __name__ == "__main__":

@@ -31,7 +31,7 @@ user = Blueprint("user", __name__, url_prefix="/user")
 
 @user.route("/badges/<int:id>", methods=["PATCH", "GET"])
 def badges(id: int):
-    conn = sqlite3.connect(config.DATA + "data.db")
+    conn = create_engine(config.DATA + "data.db")
 
     if request.method == "GET":
         return {"badges": utilities.get_user.from_id(id).badges}
@@ -69,7 +69,7 @@ def badges(id: int):
 
 @user.route("/staff/<role>")
 def staff(role):
-    conn = sqlite3.connect(config.DATA + "data.db")
+    conn = create_engine(config.DATA + "data.db")
     if not role in ["admin", "moderator", "helper"]:
         return "Role has to be staff role", 400
     list = conn.execute(
@@ -117,7 +117,7 @@ def get_user(username):
         if usr == 33:
             return "Token Expired", 401
 
-        conn = sqlite3.connect(config.DATA + "data.db")
+        conn = create_engine(config.DATA + "data.db")
         followed = conn.execute(
             f"select * from follows where follower = {usr.id} and followed = {u.id};"
         ).fetchall()
@@ -155,7 +155,7 @@ def get_user_id(id):
             if usr == 33:
                 return "Token Expired", 401
 
-            conn = sqlite3.connect(config.DATA + "data.db")
+            conn = create_engine(config.DATA + "data.db")
             followed = conn.execute(
                 f"select * from follows where follower = {usr.id} and followed = {u.id};"
             ).fetchall()
@@ -190,7 +190,7 @@ def get_user_id(id):
         if len(dat["bio"]) > 500:
             return "Bio too long", 400
 
-        conn = sqlite3.connect(config.DATA + "data.db")
+        conn = create_engine(config.DATA + "data.db")
         try:
             conn.execute(
                 f"UPDATE users SET username = '{util.clean(dat['username'])}' where rowid = {id}"
@@ -235,7 +235,7 @@ def me():
     }
 
     # banned?
-    conn = sqlite3.connect(config.DATA + "data.db")
+    conn = create_engine(config.DATA + "data.db")
     x = conn.execute(
         "SELECT rowid, expires, reason from banned_users where id = " + str(usr.id)
     ).fetchall()
@@ -263,7 +263,7 @@ def me():
 
 @user.route("/<string:username>/projects")
 def user_projects(username):
-    conn = sqlite3.connect(config.DATA + "data.db")
+    conn = create_engine(config.DATA + "data.db")
 
     # Check if user is authenticated
     t = request.headers.get("Authorization")
@@ -355,7 +355,7 @@ def follow(id):
     if not followed:
         return "User doesn't exist.", 404
 
-    conn = sqlite3.connect(config.DATA + "data.db")
+    conn = create_engine(config.DATA + "data.db")
     fol = conn.execute(
         f"select * from follows where follower = {follower.id} and followed = {follower.id};"
     ).fetchall()

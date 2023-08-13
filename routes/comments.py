@@ -4,6 +4,7 @@
 
 import sqlite3
 from flask import Blueprint, request
+from sqlalchemy import create_engine, text
 import config
 import utilities.auth_utils
 import utilities.get_user
@@ -16,16 +17,18 @@ comments = Blueprint("comments", __name__, url_prefix="/comments")
 
 @comments.route("/thread/<int:thread>")
 def messages_from_thread(thread: int):
-    conn = sqlite3.connect(config.DATA + "data.db")
+    conn = create_engine(config.DATA + "data.db")
     cmts = conn.execute(
-        f"select rowid, message, author, sent from comments where thread_id = {thread} and parent_id is null order by sent desc"
+        text("select rowid, message, author, sent from comments where thread_id = :thread and parent_id is null order by sent desc"),
+        thread=thread
     ).fetchall()
 
     out = []
     for cmt in cmts:
         author = utilities.get_user.from_id(cmt[2])
         replies = conn.execute(
-            f"select rowid, message, author, sent from comments where thread_id = {thread} and parent_id = {cmt[0]} order by sent desc"
+            text("select rowid, message, author, sent from comments where thread_id = :thread and parent_id = :comment order by sent desc"), 
+            thread=thread, comment=cmt[0]
         ).fetchall()
         reps = []
         for reply in replies:
@@ -74,7 +77,7 @@ def post_msg(thread: int):
     if usr == 33:
         return "Token Expired", 401
 
-    conn = sqlite3.connect(config.DATA + "data.db")
+    conn = create_engine(config.DATA + "data.db")
     cmt_data = request.get_json(True)
     try:
         cmt_data["message"]
@@ -87,36 +90,37 @@ def post_msg(thread: int):
             user = utilities.get_user.from_username(user)
             if user:
                 auth = conn.execute(
-                    "select author, title, url from projects where rowid = "
-                    + str(thread)
+                    text("select author, title, url from projects where rowid = :thread"),
+                    thread=thread
                 ).fetchone()
                 conn.execute(
-                    f"INSERT INTO notifs VALUES ('You were mentioned', '[{usr.username}](https://datapackhub.net/user/{usr.username}) mentioned you in a comment on project [{auth[1]}](https://datapackhub.net/project/{auth[2]}).', False,  'default', {auth[0]})"
+                    text("INSERT INTO notifs VALUES (:title, :msg, False, :type, :uid)"), title="You were mentioned!", msg=f"[{usr.username}](https://datapackhub.net/user/{usr.username}) mentioned you in a comment on project [{auth[1]}](https://datapackhub.net/project/{auth[2]}).", type="default", uid=auth[0]
                 )
         try:
             cmt_data["parent_id"]
         except KeyError:
             conn.execute(
-                f"INSERT INTO comments VALUES ({thread}, '{util.clean(cmt_data['message'])}', {usr.id}, {time.time()}, null)"
+                text("INSERT INTO comments VALUES (:thread, :msg, :uid, :time, null)"), thread=thread, msg=util.clean(cmt_data['message']), uid=usr.id, time=time.time()
             )
 
             auth = conn.execute(
-                "select author, title, url from projects where rowid = " + str(thread)
+                text("select author, title, url from projects where rowid = :thread"),
+                thread=thread
             ).fetchone()
 
             # Notify author
             if usr.id != auth[0]:
                 conn.execute(
-                    f"INSERT INTO notifs VALUES ('New comment', '[{usr.username}](https://datapackhub.net/user/{usr.username}) left a comment on your project [{auth[1]}](https://datapackhub.net/project/{auth[2]}).', False,  'default', {auth[0]})"
+                    text("INSERT INTO notifs VALUES ('New comment', :msg, False,  'default', :uid)"), msg=f'[{usr.username}](https://datapackhub.net/user/{usr.username}) left a comment on your project [{auth[1]}](https://datapackhub.net/project/{auth[2]}).', uid=auth[0]
                 )
         else:
             conn.execute(
-                f"INSERT INTO comments VALUES ({thread}, '{util.clean(cmt_data['message'])}', {usr.id}, {time.time()}, {cmt_data['parent_id']})"
+                text("INSERT INTO comments VALUES (:thread, :msg, :uid, :time, :pid)"), uid=usr.id, time=time.time(), pid=cmt_data['parent_id'], msg=util.clean(cmt_data['message']), thread=thread
             )
 
             auth = conn.execute(
-                "select author from comments where rowid = "
-                + str(cmt_data["parent_id"])
+                text("select author from comments where rowid = :pid"),
+                pid=cmt_data["parent_id"]
             ).fetchone()
 
             # Notify author
@@ -124,11 +128,11 @@ def post_msg(thread: int):
                 usr.id != auth[0]
             ):  # I got bored and added my suggestion myself -HoodieRocks
                 proj = conn.execute(
-                    "select title, url from projects where rowid = " + str(thread)
+                    text("select title, url from projects where rowid = :thread"), thread=thread
                 ).fetchone()
 
                 conn.execute(
-                    f"INSERT INTO notifs VALUES ('New reply', '[{usr.username}](https://datapackhub.net/user/{usr.username}) left a reply to your comment on project [{proj[0]}](https://datapackhub.net/project/{proj[1]}).', False,  'default', {auth[0]})"
+                    text("INSERT INTO notifs VALUES ('New reply', :msg, False,  'default', :uid)"), msg=f"[{usr.username}](https://datapackhub.net/user/{usr.username}) left a reply to your comment on project [{proj[0]}](https://datapackhub.net/project/{proj[1]}).", uid=auth[0]
                 )
     except sqlite3.Error as er:
         conn.rollback()
@@ -144,9 +148,9 @@ def post_msg(thread: int):
 @comments.route("/id/<int:id>", methods=["GET", "DELETE"])
 def get_comment(id: int):
     if request.method == "GET":
-        conn = sqlite3.connect(config.DATA + "data.db")
+        conn = create_engine(config.DATA + "data.db")
         comment = conn.execute(
-            f"select rowid, message, author, sent from comments where rowid = {id} and parent_id is null order by sent desc"
+            text("select rowid, message, author, sent from comments where rowid = :id and parent_id is null order by sent desc"), id=id
         ).fetchall()
 
         if len(comment) == 0:
@@ -157,7 +161,7 @@ def get_comment(id: int):
         author = utilities.get_user.from_id(comment[2])
 
         replies = conn.execute(
-            f"select rowid, message, author, sent from comments where parent_id = {id} order by sent desc"
+            text("select rowid, message, author, sent from comments where parent_id = :id order by sent desc"), id=id
         ).fetchall()
         reps = []
         for reply in replies:
@@ -193,9 +197,9 @@ def get_comment(id: int):
             "replies": reps,
         }
     elif request.method == "DELETE":
-        conn = sqlite3.connect(config.DATA + "data.db")
+        conn = create_engine(config.DATA + "data.db")
         comment = conn.execute(
-            f"select rowid, message, author, sent from comments where rowid = {id} and parent_id is null order by sent desc"
+            text("select rowid, message, author, sent from comments where rowid = :id and parent_id is null order by sent desc"), id=id
         ).fetchall()
 
         if len(comment) == 0:
@@ -218,8 +222,8 @@ def get_comment(id: int):
             conn.close()
             return "This isn't your comment.", 403
 
-        conn.execute(f"delete from comments where rowid = {id}")
-        conn.execute(f"delete from comments where parent_id = {id}")
+        conn.execute(text("delete from comments where rowid = :id"), id=id)
+        conn.execute(text("delete from comments where parent_id = :id"), id=id)
 
         conn.commit()
         conn.close()

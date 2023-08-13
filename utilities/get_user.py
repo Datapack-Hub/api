@@ -8,7 +8,7 @@ import sqlite3
 
 
 def from_username(self: str):
-    conn = sqlite3.connect(config.DATA + "data.db")
+    conn = create_engine(config.DATA + "data.db")
 
     # Select
     u = conn.execute(
@@ -28,7 +28,7 @@ def from_username(self: str):
 
 
 def from_id(self: int):
-    conn = sqlite3.connect(config.DATA + "data.db")
+    conn = create_engine(config.DATA + "data.db")
 
     # Select
     u = conn.execute(
@@ -48,7 +48,7 @@ def from_id(self: int):
 
 
 def from_github_id(self: int):
-    conn = sqlite3.connect(config.DATA + "data.db")
+    conn = create_engine(config.DATA + "data.db")
 
     # Select
     u = conn.execute(
@@ -68,7 +68,7 @@ def from_github_id(self: int):
 
 
 def from_discord_id(self: int):
-    conn = sqlite3.connect(config.DATA + "data.db")
+    conn = create_engine(config.DATA + "data.db")
 
     # Select
     u = conn.execute(
@@ -88,7 +88,7 @@ def from_discord_id(self: int):
 
 
 def from_token(token: str):
-    conn = sqlite3.connect(config.DATA + "data.db")
+    conn = create_engine(config.DATA + "data.db")
 
     # Select
     u = conn.execute(

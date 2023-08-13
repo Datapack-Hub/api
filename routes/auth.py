@@ -8,6 +8,7 @@ import sqlite3
 import flask
 import requests
 from flask import request
+from sqlalchemy import create_engine, text
 
 import config
 import utilities.auth_utils
@@ -111,12 +112,11 @@ def callback_dc():
 
     if not u:
         # Make account
-        conn = sqlite3.connect(config.DATA + "data.db")
+        conn = create_engine(config.DATA + "data.db")
 
         token = secrets.token_urlsafe()
-        conn.execute(
-            f'INSERT INTO users (username, role, bio, discord_id, token, profile_icon) VALUES ("{discord["username"]}", "default", "A new Datapack Hub user!", {discord["id"]}, "{token}", "https://cdn.discordapp.com/avatars/{discord["id"]}/{discord["avatar"]}.png")'
-        )
+        sql = text('INSERT INTO users (username, role, bio, discord_id, token, profile_icon) VALUES (:username, "default", "A new Datapack Hub user!", :d_id, :token, :avatar)')
+        conn.execute(sql, username=discord["username"],d_id=discord["id"],token=token,avatar=f"https://cdn.discordapp.com/avatars/{discord['id']}/{discord['avatar']}.png")
 
         resp = flask.make_response(
             flask.redirect(f"https://datapackhub.net?login=1&token={token}")
@@ -182,10 +182,11 @@ def link_discord():
         timeout=120,
     ).json()["id"]
 
-    conn = sqlite3.connect(config.DATA + "data.db")
+    conn = create_engine(config.DATA + "data.db")
     try:
         conn.execute(
-            f"update users set discord_id = {discord_id} where rowid = {usr.id};"
+            text("update users set discord_id = :id where rowid = :user;"),
+            id=discord_id, user=usr.id
         )
     except sqlite3.Error:
         conn.rollback()
@@ -227,10 +228,11 @@ def link_github():
         timeout=120,
     ).json()
 
-    conn = sqlite3.connect(config.DATA + "data.db")
+    conn = create_engine(config.DATA + "data.db")
     try:
         conn.execute(
-            f"update users set github_id = {github['id']} where rowid = {usr.id};"
+            text("update users set github_id = :g_id where rowid = :id;"),
+            g_id=github['id'], id=usr.id
         )
     except sqlite3.Error:
         conn.rollback()
