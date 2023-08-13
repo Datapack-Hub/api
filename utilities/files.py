@@ -32,6 +32,7 @@ def upload_zipfile(file: str, file_name: str, uploader: str, squash: bool = Fals
         "https://files.datapackhub.net/" + file_name,
         open(config.DATA + "Temporary.zip", "rb"),
         headers={"Authorization": config.FILES_TOKEN, "Author": uploader},
+        timeout=300000
     )
 
     if put.ok:
