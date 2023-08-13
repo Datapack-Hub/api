@@ -5,6 +5,7 @@
 import secrets
 import sqlite3
 from urllib.parse import quote
+import random
 
 import flask
 import requests
@@ -59,11 +60,11 @@ def callback_gh():
         # Make account
         t = util.create_user_account(github)
 
-        resp = flask.make_response(
+        response = flask.make_response(
             flask.redirect(f"https://datapackhub.net?login=1&token={t}")
         )
 
-        return resp
+        return response
     else:
         t = utilities.auth_utils.get_user_token(github["id"])
 
@@ -73,11 +74,11 @@ def callback_gh():
                 500,
             )
 
-        resp = flask.make_response(
+        response = flask.make_response(
             flask.redirect(f"https://datapackhub.net?login=1&token={t}")
         )
 
-        return resp
+        return response
 
 
 @auth.route("/callback/discord")
@@ -119,22 +120,31 @@ def callback_dc():
         sql = text(
             'INSERT INTO users (username, role, bio, discord_id, token, profile_icon) VALUES (:username, "default", "A new Datapack Hub user!", :d_id, :token, :avatar)'
         )
+
+        check = conn.execute(
+            f"select username from users where username = '{discord['username']}';"
+        ).fetchall()
+        if len(check) == 0:
+            username = discord["username"]
+        else:
+            username = discord["username"] + str(random.randint(1, 99999))
+
         conn.execute(
             sql,
-            username=discord["username"],
+            username=username,
             d_id=discord["id"],
             token=token,
             avatar=f"https://cdn.discordapp.com/avatars/{discord['id']}/{discord['avatar']}.png",
         )
 
-        resp = flask.make_response(
+        response = flask.make_response(
             flask.redirect(f"https://datapackhub.net?login=1&token={token}")
         )
 
         conn.commit()
         conn.close()
 
-        return resp
+        return response
     else:
         t = utilities.auth_utils.get_user_token_from_discord_id(discord["id"])
 
@@ -144,11 +154,11 @@ def callback_dc():
                 500,
             )
 
-        resp = flask.make_response(
+        response = flask.make_response(
             flask.redirect(f"https://datapackhub.net?login=1&token={t}")
         )
 
-        return resp
+        return response
 
 
 @auth.route("/link/discord", methods=["put"])

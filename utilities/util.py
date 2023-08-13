@@ -1,10 +1,10 @@
 from functools import lru_cache
 import secrets
-import sqlite3
 
 from sqlalchemy import Engine, create_engine, text
 import config
 import utilities.post as post
+import random
 
 
 def create_user_account(
@@ -14,12 +14,20 @@ def create_user_account(
 
     token = secrets.token_urlsafe()
 
+    check = conn.execute(
+        f"select username from users where username = '{github_data['login']}';"
+    ).fetchall()
+    if len(check) == 0:
+        username = github_data["login"]
+    else:
+        username = github_data["login"] + str(random.randint(1, 99999))
+
     # Create user entry in database
     conn.execute(
         text(
             'INSERT INTO users (username, role, bio, github_id, token, profile_icon) VALUES (:g_login, "default", "A new Datapack Hub user!", :id, :token, :avatar)'
         ),
-        g_login=github_data["login"],
+        g_login=username,
         id=github_data["id"],
         token=token,
         avatar=github_data["avatar_url"],
