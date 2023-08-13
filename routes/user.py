@@ -359,7 +359,7 @@ def follow(id):
     fol = conn.execute(
         f"select * from follows where follower = {follower.id} and followed = {follower.id};"
     ).fetchall()
-    if len(fol == 0):
+    if len(fol) == 0:
         try:
             conn.execute(f"insert into follows values ({follower.id}, {followed.id});")
         except:
