@@ -2,6 +2,7 @@
 **Projects API endpoints**
 """
 
+import bleach
 import math
 import secrets
 import sqlite3
@@ -314,7 +315,7 @@ def new_project():
         return "Missing field", 400
 
     if data["type"] not in config.valid_types:
-        return f"Type {data['type']} is not a valid type! Acceptable content types: {config.valid_types}"
+        return f"Type {bleach.clean(data['type'])} is not a valid type! Acceptable content types: {config.valid_types}"
 
     if len(data["title"]) > 50:
         return "Title exceeds max length!", 400
