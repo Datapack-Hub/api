@@ -21,7 +21,7 @@ def authenticate(auth: str):
 
     token = auth[6:]
 
-    conn = sqlite3.connect(config.DATA + "data.db")
+    conn = create_engine(config.DATA + "data.db")
 
     u = conn.execute(
         f"select username, rowid, role, bio, profile_icon, badges from users where token = '{token}'"
@@ -39,7 +39,7 @@ def authenticate(auth: str):
 
 
 def get_user_token(github_id: int):
-    conn = sqlite3.connect(config.DATA + "data.db")
+    conn = create_engine(config.DATA + "data.db")
 
     # Select
     u = conn.execute(
@@ -55,7 +55,7 @@ def get_user_token(github_id: int):
 
 
 def get_user_token_from_discord_id(discord: int):
-    conn = sqlite3.connect(config.DATA + "data.db")
+    conn = create_engine(config.DATA + "data.db")
 
     # Select
     u = conn.execute(f"select token from users where discord_id = {discord}").fetchone()
@@ -69,7 +69,7 @@ def get_user_token_from_discord_id(discord: int):
 
 
 def log_user_out(id: int):
-    conn = sqlite3.connect(config.DATA + "data.db")
+    conn = create_engine(config.DATA + "data.db")
 
     token = secrets.token_urlsafe()
 

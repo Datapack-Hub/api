@@ -15,6 +15,7 @@ import bleach
 import requests
 from flask import Blueprint, request
 from flask_cors import CORS
+from sqlalchemy import create_engine, text
 
 import config
 import gen_example_data
@@ -94,7 +95,7 @@ def console():
 
         # Run SQLITE command
         try:
-            conn = sqlite3.connect(config.DATA + "data.db")
+            conn = create_engine(config.DATA + "data.db")
             conn.execute(sql_command)
             conn.commit()
             conn.close()
@@ -111,7 +112,7 @@ def console():
 
         # Run SQLITE command
         try:
-            conn = sqlite3.connect(config.DATA + "data.db")
+            conn = create_engine(config.DATA + "data.db")
             out = conn.execute(sql_command).fetchall()
             conn.commit()
             conn.close()
@@ -128,9 +129,9 @@ def console():
 
         # Run SQLITE command
         try:
-            conn = sqlite3.connect(config.DATA + "data.db")
+            conn = create_engine(config.DATA + "data.db")
             out = conn.execute(
-                f"select username, role, rowid from users where trim(username) like '{args[0]}'"
+                text("select username, role, rowid from users where trim(username) like :uname"), uname=args[0]
             ).fetchall()
             conn.commit()
             conn.close()
@@ -179,10 +180,10 @@ def console():
             return "You can't run this command!", 403
         if len(args) < 3:
             return "Missing values!", 400
-        conn = sqlite3.connect(config.DATA + "data.db")
+        conn = create_engine(config.DATA + "data.db")
         try:
             conn.execute(
-                f"INSERT INTO notifs VALUES ('{args[1]}', '{args[2]}', False, {args[0]}, '{args[3]}')"
+                text("INSERT INTO notifs VALUES (:arg1, :arg2, False, :arg0, :arg3)"), arg0=args[0], arg1=args[1], arg2=args[2], arg3=args[3]
             )
         except sqlite3.Error as er:
             return "Error: " + " ".join(er.args), 400
@@ -226,10 +227,10 @@ def ban(user: int):
         current = time.time()
         expiry = current + (86400 * dat["expires"])
 
-        conn = sqlite3.connect(config.DATA + "data.db")
+        conn = create_engine(config.DATA + "data.db")
         try:
             conn.execute(
-                f"insert into banned_users values ({user}, {expiry}, '{util.clean(dat['message'])}')"
+                text("insert into banned_users values (:user, :expiry, '{util.clean(dat['message'])}')"), user=user, expiry=expiry
             )
         except sqlite3.Error as er:
             return " ".join(er.args)
@@ -246,9 +247,9 @@ def ban(user: int):
             return "worked fine"
     else:
         dat = request.get_json(force=True)
-        conn = sqlite3.connect(config.DATA + "data.db")
+        conn = create_engine(config.DATA + "data.db")
         try:
-            conn.execute(f"delete from banned_users where self = {user}")
+            conn.execute(text("delete from banned_users where self = :user"), user=user)
         except sqlite3.Error as er:
             return " ".join(er.args)
         else:
@@ -271,8 +272,8 @@ def user_data(id):
     ):
         return "You can't do this!", 403
 
-    conn = sqlite3.connect(config.DATA + "data.db")
-    ban_data = conn.execute(f"SELECT * FROM banned_users WHERE id = {id}").fetchall()
+    conn = create_engine(config.DATA + "data.db")
+    ban_data = conn.execute(text("SELECT * FROM banned_users WHERE id = :id"), id=id).fetchall()
 
     if len(ban_data) == 0:
         return {"banned": False, "banMessage": None, "banExpiry": None}
@@ -292,7 +293,7 @@ def queue(type: str):
     ):
         return "You can't do this!", 403
 
-    conn = sqlite3.connect(config.DATA + "data.db")
+    conn = create_engine(config.DATA + "data.db")
 
     if type == "publish":
         r = conn.execute(
@@ -363,7 +364,7 @@ def queue(type: str):
         out = []
         for item in r:
             proj = conn.execute(
-                f"select type, author, title, icon, url, description, rowid, status from projects where rowid = {item[2]}"
+                text("select type, author, title, icon, url, description, rowid, status from projects where rowid = :i2"), i2=item[2]
             ).fetchone()
 
             usr = get_user.from_id(item[1])
@@ -421,10 +422,10 @@ def change_status(proj: int):
     except KeyError:
         return "action is missing", 400
 
-    conn = sqlite3.connect(config.DATA + "data.db")
+    conn = create_engine(config.DATA + "data.db")
     project = conn.execute(
-        "select rowid, status, title, author, description, icon, url from projects where rowid = "
-        + str(proj)
+        text("select rowid, status, title, author, description, icon, url from projects where rowid = :pid"), pid=proj
+        
     ).fetchall()
 
     project = project[0]
@@ -438,18 +439,16 @@ def change_status(proj: int):
     if data["action"] == "publish":
         if project[1] != "live":
             conn.execute(
-                "update projects set status = 'live' where rowid = " + str(proj)
+                text("update projects set status = 'live' where rowid = :pid"),pid=proj
             )
             conn.execute(
-                f"INSERT INTO notifs VALUES ('Published {project[2]}', 'Your project, {project[2]}, was published by a staff member.', False, 'default', {usr.id})"
+                text("INSERT INTO notifs VALUES (:title, :msg, False, 'default', :uid)"), title=f'Published {project[2]}', msg=f'Your project, {project[2]}, was published by a staff member.', uid=usr.id
             )
             followers = conn.execute(
-                f"select follower from follows where followed = {usr.id}"
+                text("select follower from follows where followed = :uid"),uid=usr.id
             ).fetchall()
             for i in followers:
-                conn.execute(
-                    f"INSERT INTO notifs VALUES ('{usr.username} posted a project!', '[{usr.username}](https://datapackhub.net/user/{usr.username}) just posted a new project: [{util.clean(project[2])}](https://datapackhub.net/project/{project[6]})', False,  'default', {i[0]})"
-                )
+                util.send_notif(conn, f'{usr.username} posted a project!', f'[{usr.username}](https://datapackhub.net/user/{usr.username}) just posted a new project: [{util.clean(project[2])}](https://datapackhub.net/project/{project[6]})', i[0])
             conn.commit()
             conn.close()
             utilities.post.approval(
@@ -465,11 +464,11 @@ def change_status(proj: int):
             return "already live!", 400
     elif data["action"] == "delete":
         conn.execute(
-            "update projects set status = 'deleted' where rowid = " + str(proj)
+            text("update projects set status = 'deleted' where rowid = :id"), id=proj
         )
         if "message" in data:
             conn.execute(
-                f"INSERT INTO notifs VALUES ('Project {project[2]} deleted', 'Your project was deleted for the following reason: {util.clean(data['message'])}', False, 'important', {project[3]})"
+                text("INSERT INTO notifs VALUES (:title, :msg, False, 'important', :author)"), title=f"Project {project[2]} deleted', msg=f'Your project was deleted for the following reason: {util.clean(data['message'])}", author=project[3]
             )
         utilities.post.deletion(
             user.username,
@@ -545,7 +544,7 @@ def dismiss(proj: int):
         return "Token Expired", 401
 
     # Get project.
-    conn = sqlite3.connect(config.DATA + "data.db")
+    conn = create_engine(config.DATA + "data.db")
     project = conn.execute(
         "select rowid, status, author, mod_message from projects where rowid = "
         + str(proj)
@@ -581,7 +580,7 @@ def remove_report(id: int):
     ):
         return "You can't do this!", 403
 
-    conn = sqlite3.connect(config.DATA + "data.db")
+    conn = create_engine(config.DATA + "data.db")
 
     rep = conn.execute(f"select rowid from reports where rowid = {str(id)}").fetchall()
     if len(rep) == 0:

@@ -23,7 +23,7 @@ CORS(versions)
 @versions.route("/project/<int:id>")
 def project(id: int):
     # Select all versions where the project is this one
-    conn = sqlite3.connect(f"{config.DATA}data.db")
+    conn = create_engine(f"{config.DATA}data.db")
     v = conn.execute(
         f"SELECT * FROM versions WHERE project = {str(id)} ORDER BY rowid DESC"
     ).fetchall()
@@ -47,7 +47,7 @@ def project(id: int):
 
 @versions.route("/project/url/<string:id>")
 def project_from_str(id: str):
-    conn = sqlite3.connect(f"{config.DATA}data.db")
+    conn = create_engine(f"{config.DATA}data.db")
     # Get the project
     p = conn.execute(
         f"SELECT rowid FROM projects WHERE url = '{util.clean(id)}';"
@@ -89,7 +89,7 @@ def code(id: int, code: str):
             return "Token expired!", 401
 
         if util.user_owns_project(id, usr.id):
-            conn = sqlite3.connect(f"{config.DATA}data.db")
+            conn = create_engine(f"{config.DATA}data.db")
             try:
                 conn.execute(
                     f"DELETE FROM versions WHERE version_code = '{code}' AND project = {id}"
@@ -104,7 +104,7 @@ def code(id: int, code: str):
             return "Not your version! :P", 403
     else:
         # Select all versions where the project is this one
-        conn = sqlite3.connect(f"{config.DATA}data.db")
+        conn = create_engine(f"{config.DATA}data.db")
         v = conn.execute(
             f"SELECT * FROM versions WHERE version_code = '{code}' AND project = {id} ORDER BY rowid DESC"
         ).fetchone()
@@ -153,7 +153,7 @@ def new(project: int):
 
     # now do the stuff
     data = request.get_json(force=True)
-    conn = sqlite3.connect(f"{config.DATA}data.db")
+    conn = create_engine(f"{config.DATA}data.db")
 
     try:
         data["name"]

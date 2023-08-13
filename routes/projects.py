@@ -33,7 +33,7 @@ def after(resp):
     return resp
 
 
-def parse_project(output: tuple, conn: sqlite3.Connection):
+def parse_project(output: tuple, conn: create_engineion):
     this_user = utilities.auth_utils.authenticate(request.headers.get("Authorization"))
 
     latest_version = conn.execute(
@@ -98,7 +98,7 @@ def search():
 
     page = request.args.get("page", 1)
 
-    conn = sqlite3.connect(config.DATA + "data.db")
+    conn = create_engine(config.DATA + "data.db")
     if sort == "updated":
         r = conn.execute(
             f"select rowid, * from projects where status = 'live' and trim(title) LIKE '%{util.clean(query)}%' ORDER BY updated DESC"
@@ -140,7 +140,7 @@ def query():
     sort = request.args.get("sort", "updated")
 
     # SQL stuff
-    conn = sqlite3.connect(config.DATA + "data.db")
+    conn = create_engine(config.DATA + "data.db")
     if sort == "updated":
         r = conn.execute(
             "select rowid, * from projects where status = 'live' ORDER BY updated DESC"
@@ -171,7 +171,7 @@ def query():
 
 @projects.route("/id/<int:id>")
 def get_proj(id):
-    conn = sqlite3.connect(config.DATA + "data.db")
+    conn = create_engine(config.DATA + "data.db")
 
     this_user = utilities.auth_utils.authenticate(request.headers.get("Authorization"))
     if this_user == 32:
@@ -211,7 +211,7 @@ def get_proj(id):
 @projects.route("/get/<string:slug>")
 def get_project(slug: str):
     # connect to the thingy
-    conn = sqlite3.connect(config.DATA + "data.db")
+    conn = create_engine(config.DATA + "data.db")
 
     # do we need auth? no
     # do we have auth? yes
@@ -253,7 +253,7 @@ def get_project(slug: str):
 def random():
     count = request.args.get("count", 1)
 
-    conn = sqlite3.connect(config.DATA + "data.db")
+    conn = create_engine(config.DATA + "data.db")
     proj = conn.execute(
         f"SELECT rowid, * FROM projects where status = 'live' ORDER BY RANDOM() LIMIT {count}"
     ).fetchall()
@@ -270,7 +270,7 @@ def random():
 
 @projects.route("/count")
 def count():
-    conn = sqlite3.connect(config.DATA + "data.db")
+    conn = create_engine(config.DATA + "data.db")
     x = (
         conn.execute("select * from projects where status = 'live'")
         .fetchall()
@@ -337,7 +337,7 @@ def new_project():
         )
 
     # Update database
-    conn = sqlite3.connect(config.DATA + "data.db")
+    conn = create_engine(config.DATA + "data.db")
 
     cat_str = ",".join(data["category"])
 
@@ -453,7 +453,7 @@ def edit(id: int):
         )
 
     # Update database
-    conn = sqlite3.connect(config.DATA + "data.db")
+    conn = create_engine(config.DATA + "data.db")
 
     cat_str = ",".join(data["category"])
 
@@ -505,7 +505,7 @@ def publish(id):
     elif user == 33:
         return "Token expired!", 401
 
-    conn = sqlite3.connect(config.DATA + "data.db")
+    conn = create_engine(config.DATA + "data.db")
     proj = conn.execute(
         "select author, status, title, description, icon, url from projects where rowid = "
         + str(id)
@@ -560,7 +560,7 @@ def draft(id):
     elif user == 33:
         return "Token expired!", 401
 
-    conn = sqlite3.connect(config.DATA + "data.db")
+    conn = create_engine(config.DATA + "data.db")
     proj = conn.execute(
         "select author, status from projects where rowid = " + str(id)
     ).fetchall()
@@ -596,7 +596,7 @@ def report(id):
     elif user == 33:
         return "Token expired!", 401
 
-    conn = sqlite3.connect(config.DATA + "data.db")
+    conn = create_engine(config.DATA + "data.db")
     proj = conn.execute(
         "select author from projects where rowid = " + str(id)
     ).fetchall()
@@ -632,7 +632,7 @@ def remove(id):
     elif user == 33:
         return "Token expired!", 401
 
-    conn = sqlite3.connect(config.DATA + "data.db")
+    conn = create_engine(config.DATA + "data.db")
     proj = conn.execute(
         "select author, status from projects where rowid = " + str(id)
     ).fetchall()
@@ -662,7 +662,7 @@ def download(id):
     if tok != "ThisIsVeryLegitComeFromCDNNotSpoofedBroTrustMe12":
         return "This is a private route!", 403
 
-    conn = sqlite3.connect(config.DATA + "data.db")
+    conn = create_engine(config.DATA + "data.db")
     proj = conn.execute(
         "select downloads from projects where rowid = " + str(id)
     ).fetchall()
@@ -700,7 +700,7 @@ def feature(id):
         return "Expiry parameter missing", 400
 
     # Validate project
-    conn = sqlite3.connect(config.DATA + "data.db")
+    conn = create_engine(config.DATA + "data.db")
     proj = conn.execute(
         "select author, status, title, url from projects where rowid = " + str(id)
     ).fetchall()
@@ -737,7 +737,7 @@ def feature(id):
 
 @projects.route("/featured")
 def featured():
-    conn = sqlite3.connect(config.DATA + "data.db")
+    conn = create_engine(config.DATA + "data.db")
     proj = conn.execute(
         "SELECT rowid, * FROM projects where status = 'live' and featured_until > 0"
     ).fetchall()
