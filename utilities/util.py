@@ -61,7 +61,9 @@ def get_user_ban_data(id: int):
 def user_owns_project(project: int, author: int):
     conn = create_engine(config.DATA + "data.db")
     proj = conn.execute(
-        text("select rowid from projects where rowid = :project and author = :author"), project=project, author=author
+        text("select rowid from projects where rowid = :project and author = :author"),
+        project=project,
+        author=author,
     ).fetchall()
     conn.close()
     return len(proj) == 1

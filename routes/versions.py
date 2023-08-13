@@ -276,7 +276,7 @@ def new(project: int):
                 )
 
     v = conn.execute(
-        text("SELECT * FROM versions WHERE version_code = :vc"), vc=data['version_code']
+        text("SELECT * FROM versions WHERE version_code = :vc"), vc=data["version_code"]
     ).fetchone()
 
     o = {
@@ -291,7 +291,9 @@ def new(project: int):
         o["resource_pack_download"]: v[3]
 
     conn.execute(
-        text("update projects set updated = :updated where rowid = :id;"), updated=str(int(time.time())), id=project
+        text("update projects set updated = :updated where rowid = :id;"),
+        updated=str(int(time.time())),
+        id=project,
     )
 
     conn.commit()
