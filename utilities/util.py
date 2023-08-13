@@ -5,18 +5,21 @@ import config
 import utilities.post as post
 import random
 
+
 def create_user_account(
     ghubdata: dict,
 ):
     conn = sqlite3.connect(config.DATA + "data.db")
 
     token = secrets.token_urlsafe()
-    
-    check = conn.execute(f"select username from users where username = '{ghubdata['login']}';").fetchall()
+
+    check = conn.execute(
+        f"select username from users where username = '{ghubdata['login']}';"
+    ).fetchall()
     if len(check) == 0:
-        username = ghubdata['login']
+        username = ghubdata["login"]
     else:
-        username = ghubdata['login'] + str(random.randint(1,99999))
+        username = ghubdata["login"] + str(random.randint(1, 99999))
 
     # Create user entry in database
     conn.execute(
