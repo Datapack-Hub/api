@@ -12,6 +12,7 @@ import traceback
 import regex as re
 from flask import Blueprint, request
 from flask_cors import CORS
+from sqlalchemy import Engine, create_engine, text
 
 import config
 import utilities.auth_utils
@@ -33,11 +34,12 @@ def after(resp):
     return resp
 
 
-def parse_project(output: tuple, conn: create_engineion):
+def parse_project(output: tuple, conn: Engine):
     this_user = utilities.auth_utils.authenticate(request.headers.get("Authorization"))
 
     latest_version = conn.execute(
-        f"SELECT * FROM versions WHERE project = {output[0]} ORDER BY rowid DESC"
+        text("SELECT * FROM versions WHERE project = :out0 ORDER BY rowid DESC"),
+        out0=output[0],
     ).fetchall()
 
     user = get_user.from_id(output[2])
@@ -101,11 +103,17 @@ def search():
     conn = create_engine(config.DATA + "data.db")
     if sort == "updated":
         r = conn.execute(
-            f"select rowid, * from projects where status = 'live' and trim(title) LIKE '%{util.clean(query)}%' ORDER BY updated DESC"
+            text(
+                "select rowid, * from projects where status = 'live' and trim(title) LIKE :query ORDER BY updated DESC"
+            ),
+            query=f"%{util.clean(query)}%",
         ).fetchall()
     elif sort == "downloads":
         r = conn.execute(
-            f"select rowid, * from projects where status = 'live' and trim(title) LIKE '%{util.clean(query)}%' ORDER BY downloads DESC"
+            text(
+                "select rowid, * from projects where status = 'live' and trim(title) LIKE :query ORDER BY downloads DESC"
+            ),
+            query=f"%{util.clean(query)}%",
         ).fetchall()
     else:
         return "Unknown sorting method.", 400
@@ -179,7 +187,9 @@ def get_proj(id):
     elif this_user == 33:
         return "Token expired!", 401
 
-    proj = conn.execute(f"select rowid, * from projects where rowid = {id}").fetchone()
+    proj = conn.execute(
+        text("select rowid, * from projects where rowid = :id"), id=id
+    ).fetchone()
 
     if not proj:
         return "Not found", 404
@@ -225,7 +235,7 @@ def get_project(slug: str):
 
     # gimme dat project and gtfo
     proj = conn.execute(
-        f"select rowid, * from projects where url = '{util.clean(slug)}'"
+        text("select rowid, * from projects where url = :url"), url=util.clean(slug)
     ).fetchone()
 
     # hey u didn't give me a project, hate u
@@ -255,7 +265,10 @@ def random():
 
     conn = create_engine(config.DATA + "data.db")
     proj = conn.execute(
-        f"SELECT rowid, * FROM projects where status = 'live' ORDER BY RANDOM() LIMIT {count}"
+        text(
+            "SELECT rowid, * FROM projects where status = 'live' ORDER BY RANDOM() LIMIT :count"
+        ),
+        count=count,
     ).fetchall()
 
     out = []
@@ -343,7 +356,8 @@ def new_project():
 
     if "icon" in data and data["icon"]:
         conn.execute(
-            f"""insert into projects(
+            text(
+                """insert into projects(
                     type, 
                     author, 
                     title, 
@@ -355,21 +369,33 @@ def new_project():
                     uploaded,
                     updated,
                     icon) values (
-                        '{util.clean(data['type'])}', 
-                        {user.id}, 
-                        '{util.clean(data['title'])}', 
-                        '{util.clean(data['description'])}', 
-                        '{util.clean(data['body'])}',
-                        '{util.clean(cat_str)}', 
-                        '{util.clean(data['url'])}', 
+                        :type, 
+                        :id, 
+                        :title, 
+                        :desc, 
+                        :body,
+                        :categories, 
+                        :url, 
                         'unpublished',
-                        {str(int(time.time()))},
-                        {str(int(time.time()))},
-                        '{icon}')"""
+                        :uploaded,
+                        :updated,
+                        :icon)"""
+            ),
+            type=util.clean(data["type"]),
+            id=user.id,
+            title=util.clean(data["title"]),
+            desc=util.clean(data["description"]),
+            body=util.clean(data["body"]),
+            categories=util.clean(cat_str),
+            url=util.clean(data["url"]),
+            uploaded=str(int(time.time())),
+            updated=str(int(time.time())),
+            icon=icon,
         )
     else:
         conn.execute(
-            f"""insert into projects(
+            text(
+                """insert into projects(
                     type, 
                     author, 
                     title, 
@@ -380,16 +406,26 @@ def new_project():
                     status,
                     uploaded,
                     updated) values (
-                        '{util.clean(data['type'])}', 
-                        {user.id}, 
-                        '{util.clean(data['title'])}', 
-                        '{util.clean(data['description'])}', 
-                        '{util.clean(data['body'])}',
-                        '{util.clean(cat_str)}', 
-                        '{util.clean(data['url'])}', 
-                        'draft',
-                        {str(int(time.time()))},
-                        {str(int(time.time()))})"""
+                        :type, 
+                        :id, 
+                        :title, 
+                        :desc, 
+                        :body,
+                        :categories, 
+                        :url, 
+                        'unpublished',
+                        :uploaded,
+                        :updated)"""
+            ),
+            type=util.clean(data["type"]),
+            id=user.id,
+            title=util.clean(data["title"]),
+            desc=util.clean(data["description"]),
+            body=util.clean(data["body"]),
+            categories=util.clean(cat_str),
+            url=util.clean(data["url"]),
+            uploaded=str(int(time.time())),
+            updated=str(int(time.time())),
         )
 
     conn.commit()
@@ -460,22 +496,33 @@ def edit(id: int):
     try:
         if "icon" in data and data["icon"]:
             conn.execute(
-                f"""update projects set
-                title = '{util.clean(data["title"])}',
-                description = '{util.clean(data["description"])}',
-                body = '{util.clean(data["body"])}',
-                category = '{util.clean(cat_str)}',
-                icon = '{icon}' 
-                where rowid = {id}"""
+                text("""update projects set
+                title = :title,
+                description = :desc,
+                body = :body,
+                category = :cat,
+                icon = :icon 
+                where rowid = :id"""),
+                title=util.clean(data["title"]),
+                desc=util.clean(data["description"]),
+                body=util.clean(data["body"]),
+                cat=util.clean(cat_str),
+                icon=icon,
+                id=id
             )
         else:
             conn.execute(
-                f"""update projects set
-                title = '{util.clean(data["title"])}',
-                description = '{util.clean(data["description"])}',
-                body = '{util.clean(data["body"])}',
-                category = '{util.clean(cat_str)}' 
-                where rowid = {id}"""
+                text("""update projects set
+                title = :title,
+                description = :desc,
+                body = :body,
+                category = :cat,
+                where rowid = :id"""), 
+                title=util.clean(data["title"]),
+                desc=util.clean(data["description"]),
+                body=util.clean(data["body"]),
+                cat=util.clean(cat_str),
+                id=id
             )
     except sqlite3.Error:
         conn.rollback()
@@ -507,8 +554,10 @@ def publish(id):
 
     conn = create_engine(config.DATA + "data.db")
     proj = conn.execute(
-        "select author, status, title, description, icon, url from projects where rowid = "
-        + str(id)
+        text(
+            "select author, status, title, description, icon, url from projects where rowid = :id"
+        ),
+        id=id,
     ).fetchall()
 
     if len(proj) == 0:
@@ -522,7 +571,8 @@ def publish(id):
     # now onto the fun stuff >:)
     if proj[1] == "unpublished":
         conn.execute(
-            "update projects set status = 'publish_queue' where rowid = " + str(id)
+            text("update projects set status = 'publish_queue' where rowid = :id"),
+            id=id,
         )
 
         conn.commit()
@@ -530,14 +580,16 @@ def publish(id):
         utilities.post.in_queue(proj[2], proj[3], proj[4], proj[0], proj[5])
         return "The project is now in the publish queue.", 200
     elif proj[1] == "draft":
-        conn.execute("update projects set status = 'live' where rowid = " + str(id))
+        conn.execute(
+            text("update projects set status = 'live' where rowid = :id"), id=id
+        )
 
         conn.commit()
         conn.close()
         return "The project is now live.", 200
     elif proj[1] == "disabled":
         conn.execute(
-            "update projects set status = 'review_queue' where rowid = " + str(id)
+            text("update projects set status = 'review_queue' where rowid = :id"), id=id
         )
 
         conn.commit()
@@ -562,7 +614,7 @@ def draft(id):
 
     conn = create_engine(config.DATA + "data.db")
     proj = conn.execute(
-        "select author, status from projects where rowid = " + str(id)
+        text("select author, status from projects where rowid = :id"), id=id
     ).fetchall()
 
     if len(proj) == 0:
@@ -575,7 +627,9 @@ def draft(id):
 
     # now onto the fun stuff >:)
     if proj[1] == "live":
-        conn.execute("update projects set status = 'draft' where rowid = " + str(id))
+        conn.execute(
+            text("update projects set status = 'draft' where rowid = :id"), id=id
+        )
 
         conn.commit()
         conn.close()
@@ -598,7 +652,7 @@ def report(id):
 
     conn = create_engine(config.DATA + "data.db")
     proj = conn.execute(
-        "select author from projects where rowid = " + str(id)
+        text("select author from projects where rowid = :id"), id=id
     ).fetchall()
 
     if len(proj) == 0:
@@ -613,7 +667,10 @@ def report(id):
         return "Please provide a `message` field."
     else:
         conn.execute(
-            f"insert into reports values ('{util.clean(report_data['message'])}', {user.id}, {id})"
+            text("insert into reports values (:msg, :uid, :pid)"),
+            msg=util.clean(report_data["message"]),
+            uid=user.id,
+            pid=id,
         )
         conn.commit()
         conn.close()
@@ -634,7 +691,7 @@ def remove(id):
 
     conn = create_engine(config.DATA + "data.db")
     proj = conn.execute(
-        "select author, status from projects where rowid = " + str(id)
+        text("select author, status from projects where rowid = :id"), id=id
     ).fetchall()
 
     if len(proj) == 0:
@@ -647,7 +704,9 @@ def remove(id):
 
     # now onto the fun stuff >:)
     if proj[1] != "deleted":
-        conn.execute("update projects set status = 'deleted' where rowid = " + str(id))
+        conn.execute(
+            text("update projects set status = 'deleted' where rowid = :id"), id=id
+        )
 
         conn.commit()
         conn.close()
@@ -664,14 +723,14 @@ def download(id):
 
     conn = create_engine(config.DATA + "data.db")
     proj = conn.execute(
-        "select downloads from projects where rowid = " + str(id)
+        text("select downloads from projects where rowid = :id"), id=id
     ).fetchall()
 
     if len(proj) == 0:
         return "Project not found.", 404
 
     conn.execute(
-        "update projects set downloads = downloads + 1 where rowid = " + str(id)
+        text("update projects set downloads = downloads + 1 where rowid = :id"), id=id
     )
 
     conn.commit()
@@ -702,7 +761,7 @@ def feature(id):
     # Validate project
     conn = create_engine(config.DATA + "data.db")
     proj = conn.execute(
-        "select author, status, title, url from projects where rowid = " + str(id)
+        text("select author, status, title, url from projects where rowid = :id"), id=id
     ).fetchall()
 
     if len(proj) == 0:
@@ -719,7 +778,9 @@ def feature(id):
 
     try:
         conn.execute(
-            f"UPDATE projects SET featured_until = {str(expiry)} WHERE rowid = {str(id)}"
+            text("UPDATE projects SET featured_until = :expiry WHERE rowid = :id"),
+            expiry=expiry,
+            id=id,
         )
     except sqlite3.Error:
         conn.rollback()
@@ -727,7 +788,12 @@ def feature(id):
         return "There was an error."
     else:
         conn.execute(
-            f"INSERT INTO notifs VALUES ('Project Featured', 'Your project, [{proj[2]}](https://datapackhub.net/project/{proj[3]}), was featured by a moderator for {dat['expires']} days. During this time, it will be visible on the front page and higher up in search results. Congrats! :D', False,  'announcement', {proj[0]})"
+            text(
+                "INSERT INTO notifs VALUES (:title, :msg, False,  'announcement', :id)"
+            ),
+            title="Project Featured",
+            msg=f"Your project, [{proj[2]}](https://datapackhub.net/project/{proj[3]}), was featured by a moderator for {dat['expires']} days. During this time, it will be visible on the front page and higher up in search results. Congrats! :D",
+            id=proj[0],
         )
         conn.commit()
         conn.close()
@@ -746,7 +812,8 @@ def featured():
     for i in proj:
         if time.time() > i[14]:
             conn.execute(
-                f"update projects set featured_until = null where rowid = {i[0]}"
+                text("update projects set featured_until = null where rowid = :id"),
+                id=i[0],
             )
             conn.commit()
         else:
