@@ -367,6 +367,9 @@ def follow(id):
             conn.close()
             return "Something went wrong.", 500
         else:
+            conn.execute(
+                f"INSERT INTO notifs VALUES ('New follower', '[{follower.username}](https://datapackhub.net/user/{follower.username}) followed you!', False,  'default', {followed.id})"
+            )
             conn.commit()
             conn.close()
             return "Followed user!", 200
