@@ -75,4 +75,4 @@ jobs:
           pip install bandit 
       - name: Run bandit
         run: |
-          bandit . -r -s=B608
+          bandit . -r
