@@ -124,7 +124,8 @@ def callback_dc():
         )
 
         check = conn.execute(
-            f"select username from users where username = '{discord['username']}';"
+            text("select username from users where username = :dis_uname;"),
+            dis_uname=discord['username']
         ).fetchall()
         if len(check) == 0:
             username = discord["username"]

@@ -15,7 +15,8 @@ def create_user_account(
     token = secrets.token_urlsafe()
 
     check = conn.execute(
-        f"select username from users where username = '{github_data['login']}';"
+        text("select username from users where username = :login;"),
+        login=github_data['login']
     ).fetchall()
     if len(check) == 0:
         username = github_data["login"]
