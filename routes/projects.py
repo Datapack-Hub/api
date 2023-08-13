@@ -192,7 +192,7 @@ def get_proj(id):
     ):
         if not this_user:
             return "Not found", 404
-        if proj[1] != this_user.id and this_user.role not in ["admin", "moderator"]:
+        if proj[2] != this_user.id and this_user.role not in ["admin", "moderator"]:
             return "Not found", 404
 
     try:
@@ -234,7 +234,7 @@ def get_project(slug: str):
     if proj[8] in ["disabled", "draft", "unpublished", "review_queue", "publish_queue"]:
         if not this_user or this_user == 31:
             return "Not found", 404
-        if proj[1] != this_user.id and this_user.role not in ["admin", "moderator"]:
+        if proj[2] != this_user.id and this_user.role not in ["admin", "moderator"]:
             return "Not found", 404
 
     try:
