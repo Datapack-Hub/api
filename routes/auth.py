@@ -4,6 +4,7 @@
 
 import secrets
 import sqlite3
+import random
 
 import flask
 import requests
@@ -114,6 +115,13 @@ def callback_dc():
         conn = sqlite3.connect(config.DATA + "data.db")
 
         token = secrets.token_urlsafe()
+        
+        check = conn.execute(f"select username from users where username = '{discord['username']}';").fetchall()
+        if len(check) == 0:
+            username = discord['username']
+        else:
+            username = discord['username'] + str(random.randint(1,99999))
+        
         conn.execute(
             f'INSERT INTO users (username, role, bio, discord_id, token, profile_icon) VALUES ("{discord["username"]}", "default", "A new Datapack Hub user!", {discord["id"]}, "{token}", "https://cdn.discordapp.com/avatars/{discord["id"]}/{discord["avatar"]}.png")'
         )
