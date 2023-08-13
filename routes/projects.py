@@ -496,33 +496,37 @@ def edit(id: int):
     try:
         if "icon" in data and data["icon"]:
             conn.execute(
-                text("""update projects set
+                text(
+                    """update projects set
                 title = :title,
                 description = :desc,
                 body = :body,
                 category = :cat,
                 icon = :icon 
-                where rowid = :id"""),
+                where rowid = :id"""
+                ),
                 title=util.clean(data["title"]),
                 desc=util.clean(data["description"]),
                 body=util.clean(data["body"]),
                 cat=util.clean(cat_str),
                 icon=icon,
-                id=id
+                id=id,
             )
         else:
             conn.execute(
-                text("""update projects set
+                text(
+                    """update projects set
                 title = :title,
                 description = :desc,
                 body = :body,
                 category = :cat,
-                where rowid = :id"""), 
+                where rowid = :id"""
+                ),
                 title=util.clean(data["title"]),
                 desc=util.clean(data["description"]),
                 body=util.clean(data["body"]),
                 cat=util.clean(cat_str),
-                id=id
+                id=id,
             )
     except sqlite3.Error:
         conn.rollback()
