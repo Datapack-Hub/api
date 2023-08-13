@@ -70,7 +70,7 @@ def badges(id: int):
 @user.route("/staff/<role>")
 def staff(role):
     conn = sqlite3.connect(config.DATA + "data.db")
-    if not role in ["admin","moderator","helper"]:
+    if not role in ["admin", "moderator", "helper"]:
         return "Role has to be staff role", 400
     list = conn.execute(
         f"select username, rowid, bio, profile_icon from users where role = '{util.clean(role)}'"
@@ -100,7 +100,7 @@ def get_user(username):
     u = utilities.get_user.from_username(username)
     if not u:
         return "User does not exist", 404
-    
+
     return_data = {
         "username": u.username,
         "id": u.id,
@@ -109,21 +109,23 @@ def get_user(username):
         "profile_icon": u.profile_icon,
         "badges": u.badges,
     }
-    
+
     if request.headers.get("Authorization"):
         usr = utilities.auth_utils.authenticate(request.headers.get("Authorization"))
         if usr == 32:
             return "Please make sure authorization type = Basic", 400
         if usr == 33:
             return "Token Expired", 401
-        
+
         conn = sqlite3.connect(config.DATA + "data.db")
-        followed = conn.execute(f"select * from followers where follower = {usr.id} and followed = {u.id};").fetchall()
+        followed = conn.execute(
+            f"select * from followers where follower = {usr.id} and followed = {u.id};"
+        ).fetchall()
         if len(followed) == 0:
             return_data["followed"] = False
         else:
             return_data["followed"] = True
-    
+
     return return_data
 
 
@@ -134,7 +136,7 @@ def get_user_id(id):
         u = utilities.get_user.from_id(id)
         if not u:
             return "User does not exist", 404
-        
+
         return_data = {
             "username": u.username,
             "id": u.id,
@@ -143,21 +145,25 @@ def get_user_id(id):
             "profile_icon": u.profile_icon,
             "badges": u.badges,
         }
-        
+
         if request.headers.get("Authorization"):
-            usr = utilities.auth_utils.authenticate(request.headers.get("Authorization"))
+            usr = utilities.auth_utils.authenticate(
+                request.headers.get("Authorization")
+            )
             if usr == 32:
                 return "Please make sure authorization type = Basic", 400
             if usr == 33:
                 return "Token Expired", 401
-            
+
             conn = sqlite3.connect(config.DATA + "data.db")
-            followed = conn.execute(f"select * from followers where follower = {usr.id} and followed = {u.id};").fetchall()
+            followed = conn.execute(
+                f"select * from followers where follower = {usr.id} and followed = {u.id};"
+            ).fetchall()
             if len(followed) == 0:
                 return_data["followed"] = False
             else:
                 return_data["followed"] = True
-        
+
         return return_data
     elif request.method == "PATCH":
         dat = request.get_json(force=True)
@@ -333,6 +339,7 @@ def user_projects(username):
 
         return {"count": len(out), "result": out}
 
+
 @user.route("/id/<int:id>/follow", methods=["POST"])
 def get_user_id(id):
     if not request.headers.get("Authorization"):
@@ -343,13 +350,15 @@ def get_user_id(id):
         return "Please make sure authorization type = Basic", 400
     if follower == 33:
         return "Token Expired", 401
-    
+
     followed = utilities.get_user.from_id(id)
     if not followed:
         return "User doesn't exist.", 404
-    
+
     conn = sqlite3.connect(config.DATA + "data.db")
-    fol = conn.execute(f"select * from followers where follower = {follower.id} and followed = {follower.id};").fetchall()
+    fol = conn.execute(
+        f"select * from followers where follower = {follower.id} and followed = {follower.id};"
+    ).fetchall()
     if len(fol == 0):
         try:
             conn.execute(f"insert into follows values ({follower.id}, {followed.id});")
@@ -363,7 +372,9 @@ def get_user_id(id):
             return "Followed user!", 200
     else:
         try:
-            conn.execute(f"delete from follows where follower = {follower.id} and followed = {followed.id};")
+            conn.execute(
+                f"delete from follows where follower = {follower.id} and followed = {followed.id};"
+            )
         except:
             conn.rollback()
             conn.close()

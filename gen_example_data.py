@@ -108,7 +108,7 @@ def reset(table: str):
     );
     """
     )
-    
+
     # Follow data
     connection.execute(
         """CREATE TABLE IF NOT EXISTS follows(
