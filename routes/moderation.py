@@ -95,7 +95,7 @@ def console():
         # Run SQLITE command
         try:
             conn = util.make_connection()
-            conn.execute(sql_command)
+            conn.execute(text(sql_command))
             conn.commit()
             conn.close()
         except sqlite3.Error as error:
@@ -112,7 +112,7 @@ def console():
         # Run SQLITE command
         try:
             conn = util.make_connection()
-            out = conn.execute(sql_command).fetchall()
+            out = conn.execute(text(sql_command)).fetchall()
             conn.commit()
             conn.close()
         except sqlite3.Error as error:
@@ -310,8 +310,8 @@ def queue(type: str):
     conn = util.make_connection()
 
     if type == "publish":
-        r = conn.execute(
-            "select type, author, title, icon, url, description, rowid, status from projects where status = 'publish_queue'"
+        r = conn.execute(text(
+            "select type, author, title, icon, url, description, rowid, status from projects where status = 'publish_queue'")
         ).fetchall()
 
         # Form array
@@ -341,8 +341,8 @@ def queue(type: str):
         conn.close()
         return {"count": len(out), "projects": out}
     elif type == "review":
-        r = conn.execute(
-            "select type, author, title, icon, url, description, rowid, status from projects where status = 'review_queue'"
+        r = conn.execute(text(
+            "select type, author, title, icon, url, description, rowid, status from projects where status = 'review_queue'")
         ).fetchall()
 
         # Form array
@@ -372,7 +372,7 @@ def queue(type: str):
         conn.close()
         return {"count": len(out), "projects": out}
     elif type == "report":
-        r = conn.execute("select *, rowid from reports").fetchall()
+        r = conn.execute(text("select *, rowid from reports")).fetchall()
 
         # Form array
         out = []
