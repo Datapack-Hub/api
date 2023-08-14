@@ -8,17 +8,17 @@ def reset(table: str):
     connection = create_engine("sqlite://" + config.DATA + "data.db")
 
     if table != "no-drop":
-        connection.text(f"DROP TABLE {table}")
+        text(f"DROP TABLE {table}")
 
     # SQLite optimizations
-    connection.text("PRAGMA synchronous = NORMAL")
-    connection.text("PRAGMA mmap_size = 1000000000")
+    text("PRAGMA synchronous = NORMAL")
+    text("PRAGMA mmap_size = 1000000000")
 
     # ! This operation may not be supported, disable if you run into issues
-    connection.text("PRAGMA journal_mode = WAL")
+    text("PRAGMA journal_mode = WAL")
 
     # Projects Data
-    connection.text(
+    text(
         """CREATE TABLE \"projects\"(
             type TEXT NOT NULL,
             author INT NOT NULL,
@@ -40,7 +40,7 @@ def reset(table: str):
     )
 
     # Versions Data
-    connection.text(
+    text(
         """CREATE TABLE IF NOT EXISTS versions(
         name TEXT NOT NULL,
         description TEXT NOT NULL,
@@ -54,7 +54,7 @@ def reset(table: str):
     )
 
     # User data
-    connection.text(
+    text(
         """CREATE TABLE IF NOT EXISTS users (
         username TEXT NOT NULL UNIQUE, 
         token TEXT NOT NULL UNIQUE, 
@@ -68,7 +68,7 @@ def reset(table: str):
     )
 
     # Banned User Data
-    connection.text(
+    text(
         """CREATE TABLE IF NOT EXISTS banned_users (
         id int NOT NULL UNIQUE,
         expires int,
@@ -77,7 +77,7 @@ def reset(table: str):
     )
 
     # Notification Data
-    connection.text(
+    text(
         """CREATE TABLE IF NOT EXISTS notifs(
         message TEXT NOT NULL,
         description TEXT NOT NULL,
@@ -89,7 +89,7 @@ def reset(table: str):
     )
 
     # Report Data
-    connection.text(
+    text(
         """CREATE TABLE IF NOT EXISTS reports(
         message TEXT NOT NULL,
         reporter INT NOT NULL,
@@ -99,7 +99,7 @@ def reset(table: str):
     )
 
     # Comment data
-    connection.text(
+    text(
         """CREATE TABLE IF NOT EXISTS comments(
         thread_id INT,
         message TEXT NOT NULL,
@@ -111,7 +111,7 @@ def reset(table: str):
     )
 
     # Follow data
-    connection.text(
+    text(
         """CREATE TABLE IF NOT EXISTS follows(
         follower INT,
         followed INT
@@ -129,15 +129,15 @@ if __name__ == "__main__":
 
     conn = create_engine("sqlite://" + config.DATA + "data.db")
 
-    conn.text(
+    text(
         """INSERT INTO users (username, token, role, bio, github_id, profile_icon) VALUES ("HoodieRocks", "LOREMIPSUM", "admin", "rock", 123897432978, "example.com")"""
     )
 
-    # conn.text(
+    # text(
     #     'update users set badges = \'{"badges": ["contributor"]}\' WHERE rowid = 1'
     # )
 
-    print(conn.text("""SELECT * FROM users WHERE rowid = 1""").fetchone())
+    print(text("""SELECT * FROM users WHERE rowid = 1""").fetchone())
 
     conn.commit()
     conn.close()
