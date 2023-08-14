@@ -24,7 +24,7 @@ CORS(versions)
 @versions.route("/project/<int:id>")
 def project(id: int):
     # Select all versions where the project is this one
-    conn = util.make_connection(f"{config.DATA}data.db")
+    conn = util.make_connection()
     v = util.exec_query(
         conn, "SELECT * FROM versions WHERE project = :pid ORDER BY rowid DESC", pid=id
     ).fetchall()
@@ -48,7 +48,7 @@ def project(id: int):
 
 @versions.route("/project/url/<string:id>")
 def project_from_str(id: str):
-    conn = util.make_connection(f"{config.DATA}data.db")
+    conn = util.make_connection()
     # Get the project
     p = util.exec_query(
         conn, "SELECT rowid FROM projects WHERE url = :url;", url=util.clean(id)
@@ -92,7 +92,7 @@ def code(id: int, code: str):
             return "Token expired!", 401
 
         if util.user_owns_project(id, usr.id):
-            conn = util.make_connection(f"{config.DATA}data.db")
+            conn = util.make_connection()
             try:
                 util.exec_query(
                     conn,
@@ -110,7 +110,7 @@ def code(id: int, code: str):
             return "Not your version! :P", 403
     else:
         # Select all versions where the project is this one
-        conn = util.make_connection(f"{config.DATA}data.db")
+        conn = util.make_connection()
         v = util.exec_query(
             conn,
             "SELECT * FROM versions WHERE version_code = :code AND project = :id ORDER BY rowid DESC",
@@ -162,7 +162,7 @@ def new(project: int):
 
     # now do the stuff
     data = request.get_json(force=True)
-    conn = util.make_connection(f"{config.DATA}data.db")
+    conn = util.make_connection()
 
     try:
         data["name"]
