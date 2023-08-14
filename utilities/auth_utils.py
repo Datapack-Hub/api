@@ -3,6 +3,7 @@ import secrets
 from sqlalchemy import create_engine, text
 import config
 from utilities.commons import User
+import util
 
 import json
 import sqlite3
@@ -22,7 +23,7 @@ def authenticate(auth: str):
 
     token = auth[6:]
 
-    conn = create_engine("sqlite://" + config.DATA + "data.db")
+    conn = util.make_connection()
 
     u = conn.execute(
         text(
@@ -43,7 +44,7 @@ def authenticate(auth: str):
 
 
 def get_user_token(github_id: int):
-    conn = create_engine("sqlite://" + config.DATA + "data.db")
+    conn = util.make_connection()
 
     # Select
     u = conn.execute(
@@ -59,7 +60,7 @@ def get_user_token(github_id: int):
 
 
 def get_user_token_from_discord_id(discord: int):
-    conn = create_engine("sqlite://" + config.DATA + "data.db")
+    conn = util.make_connection()
 
     # Select
     u = conn.execute(
@@ -75,7 +76,7 @@ def get_user_token_from_discord_id(discord: int):
 
 
 def log_user_out(id: int):
-    conn = create_engine("sqlite://" + config.DATA + "data.db")
+    conn = util.make_connection()
 
     token = secrets.token_urlsafe()
 

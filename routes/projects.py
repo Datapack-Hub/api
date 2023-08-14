@@ -100,7 +100,7 @@ def search():
 
     page = request.args.get("page", 1)
 
-    conn = create_engine("sqlite://" + config.DATA + "data.db")
+    conn = util.make_connection()
     if sort == "updated":
         r = conn.execute(
             text(
@@ -148,7 +148,7 @@ def query():
     sort = request.args.get("sort", "updated")
 
     # SQL stuff
-    conn = create_engine("sqlite://" + config.DATA + "data.db")
+    conn = util.make_connection()
     if sort == "updated":
         r = conn.execute(
             "select rowid, * from projects where status = 'live' ORDER BY updated DESC"
@@ -179,7 +179,7 @@ def query():
 
 @projects.route("/id/<int:id>")
 def get_proj(id):
-    conn = create_engine("sqlite://" + config.DATA + "data.db")
+    conn = util.make_connection()
 
     this_user = utilities.auth_utils.authenticate(request.headers.get("Authorization"))
     if this_user == 32:
@@ -221,7 +221,7 @@ def get_proj(id):
 @projects.route("/get/<string:slug>")
 def get_project(slug: str):
     # connect to the thingy
-    conn = create_engine("sqlite://" + config.DATA + "data.db")
+    conn = util.make_connection()
 
     # do we need auth? no
     # do we have auth? yes
@@ -263,7 +263,7 @@ def get_project(slug: str):
 def random():
     count = request.args.get("count", 1)
 
-    conn = create_engine("sqlite://" + config.DATA + "data.db")
+    conn = util.make_connection()
     proj = conn.execute(
         text(
             "SELECT rowid, * FROM projects where status = 'live' ORDER BY RANDOM() LIMIT :count"
@@ -283,7 +283,7 @@ def random():
 
 @projects.route("/count")
 def count():
-    conn = create_engine("sqlite://" + config.DATA + "data.db")
+    conn = util.make_connection()
     x = (
         conn.execute("select * from projects where status = 'live'")
         .fetchall()
@@ -350,7 +350,7 @@ def new_project():
         )
 
     # Update database
-    conn = create_engine("sqlite://" + config.DATA + "data.db")
+    conn = util.make_connection()
 
     cat_str = ",".join(data["category"])
 
@@ -489,7 +489,7 @@ def edit(id: int):
         )
 
     # Update database
-    conn = create_engine("sqlite://" + config.DATA + "data.db")
+    conn = util.make_connection()
 
     cat_str = ",".join(data["category"])
 
@@ -556,7 +556,7 @@ def publish(id):
     elif user == 33:
         return "Token expired!", 401
 
-    conn = create_engine("sqlite://" + config.DATA + "data.db")
+    conn = util.make_connection()
     proj = conn.execute(
         text(
             "select author, status, title, description, icon, url from projects where rowid = :id"
@@ -616,7 +616,7 @@ def draft(id):
     elif user == 33:
         return "Token expired!", 401
 
-    conn = create_engine("sqlite://" + config.DATA + "data.db")
+    conn = util.make_connection()
     proj = conn.execute(
         text("select author, status from projects where rowid = :id"), id=id
     ).fetchall()
@@ -654,7 +654,7 @@ def report(id):
     elif user == 33:
         return "Token expired!", 401
 
-    conn = create_engine("sqlite://" + config.DATA + "data.db")
+    conn = util.make_connection()
     proj = conn.execute(
         text("select author from projects where rowid = :id"), id=id
     ).fetchall()
@@ -693,7 +693,7 @@ def remove(id):
     elif user == 33:
         return "Token expired!", 401
 
-    conn = create_engine("sqlite://" + config.DATA + "data.db")
+    conn = util.make_connection()
     proj = conn.execute(
         text("select author, status from projects where rowid = :id"), id=id
     ).fetchall()
@@ -725,7 +725,7 @@ def download(id):
     if tok != "ThisIsVeryLegitComeFromCDNNotSpoofedBroTrustMe12":
         return "This is a private route!", 403
 
-    conn = create_engine("sqlite://" + config.DATA + "data.db")
+    conn = util.make_connection()
     proj = conn.execute(
         text("select downloads from projects where rowid = :id"), id=id
     ).fetchall()
@@ -763,7 +763,7 @@ def feature(id):
         return "Expiry parameter missing", 400
 
     # Validate project
-    conn = create_engine("sqlite://" + config.DATA + "data.db")
+    conn = util.make_connection()
     proj = conn.execute(
         text("select author, status, title, url from projects where rowid = :id"), id=id
     ).fetchall()
@@ -807,7 +807,7 @@ def feature(id):
 
 @projects.route("/featured")
 def featured():
-    conn = create_engine("sqlite://" + config.DATA + "data.db")
+    conn = util.make_connection()
     proj = conn.execute(
         "SELECT rowid, * FROM projects where status = 'live' and featured_until > 0"
     ).fetchall()

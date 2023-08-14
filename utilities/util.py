@@ -1,16 +1,18 @@
 from functools import lru_cache
 import secrets
 
-from sqlalchemy import Engine, create_engine, text
+from sqlalchemy import Connection, Engine, create_engine, text
 import config
 import utilities.post as post
 import random
 
+def make_connection() -> Connection:
+    return create_engine("sqlite://" + config.DATA + "data.db").connect()
 
 def create_user_account(
     github_data: dict,
 ):
-    conn = create_engine("sqlite://" + config.DATA + "data.db")
+    conn = make_connection()
 
     token = secrets.token_urlsafe()
 
@@ -44,7 +46,7 @@ def create_user_account(
 
 @lru_cache
 def get_user_ban_data(id: int):
-    conn = create_engine("sqlite://" + config.DATA + "data.db")
+    conn = make_connection()
 
     banned_user = conn.execute(
         text("select reason, expires from banned_users where id = :id"), id=id
@@ -60,7 +62,7 @@ def get_user_ban_data(id: int):
 
 @lru_cache
 def user_owns_project(project: int, author: int):
-    conn = create_engine("sqlite://" + config.DATA + "data.db")
+    conn = make_connection()
     proj = conn.execute(
         text("select rowid from projects where rowid = :project and author = :author"),
         project=project,

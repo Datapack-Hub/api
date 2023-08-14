@@ -6,10 +6,11 @@ from utilities.util import clean
 
 import json
 import sqlite3
+import util
 
 
 def from_username(self: str):
-    conn = create_engine("sqlite://" + config.DATA + "data.db")
+    conn = util.make_connection()
 
     # Select
     u = conn.execute(
@@ -32,7 +33,7 @@ def from_username(self: str):
 
 
 def from_id(self: int):
-    conn = create_engine("sqlite://" + config.DATA + "data.db")
+    conn = util.make_connection()
 
     # Select
     u = conn.execute(
@@ -55,7 +56,7 @@ def from_id(self: int):
 
 
 def from_github_id(self: int):
-    conn = create_engine("sqlite://" + config.DATA + "data.db")
+    conn = util.make_connection()
 
     # Select
     u = conn.execute(
@@ -78,7 +79,7 @@ def from_github_id(self: int):
 
 
 def from_discord_id(self: int):
-    conn = create_engine("sqlite://" + config.DATA + "data.db")
+    conn = util.make_connection()
 
     # Select
     u = conn.execute(
@@ -101,7 +102,7 @@ def from_discord_id(self: int):
 
 
 def from_token(token: str):
-    conn = create_engine("sqlite://" + config.DATA + "data.db")
+    conn = util.make_connection()
 
     # Select
     u = conn.execute(
