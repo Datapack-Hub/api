@@ -6,18 +6,18 @@ def reset(table: str):
     connection = util.make_connection()
 
     if table != "no-drop":
-        util.exec_query(conn, f"DROP TABLE {table}")
+        util.exec_query(connection, f"DROP TABLE {table}")
 
     # SQLite optimizations
-    util.exec_query(conn, "PRAGMA synchronous = NORMAL")
-    util.exec_query(conn, "PRAGMA mmap_size = 1000000000")
+    util.exec_query(connection, "PRAGMA synchronous = NORMAL")
+    util.exec_query(connection, "PRAGMA mmap_size = 1000000000")
 
     # ! This operation may not be supported, disable if you run into issues
-    util.exec_query(conn, "PRAGMA journal_mode = WAL")
+    util.exec_query(connection, "PRAGMA journal_mode = WAL")
 
     # Projects Data
     util.exec_query(
-        conn,
+        connection,
         """CREATE TABLE \"projects\"(
             type TEXT NOT NULL,
             author INT NOT NULL,
@@ -40,7 +40,7 @@ def reset(table: str):
 
     # Versions Data
     util.exec_query(
-        conn,
+        connection,
         """CREATE TABLE IF NOT EXISTS versions(
         name TEXT NOT NULL,
         description TEXT NOT NULL,
@@ -55,7 +55,7 @@ def reset(table: str):
 
     # User data
     util.exec_query(
-        conn,
+        connection,
         """CREATE TABLE IF NOT EXISTS users (
         username TEXT NOT NULL UNIQUE, 
         token TEXT NOT NULL UNIQUE, 
@@ -70,7 +70,7 @@ def reset(table: str):
 
     # Banned User Data
     util.exec_query(
-        conn,
+        connection,
         """CREATE TABLE IF NOT EXISTS banned_users (
         id int NOT NULL UNIQUE,
         expires int,
@@ -80,7 +80,7 @@ def reset(table: str):
 
     # Notification Data
     util.exec_query(
-        conn,
+        connection,
         """CREATE TABLE IF NOT EXISTS notifs(
         message TEXT NOT NULL,
         description TEXT NOT NULL,
@@ -93,7 +93,7 @@ def reset(table: str):
 
     # Report Data
     util.exec_query(
-        conn,
+        connection,
         """CREATE TABLE IF NOT EXISTS reports(
         message TEXT NOT NULL,
         reporter INT NOT NULL,
@@ -104,7 +104,7 @@ def reset(table: str):
 
     # Comment data
     util.exec_query(
-        conn,
+        connection,
         """CREATE TABLE IF NOT EXISTS comments(
         thread_id INT,
         message TEXT NOT NULL,
@@ -117,7 +117,7 @@ def reset(table: str):
 
     # Follow data
     util.exec_query(
-        conn,
+        connection,
         """CREATE TABLE IF NOT EXISTS follows(
         follower INT,
         followed INT
