@@ -94,7 +94,7 @@ def console():
 
         # Run SQLITE command
         try:
-            conn = create_engine("sqlite://" + config.DATA + "data.db")
+            conn = util.make_connection()
             conn.execute(sql_command)
             conn.commit()
             conn.close()
@@ -111,7 +111,7 @@ def console():
 
         # Run SQLITE command
         try:
-            conn = create_engine("sqlite://" + config.DATA + "data.db")
+            conn = util.make_connection()
             out = conn.execute(sql_command).fetchall()
             conn.commit()
             conn.close()
@@ -128,7 +128,7 @@ def console():
 
         # Run SQLITE command
         try:
-            conn = create_engine("sqlite://" + config.DATA + "data.db")
+            conn = util.make_connection()
             out = conn.execute(
                 text(
                     "select username, role, rowid from users where trim(username) like :uname"
@@ -182,7 +182,7 @@ def console():
             return "You can't run this command!", 403
         if len(args) < 3:
             return "Missing values!", 400
-        conn = create_engine("sqlite://" + config.DATA + "data.db")
+        conn = util.make_connection()
         try:
             conn.execute(
                 text("INSERT INTO notifs VALUES (:arg1, :arg2, False, :arg0, :arg3)"),
@@ -233,7 +233,7 @@ def ban(user: int):
         current = time.time()
         expiry = current + (86400 * dat["expires"])
 
-        conn = create_engine("sqlite://" + config.DATA + "data.db")
+        conn = util.make_connection()
         try:
             conn.execute(
                 text(
@@ -257,7 +257,7 @@ def ban(user: int):
             return "worked fine"
     else:
         dat = request.get_json(force=True)
-        conn = create_engine("sqlite://" + config.DATA + "data.db")
+        conn = util.make_connection()
         try:
             conn.execute(text("delete from banned_users where self = :user"), user=user)
         except sqlite3.Error as er:
@@ -282,7 +282,7 @@ def user_data(id):
     ):
         return "You can't do this!", 403
 
-    conn = create_engine("sqlite://" + config.DATA + "data.db")
+    conn = util.make_connection()
     ban_data = conn.execute(
         text("SELECT * FROM banned_users WHERE id = :id"), id=id
     ).fetchall()
@@ -305,7 +305,7 @@ def queue(type: str):
     ):
         return "You can't do this!", 403
 
-    conn = create_engine("sqlite://" + config.DATA + "data.db")
+    conn = util.make_connection()
 
     if type == "publish":
         r = conn.execute(
@@ -437,7 +437,7 @@ def change_status(proj: int):
     except KeyError:
         return "action is missing", 400
 
-    conn = create_engine("sqlite://" + config.DATA + "data.db")
+    conn = util.make_connection()
     project = conn.execute(
         text(
             "select rowid, status, title, author, description, icon, url from projects where rowid = :pid"
@@ -595,7 +595,7 @@ def dismiss(proj: int):
         return "Token Expired", 401
 
     # Get project.
-    conn = create_engine("sqlite://" + config.DATA + "data.db")
+    conn = util.make_connection()
     project = conn.execute(
         text(
             "select rowid, status, author, mod_message from projects where rowid = :id"
@@ -635,7 +635,7 @@ def remove_report(id: int):
     ):
         return "You can't do this!", 403
 
-    conn = create_engine("sqlite://" + config.DATA + "data.db")
+    conn = util.make_connection()
 
     rep = conn.execute(
         text("select rowid from reports where rowid = :id"), id=id
