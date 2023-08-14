@@ -310,8 +310,10 @@ def queue(type: str):
     conn = util.make_connection()
 
     if type == "publish":
-        r = conn.execute(text(
-            "select type, author, title, icon, url, description, rowid, status from projects where status = 'publish_queue'")
+        r = conn.execute(
+            text(
+                "select type, author, title, icon, url, description, rowid, status from projects where status = 'publish_queue'"
+            )
         ).fetchall()
 
         # Form array
@@ -341,8 +343,10 @@ def queue(type: str):
         conn.close()
         return {"count": len(out), "projects": out}
     elif type == "review":
-        r = conn.execute(text(
-            "select type, author, title, icon, url, description, rowid, status from projects where status = 'review_queue'")
+        r = conn.execute(
+            text(
+                "select type, author, title, icon, url, description, rowid, status from projects where status = 'review_queue'"
+            )
         ).fetchall()
 
         # Form array
