@@ -37,8 +37,9 @@ def after(resp):
 def parse_project(output: tuple, conn: Engine):
     this_user = utilities.auth_utils.authenticate(request.headers.get("Authorization"))
 
-    latest_version = conn.execute(
-        text("SELECT * FROM versions WHERE project = :out0 ORDER BY rowid DESC"),
+    latest_version = util.exec_query(
+        conn,
+        "SELECT * FROM versions WHERE project = :out0 ORDER BY rowid DESC",
         out0=output[0],
     ).fetchall()
 
@@ -102,17 +103,15 @@ def search():
 
     conn = util.make_connection()
     if sort == "updated":
-        r = conn.execute(
-            text(
-                "select rowid, * from projects where status = 'live' and trim(title) LIKE :query ORDER BY updated DESC"
-            ),
+        r = util.exec_query(
+            conn,
+            "select rowid, * from projects where status = 'live' and trim(title) LIKE :query ORDER BY updated DESC",
             query=f"%{util.clean(query)}%",
         ).fetchall()
     elif sort == "downloads":
-        r = conn.execute(
-            text(
-                "select rowid, * from projects where status = 'live' and trim(title) LIKE :query ORDER BY downloads DESC"
-            ),
+        r = util.exec_query(
+            conn,
+            "select rowid, * from projects where status = 'live' and trim(title) LIKE :query ORDER BY downloads DESC",
             query=f"%{util.clean(query)}%",
         ).fetchall()
     else:
@@ -187,8 +186,8 @@ def get_proj(id):
     elif this_user == 33:
         return "Token expired!", 401
 
-    proj = conn.execute(
-        text("select rowid, * from projects where rowid = :id"), id=id
+    proj = util.exec_query(
+        conn, "select rowid, * from projects where rowid = :id", id=id
     ).fetchone()
 
     if not proj:
@@ -234,8 +233,8 @@ def get_project(slug: str):
         return "Token expired!", 401
 
     # gimme dat project and gtfo
-    proj = conn.execute(
-        text("select rowid, * from projects where url = :url"), url=util.clean(slug)
+    proj = util.exec_query(
+        conn, "select rowid, * from projects where url = :url", url=util.clean(slug)
     ).fetchone()
 
     # hey u didn't give me a project, hate u
@@ -264,10 +263,9 @@ def random():
     count = request.args.get("count", 1)
 
     conn = util.make_connection()
-    proj = conn.execute(
-        text(
-            "SELECT rowid, * FROM projects where status = 'live' ORDER BY RANDOM() LIMIT :count"
-        ),
+    proj = util.exec_query(
+        conn,
+        "SELECT rowid, * FROM projects where status = 'live' ORDER BY RANDOM() LIMIT :count",
         count=count,
     ).fetchall()
 
@@ -355,9 +353,9 @@ def new_project():
     cat_str = ",".join(data["category"])
 
     if "icon" in data and data["icon"]:
-        conn.execute(
-            text(
-                """insert into projects(
+        util.exec_query(
+            conn,
+            """insert into projects(
                     type, 
                     author, 
                     title, 
@@ -379,8 +377,7 @@ def new_project():
                         'unpublished',
                         :uploaded,
                         :updated,
-                        :icon)"""
-            ),
+                        :icon)""",
             type=util.clean(data["type"]),
             id=user.id,
             title=util.clean(data["title"]),
@@ -393,9 +390,9 @@ def new_project():
             icon=icon,
         )
     else:
-        conn.execute(
-            text(
-                """insert into projects(
+        util.exec_query(
+            conn,
+            """insert into projects(
                     type, 
                     author, 
                     title, 
@@ -415,8 +412,7 @@ def new_project():
                         :url, 
                         'unpublished',
                         :uploaded,
-                        :updated)"""
-            ),
+                        :updated)""",
             type=util.clean(data["type"]),
             id=user.id,
             title=util.clean(data["title"]),
@@ -495,16 +491,15 @@ def edit(id: int):
 
     try:
         if "icon" in data and data["icon"]:
-            conn.execute(
-                text(
-                    """update projects set
+            util.exec_query(
+                conn,
+                """update projects set
                 title = :title,
                 description = :desc,
                 body = :body,
                 category = :cat,
                 icon = :icon 
-                where rowid = :id"""
-                ),
+                where rowid = :id""",
                 title=util.clean(data["title"]),
                 desc=util.clean(data["description"]),
                 body=util.clean(data["body"]),
@@ -513,15 +508,14 @@ def edit(id: int):
                 id=id,
             )
         else:
-            conn.execute(
-                text(
-                    """update projects set
+            util.exec_query(
+                conn,
+                """update projects set
                 title = :title,
                 description = :desc,
                 body = :body,
                 category = :cat,
-                where rowid = :id"""
-                ),
+                where rowid = :id""",
                 title=util.clean(data["title"]),
                 desc=util.clean(data["description"]),
                 body=util.clean(data["body"]),
@@ -557,10 +551,9 @@ def publish(id):
         return "Token expired!", 401
 
     conn = util.make_connection()
-    proj = conn.execute(
-        text(
-            "select author, status, title, description, icon, url from projects where rowid = :id"
-        ),
+    proj = util.exec_query(
+        conn,
+        "select author, status, title, description, icon, url from projects where rowid = :id",
         id=id,
     ).fetchall()
 
@@ -574,8 +567,9 @@ def publish(id):
 
     # now onto the fun stuff >:)
     if proj[1] == "unpublished":
-        conn.execute(
-            text("update projects set status = 'publish_queue' where rowid = :id"),
+        util.exec_query(
+            conn,
+            "update projects set status = 'publish_queue' where rowid = :id",
             id=id,
         )
 
@@ -584,16 +578,16 @@ def publish(id):
         utilities.post.in_queue(proj[2], proj[3], proj[4], proj[0], proj[5])
         return "The project is now in the publish queue.", 200
     elif proj[1] == "draft":
-        conn.execute(
-            text("update projects set status = 'live' where rowid = :id"), id=id
+        util.exec_query(
+            conn, "update projects set status = 'live' where rowid = :id", id=id
         )
 
         conn.commit()
         conn.close()
         return "The project is now live.", 200
     elif proj[1] == "disabled":
-        conn.execute(
-            text("update projects set status = 'review_queue' where rowid = :id"), id=id
+        util.exec_query(
+            conn, "update projects set status = 'review_queue' where rowid = :id", id=id
         )
 
         conn.commit()
@@ -617,8 +611,8 @@ def draft(id):
         return "Token expired!", 401
 
     conn = util.make_connection()
-    proj = conn.execute(
-        text("select author, status from projects where rowid = :id"), id=id
+    proj = util.exec_query(
+        conn, "select author, status from projects where rowid = :id", id=id
     ).fetchall()
 
     if len(proj) == 0:
@@ -631,8 +625,8 @@ def draft(id):
 
     # now onto the fun stuff >:)
     if proj[1] == "live":
-        conn.execute(
-            text("update projects set status = 'draft' where rowid = :id"), id=id
+        util.exec_query(
+            conn, "update projects set status = 'draft' where rowid = :id", id=id
         )
 
         conn.commit()
@@ -655,8 +649,8 @@ def report(id):
         return "Token expired!", 401
 
     conn = util.make_connection()
-    proj = conn.execute(
-        text("select author from projects where rowid = :id"), id=id
+    proj = util.exec_query(
+        conn, "select author from projects where rowid = :id", id=id
     ).fetchall()
 
     if len(proj) == 0:
@@ -670,8 +664,9 @@ def report(id):
     except KeyError:
         return "Please provide a `message` field."
     else:
-        conn.execute(
-            text("insert into reports values (:msg, :uid, :pid)"),
+        util.exec_query(
+            conn,
+            "insert into reports values (:msg, :uid, :pid)",
             msg=util.clean(report_data["message"]),
             uid=user.id,
             pid=id,
@@ -694,8 +689,8 @@ def remove(id):
         return "Token expired!", 401
 
     conn = util.make_connection()
-    proj = conn.execute(
-        text("select author, status from projects where rowid = :id"), id=id
+    proj = util.exec_query(
+        conn, "select author, status from projects where rowid = :id", id=id
     ).fetchall()
 
     if len(proj) == 0:
@@ -708,8 +703,8 @@ def remove(id):
 
     # now onto the fun stuff >:)
     if proj[1] != "deleted":
-        conn.execute(
-            text("update projects set status = 'deleted' where rowid = :id"), id=id
+        util.exec_query(
+            conn, "update projects set status = 'deleted' where rowid = :id", id=id
         )
 
         conn.commit()
@@ -726,15 +721,15 @@ def download(id):
         return "This is a private route!", 403
 
     conn = util.make_connection()
-    proj = conn.execute(
-        text("select downloads from projects where rowid = :id"), id=id
+    proj = util.exec_query(
+        conn, "select downloads from projects where rowid = :id", id=id
     ).fetchall()
 
     if len(proj) == 0:
         return "Project not found.", 404
 
-    conn.execute(
-        text("update projects set downloads = downloads + 1 where rowid = :id"), id=id
+    util.exec_query(
+        conn, "update projects set downloads = downloads + 1 where rowid = :id", id=id
     )
 
     conn.commit()
@@ -764,8 +759,8 @@ def feature(id):
 
     # Validate project
     conn = util.make_connection()
-    proj = conn.execute(
-        text("select author, status, title, url from projects where rowid = :id"), id=id
+    proj = util.exec_query(
+        conn, "select author, status, title, url from projects where rowid = :id", id=id
     ).fetchall()
 
     if len(proj) == 0:
@@ -781,8 +776,9 @@ def feature(id):
     expiry = current + (86400 * dat["expires"])
 
     try:
-        conn.execute(
-            text("UPDATE projects SET featured_until = :expiry WHERE rowid = :id"),
+        util.exec_query(
+            conn,
+            "UPDATE projects SET featured_until = :expiry WHERE rowid = :id",
             expiry=expiry,
             id=id,
         )
@@ -791,10 +787,9 @@ def feature(id):
         conn.close()
         return "There was an error."
     else:
-        conn.execute(
-            text(
-                "INSERT INTO notifs VALUES (:title, :msg, False,  'announcement', :id)"
-            ),
+        util.exec_query(
+            conn,
+            "INSERT INTO notifs VALUES (:title, :msg, False,  'announcement', :id)",
             title="Project Featured",
             msg=f"Your project, [{proj[2]}](https://datapackhub.net/project/{proj[3]}), was featured by a moderator for {dat['expires']} days. During this time, it will be visible on the front page and higher up in search results. Congrats! :D",
             id=proj[0],
@@ -815,8 +810,9 @@ def featured():
     out = []
     for i in proj:
         if time.time() > i[14]:
-            conn.execute(
-                text("update projects set featured_until = null where rowid = :id"),
+            util.exec_query(
+                conn,
+                "update projects set featured_until = null where rowid = :id",
                 id=i[0],
             )
             conn.commit()

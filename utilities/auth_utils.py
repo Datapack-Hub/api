@@ -24,10 +24,9 @@ def authenticate(auth: str):
 
     conn = util.make_connection()
 
-    u = conn.execute(
-        text(
-            "select username, rowid, role, bio, profile_icon, badges from users where token = :token"
-        ),
+    u = util.exec_query(
+        conn,
+        "select username, rowid, role, bio, profile_icon, badges from users where token = :token",
         token=token,
     ).fetchone()
     if not u:
@@ -46,8 +45,8 @@ def get_user_token(github_id: int):
     conn = util.make_connection()
 
     # Select
-    u = conn.execute(
-        text("select token from users where github_id = :g_id"), g_id=github_id
+    u = util.exec_query(
+        conn, "select token from users where github_id = :g_id", g_id=github_id
     ).fetchone()
 
     conn.close()
@@ -62,8 +61,8 @@ def get_user_token_from_discord_id(discord: int):
     conn = util.make_connection()
 
     # Select
-    u = conn.execute(
-        text("select token from users where discord_id = :discord"), discord=discord
+    u = util.exec_query(
+        conn, "select token from users where discord_id = :discord", discord=discord
     ).fetchone()
 
     conn.close()
@@ -81,8 +80,9 @@ def log_user_out(id: int):
 
     # Create user entry in database
     try:
-        conn.execute(
-            text("UPDATE users SET token = :token WHERE rowid = :id"),
+        util.exec_query(
+            conn,
+            "UPDATE users SET token = :token WHERE rowid = :id",
             token=token,
             id=id,
         )

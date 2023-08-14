@@ -1,14 +1,22 @@
 from functools import lru_cache
 import secrets
 
-from sqlalchemy import Connection, Engine, create_engine, text
+from sqlalchemy import Connection, CursorResult, Engine, create_engine, text
 import config
 import utilities.post as post
 import random
 
 
 def make_connection() -> Connection:
-    return create_engine("sqlite://" + config.DATA + "data.db").connect()
+    return create_engine("sqlite:///" + config.DATA + "data.db").connect()
+
+
+def exec_query(conn: Connection, query: str, **params) -> CursorResult:
+    q = text(query)
+
+    if params:
+        q = q.bindparams(**params)
+    return conn.execute(q)
 
 
 def create_user_account(
@@ -18,9 +26,10 @@ def create_user_account(
 
     token = secrets.token_urlsafe()
 
-    check = conn.execute(
-        text("select username from users where username = :login;"),
-        login=github_data["login"],
+    check = exec_query(
+        conn,
+        "select username from users where username = :login;",
+        params={"login": github_data["login"]},
     ).fetchall()
     if len(check) == 0:
         username = github_data["login"]
@@ -28,14 +37,15 @@ def create_user_account(
         username = github_data["login"] + str(random.randint(1, 99999))
 
     # Create user entry in database
-    conn.execute(
-        text(
-            'INSERT INTO users (username, role, bio, github_id, token, profile_icon) VALUES (:g_login, "default", "A new Datapack Hub user!", :id, :token, :avatar)'
-        ),
-        g_login=username,
-        id=github_data["id"],
-        token=token,
-        avatar=github_data["avatar_url"],
+    exec_query(
+        conn,
+        'INSERT INTO users (username, role, bio, github_id, token, profile_icon) VALUES (:g_login, "default", "A new Datapack Hub user!", :id, :token, :avatar)',
+        params={
+            "g_login": username,
+            "id": github_data["id"],
+            "token": token,
+            "avatar": github_data["avatar_url"],
+        },
     )
 
     conn.commit()
@@ -50,8 +60,10 @@ def create_user_account(
 def get_user_ban_data(id: int):
     conn = make_connection()
 
-    banned_user = conn.execute(
-        text("select reason, expires from banned_users where id = :id"), id=id
+    banned_user = exec_query(
+        conn,
+        "select reason, expires from banned_users where id = :id",
+        params={"id": id},
     ).fetchone()
 
     if not banned_user:
@@ -65,10 +77,10 @@ def get_user_ban_data(id: int):
 @lru_cache
 def user_owns_project(project: int, author: int):
     conn = make_connection()
-    proj = conn.execute(
-        text("select rowid from projects where rowid = :project and author = :author"),
-        project=project,
-        author=author,
+    proj = exec_query(
+        conn,
+        "select rowid from projects where rowid = :project and author = :author",
+        params={"project": project, "author": author},
     ).fetchall()
     conn.close()
     return len(proj) == 1
@@ -89,11 +101,14 @@ def clean(query: str):
 
 
 def send_notif(conn: Engine, title: str, msg: str, receiver: int):
-    conn.execute(
-        text("INSERT INTO notifs VALUES (:title, :msg, False, 'default', :uid})"),
-        title=title,
-        msg=msg,
-        uid=receiver,
+    exec_query(
+        conn,
+        "INSERT INTO notifs VALUES (:title, :msg, False, 'default', :uid})",
+        params={
+            "title": title,
+            "msg": msg,
+            "uid": receiver,
+        },
     )
 
 

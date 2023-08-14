@@ -25,8 +25,8 @@ CORS(versions)
 def project(id: int):
     # Select all versions where the project is this one
     conn = util.make_connection(f"{config.DATA}data.db")
-    v = conn.execute(
-        text("SELECT * FROM versions WHERE project = :pid ORDER BY rowid DESC"), pid=id
+    v = util.exec_query(
+        conn, "SELECT * FROM versions WHERE project = :pid ORDER BY rowid DESC", pid=id
     ).fetchall()
     out = []
     for i in v:
@@ -50,15 +50,16 @@ def project(id: int):
 def project_from_str(id: str):
     conn = util.make_connection(f"{config.DATA}data.db")
     # Get the project
-    p = conn.execute(
-        text("SELECT rowid FROM projects WHERE url = :url;"), url=util.clean(id)
+    p = util.exec_query(
+        conn, "SELECT rowid FROM projects WHERE url = :url;", url=util.clean(id)
     ).fetchall()
     if len(p) == 0:
         return "Project not found", 404
 
     # Select all versions where the project is this one
-    v = conn.execute(
-        text("SELECT * FROM versions WHERE project = :id ORDER BY rowid DESC"),
+    v = util.exec_query(
+        conn,
+        "SELECT * FROM versions WHERE project = :id ORDER BY rowid DESC",
         id=p[0][0],
     ).fetchall()
     out = []
@@ -93,10 +94,9 @@ def code(id: int, code: str):
         if util.user_owns_project(id, usr.id):
             conn = util.make_connection(f"{config.DATA}data.db")
             try:
-                conn.execute(
-                    text(
-                        "DELETE FROM versions WHERE version_code = :code AND project = :id"
-                    ),
+                util.exec_query(
+                    conn,
+                    "DELETE FROM versions WHERE version_code = :code AND project = :id",
                     code=code,
                     id=id,
                 ).fetchone()
@@ -111,10 +111,9 @@ def code(id: int, code: str):
     else:
         # Select all versions where the project is this one
         conn = util.make_connection(f"{config.DATA}data.db")
-        v = conn.execute(
-            text(
-                "SELECT * FROM versions WHERE version_code = :code AND project = :id ORDER BY rowid DESC"
-            ),
+        v = util.exec_query(
+            conn,
+            "SELECT * FROM versions WHERE version_code = :code AND project = :id ORDER BY rowid DESC",
             code=code,
             id=id,
         ).fetchone()
@@ -206,17 +205,16 @@ def new(project: int):
         try:
             data["resource_pack_download"]
         except BadRequestKeyError:
-            conn.execute(
-                text(
-                    """INSERT INTO versions(
+            util.exec_query(
+                conn,
+                """INSERT INTO versions(
                         name,
                         description,
                         primary_download,
                         minecraft_versions,
                         version_code,
                         project
-                    ) VALUES (:name, :desc, :path,:mcv, :vc, :project)"""
-                ),
+                    ) VALUES (:name, :desc, :path,:mcv, :vc, :project)""",
                 name=data["name"],
                 desc=data["description"],
                 path=dpath,
@@ -235,9 +233,9 @@ def new(project: int):
                     ),
                     usr.username,
                 )
-                conn.execute(
-                    text(
-                        """INSERT INTO versions(
+                util.exec_query(
+                    conn,
+                    """INSERT INTO versions(
                             name,
                             description,
                             primary_download,
@@ -245,8 +243,7 @@ def new(project: int):
                             minecraft_versions,
                             version_code,
                             project
-                        ) VALUES (:name, :desc, :dpath,:rpath,:mcv, :vc, :project)"""
-                    ),
+                        ) VALUES (:name, :desc, :dpath,:rpath,:mcv, :vc, :project)""",
                     name=data["name"],
                     desc=data["description"],
                     dpath=dpath,
@@ -256,17 +253,16 @@ def new(project: int):
                     project=project,
                 )
             else:
-                conn.execute(
-                    text(
-                        """INSERT INTO versions(
+                util.exec_query(
+                    conn,
+                    """INSERT INTO versions(
                             name,
                             description,
                             primary_download,
                             minecraft_versions,
                             version_code,
                             project
-                        ) VALUES (:name, :desc, :path,:mcv, :vc, :project)"""
-                    ),
+                        ) VALUES (:name, :desc, :path,:mcv, :vc, :project)""",
                     name=data["name"],
                     desc=data["description"],
                     path=dpath,
@@ -275,8 +271,8 @@ def new(project: int):
                     project=project,
                 )
 
-    v = conn.execute(
-        text("SELECT * FROM versions WHERE version_code = :vc"), vc=data["version_code"]
+    v = util.exec_query(
+        conn, "SELECT * FROM versions WHERE version_code = :vc", vc=data["version_code"]
     ).fetchone()
 
     o = {
@@ -290,8 +286,9 @@ def new(project: int):
     if v[3] is not None:
         o["resource_pack_download"]: v[3]
 
-    conn.execute(
-        text("update projects set updated = :updated where rowid = :id;"),
+    util.exec_query(
+        conn,
+        "update projects set updated = :updated where rowid = :id;",
         updated=str(int(time.time())),
         id=project,
     )
