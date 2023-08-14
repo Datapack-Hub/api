@@ -237,10 +237,11 @@ def ban(user: int):
         try:
             conn.execute(
                 text(
-                    "insert into banned_users values (:user, :expiry, '{util.clean(dat['message'])}')"
+                    "insert into banned_users values (:user, :expiry, :msg)"
                 ),
                 user=user,
                 expiry=expiry,
+                msg=util.clean(dat['message'])
             )
         except sqlite3.Error as er:
             return " ".join(er.args)
