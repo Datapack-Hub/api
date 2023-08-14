@@ -119,12 +119,10 @@ def callback_dc():
         conn = util.make_connection()
 
         token = secrets.token_urlsafe()
-        sql = text(
-            'INSERT INTO users (username, role, bio, discord_id, token, profile_icon) VALUES (:username, "default", "A new Datapack Hub user!", :d_id, :token, :avatar)'
-        )
 
-        check = conn.execute(
-            text("select username from users where username = :dis_uname;"),
+        check = util.exec_query(
+            conn,
+            "select username from users where username = :dis_uname;",
             dis_uname=discord["username"],
         ).fetchall()
         if len(check) == 0:
@@ -132,8 +130,9 @@ def callback_dc():
         else:
             username = discord["username"] + str(random.randint(1, 99999))
 
-        conn.execute(
-            sql,
+        util.exec_query(
+            conn,
+            'INSERT INTO users (username, role, bio, discord_id, token, profile_icon) VALUES (:username, "default", "A new Datapack Hub user!", :d_id, :token, :avatar)',
             username=username,
             d_id=discord["id"],
             token=token,
@@ -206,8 +205,12 @@ def link_discord():
 
     conn = util.make_connection()
     try:
-        conn.execute(
-            text("update users set discord_id = :id where rowid = :user;"),
+        update_user = text("update users set discord_id = :id where rowid = :user;")
+        update_user.bindparams(id=None, user=None)
+
+        util.exec_query(
+            conn,
+            "update users set discord_id = :id where rowid = :user;",
             id=discord_id,
             user=usr.id,
         )
@@ -255,8 +258,12 @@ def link_github():
 
     conn = util.make_connection()
     try:
-        conn.execute(
-            text("update users set github_id = :g_id where rowid = :id;"),
+        update_ghub = text("update users set github_id = :g_id where rowid = :id;")
+        update_ghub.bindparams(g_id=None, id=None)
+
+        util.exec_query(
+            conn,
+            "update users set github_id = :g_id where rowid = :id;",
             g_id=github["id"],
             id=usr.id,
         )

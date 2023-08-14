@@ -129,10 +129,9 @@ def console():
         # Run SQLITE command
         try:
             conn = util.make_connection()
-            out = conn.execute(
-                text(
-                    "select username, role, rowid from users where trim(username) like :uname"
-                ),
+            out = util.exec_query(
+                conn,
+                "select username, role, rowid from users where trim(username) like :uname",
                 uname=args[0],
             ).fetchall()
             conn.commit()
@@ -184,8 +183,9 @@ def console():
             return "Missing values!", 400
         conn = util.make_connection()
         try:
-            conn.execute(
-                text("INSERT INTO notifs VALUES (:arg1, :arg2, False, :arg0, :arg3)"),
+            util.exec_query(
+                conn,
+                "INSERT INTO notifs VALUES (:arg1, :arg2, False, :arg0, :arg3)",
                 arg0=args[0],
                 arg1=args[1],
                 arg2=args[2],
@@ -235,13 +235,12 @@ def ban(user: int):
 
         conn = util.make_connection()
         try:
-            conn.execute(
-                text(
-                    "insert into banned_users values (:user, :expiry, :msg)"
-                ),
+            util.exec_query(
+                conn,
+                "insert into banned_users values (:user, :expiry, :msg)",
                 user=user,
                 expiry=expiry,
-                msg=util.clean(dat['message'])
+                msg=util.clean(dat["message"]),
             )
         except sqlite3.Error as er:
             return " ".join(er.args)
@@ -260,7 +259,9 @@ def ban(user: int):
         dat = request.get_json(force=True)
         conn = util.make_connection()
         try:
-            conn.execute(text("delete from banned_users where self = :user"), user=user)
+            util.exec_query(
+                conn, "delete from banned_users where self = :user", user=user
+            )
         except sqlite3.Error as er:
             return " ".join(er.args)
         else:
@@ -284,8 +285,8 @@ def user_data(id):
         return "You can't do this!", 403
 
     conn = util.make_connection()
-    ban_data = conn.execute(
-        text("SELECT * FROM banned_users WHERE id = :id"), id=id
+    ban_data = util.exec_query(
+        conn, "SELECT * FROM banned_users WHERE id = :id", id=id
     ).fetchall()
 
     if len(ban_data) == 0:
@@ -376,10 +377,9 @@ def queue(type: str):
         # Form array
         out = []
         for item in r:
-            proj = conn.execute(
-                text(
-                    "select type, author, title, icon, url, description, rowid, status from projects where rowid = :i2"
-                ),
+            proj = util.exec_query(
+                conn,
+                "select type, author, title, icon, url, description, rowid, status from projects where rowid = :i2",
                 i2=item[2],
             ).fetchone()
 
@@ -439,10 +439,9 @@ def change_status(proj: int):
         return "action is missing", 400
 
     conn = util.make_connection()
-    project = conn.execute(
-        text(
-            "select rowid, status, title, author, description, icon, url from projects where rowid = :pid"
-        ),
+    project = util.exec_query(
+        conn,
+        "select rowid, status, title, author, description, icon, url from projects where rowid = :pid",
         pid=proj,
     ).fetchall()
 
@@ -456,19 +455,18 @@ def change_status(proj: int):
 
     if data["action"] == "publish":
         if project[1] != "live":
-            conn.execute(
-                text("update projects set status = 'live' where rowid = :pid"), pid=proj
+            util.exec_query(
+                conn, "update projects set status = 'live' where rowid = :pid", pid=proj
             )
-            conn.execute(
-                text(
-                    "INSERT INTO notifs VALUES (:title, :msg, False, 'default', :uid)"
-                ),
+            util.exec_query(
+                conn,
+                "INSERT INTO notifs VALUES (:title, :msg, False, 'default', :uid)",
                 title=f"Published {project[2]}",
                 msg=f"Your project, {project[2]}, was published by a staff member.",
                 uid=usr.id,
             )
-            followers = conn.execute(
-                text("select follower from follows where followed = :uid"), uid=usr.id
+            followers = util.exec_query(
+                conn, "select follower from follows where followed = :uid", uid=usr.id
             ).fetchall()
             for i in followers:
                 util.send_notif(
@@ -491,14 +489,13 @@ def change_status(proj: int):
         else:
             return "already live!", 400
     elif data["action"] == "delete":
-        conn.execute(
-            text("update projects set status = 'deleted' where rowid = :id"), id=proj
+        util.exec_query(
+            conn, "update projects set status = 'deleted' where rowid = :id", id=proj
         )
         if "message" in data:
-            conn.execute(
-                text(
-                    "INSERT INTO notifs VALUES (:title, :msg, False, 'important', :author)"
-                ),
+            util.exec_query(
+                conn,
+                "INSERT INTO notifs VALUES (:title, :msg, False, 'important', :author)",
                 title=f"Project {project[2]} deleted', msg=f'Your project was deleted for the following reason: {util.clean(data['message'])}",
                 author=project[3],
             )
@@ -515,11 +512,12 @@ def change_status(proj: int):
         conn.close()
         return "deleted project"
     elif data["action"] == "restore":
-        conn.execute(
-            text("update projects set status = 'live' where rowid = :id"), id=proj
+        util.exec_query(
+            conn, "update projects set status = 'live' where rowid = :id", id=proj
         )
-        conn.execute(
-            text("INSERT INTO notifs VALUES (:title, :msg, False, 'important', :id)"),
+        util.exec_query(
+            conn,
+            "INSERT INTO notifs VALUES (:title, :msg, False, 'important', :id)",
             title=f"Project {project[2]} restored",
             msg=f"Your project, {project[2]}, was restored by staff.",
             id=project[3],
@@ -533,17 +531,15 @@ def change_status(proj: int):
         except KeyError:
             return "message is missing, its a disable", 400
         else:
-            conn.execute(
-                text(
-                    "update projects set status = 'disabled', mod_message = :msg where rowid = :id"
-                ),
+            util.exec_query(
+                conn,
+                "update projects set status = 'disabled', mod_message = :msg where rowid = :id",
                 msg=util.clean(data["message"]),
                 id=proj,
             )
-            conn.execute(
-                text(
-                    "INSERT INTO notifs VALUES (:title, :msg, False, 'important', :id)"
-                ),
+            util.exec_query(
+                conn,
+                "INSERT INTO notifs VALUES (:title, :msg, False, 'important', :id)",
                 title=f"Project {project[2]} disabled",
                 msg=f"Your project, {project[2]}, was disabled. You need to make changes and then submit it for review. Reason: {util.clean(data['message'])}",
                 id=project[3],
@@ -566,15 +562,15 @@ def change_status(proj: int):
         except KeyError:
             return "message is missing, its a freaking write note action", 400
         else:
-            conn.execute(
-                text("update projects set mod_message = :msg where rowid = :id"),
+            util.exec_query(
+                conn,
+                "update projects set mod_message = :msg where rowid = :id",
                 msg=util.clean(data["message"]),
                 id=proj,
             )
-            conn.execute(
-                text(
-                    "INSERT INTO notifs VALUES (:title, :msg, False, 'important', :id)"
-                ),
+            util.exec_query(
+                conn,
+                "INSERT INTO notifs VALUES (:title, :msg, False, 'important', :id)",
                 title="New Mod Message",
                 msg="A moderator left a message on your project {project[2]}.",
                 id=project[3],
@@ -597,10 +593,9 @@ def dismiss(proj: int):
 
     # Get project.
     conn = util.make_connection()
-    project = conn.execute(
-        text(
-            "select rowid, status, author, mod_message from projects where rowid = :id"
-        ),
+    project = util.exec_query(
+        conn,
+        "select rowid, status, author, mod_message from projects where rowid = :id",
         id=proj,
     ).fetchall()
 
@@ -620,8 +615,8 @@ def dismiss(proj: int):
         return "While the project is disabled, you can't delete the message", 400
 
     # Delete message
-    conn.execute(
-        text("update projects set mod_message = null where rowid = :id"), id=id
+    util.exec_query(
+        conn, "update projects set mod_message = null where rowid = :id", id=id
     )
     conn.commit()
     conn.close()
@@ -638,13 +633,13 @@ def remove_report(id: int):
 
     conn = util.make_connection()
 
-    rep = conn.execute(
-        text("select rowid from reports where rowid = :id"), id=id
+    rep = util.exec_query(
+        conn, "select rowid from reports where rowid = :id", id=id
     ).fetchall()
     if len(rep) == 0:
         return "Report not found", 404
 
-    conn.execute(text("delete from reports where rowid = :id"), id=id)
+    util.exec_query(conn, "delete from reports where rowid = :id", id=id)
     conn.commit()
     conn.close()
 

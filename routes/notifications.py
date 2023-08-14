@@ -29,10 +29,9 @@ def all():
         return "Token Expired", 401
 
     conn = util.make_connection()
-    notifs = conn.execute(
-        text(
-            "select rowid, message, description, read, type from notifs where user = :id order by rowid desc limit 20"
-        ),
+    notifs = util.exec_query(
+        conn,
+        "select rowid, message, description, read, type from notifs where user = :id order by rowid desc limit 20",
         id=usr.id,
     ).fetchall()
 
@@ -52,8 +51,8 @@ def all():
     # Mark as read
     for i in res:
         if i["read"] is False:
-            conn.execute(
-                text("UPDATE notifs SET read = 1 WHERE rowid = :id"), id=i["id"]
+            util.exec_query(
+                conn, "UPDATE notifs SET read = 1 WHERE rowid = :id", id=i["id"]
             )
 
     conn.commit()
@@ -76,10 +75,9 @@ def unread():
         return "Token Expired", 401
 
     conn = util.make_connection()
-    notifs = conn.execute(
-        text(
-            "select rowid, message, description, read, type from notifs where user = :id and read = 0 order by rowid desc"
-        ),
+    notifs = util.exec_query(
+        conn,
+        "select rowid, message, description, read, type from notifs where user = :id and read = 0 order by rowid desc",
         id=usr.id,
     ).fetchall()
 
@@ -120,8 +118,9 @@ def send(target):
 
     conn = util.make_connection()
     try:
-        conn.execute(
-            text("INSERT INTO notifs VALUES (:title, :msg, False, :type, :target)"),
+        util.exec_query(
+            conn,
+            "INSERT INTO notifs VALUES (:title, :msg, False, :type, :target)",
             title=util.clean(notif_data["message"]),
             msg=util.clean(notif_data["description"]),
             type=util.clean(notif_data["type"]),
@@ -152,14 +151,14 @@ def delete(id):
         return "Token Expired", 401
 
     conn = util.make_connection()
-    notif = conn.execute(
-        text("SELECT user FROM notifs WHERE rowid = :id"), id=id
+    notif = util.exec_query(
+        conn, "SELECT user FROM notifs WHERE rowid = :id", id=id
     ).fetchone()
 
     if usr.id != notif[0]:
         return "Not your notif!", 403
     try:
-        conn.execute(text("DELETE FROM notifs WHERE rowid = :id"), id=id)
+        util.exec_query(conn, "DELETE FROM notifs WHERE rowid = :id", id=id)
         conn.commit()
     except sqlite3.Error:
         return "Something bad happened", 500

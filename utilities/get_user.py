@@ -9,10 +9,9 @@ def from_username(self: str):
     conn = util.make_connection()
 
     # Select
-    u = conn.execute(
-        text(
-            "select username, rowid, role, bio, profile_icon, badges from users where lower(username) = :uname"
-        ),
+    u = util.exec_query(
+        conn,
+        "select username, rowid, role, bio, profile_icon, badges from users where lower(username) = :uname",
         uname=util.clean(self.lower()),
     ).fetchone()
 
@@ -32,10 +31,9 @@ def from_id(self: int):
     conn = util.make_connection()
 
     # Select
-    u = conn.execute(
-        text(
-            "select username, rowid, role, bio, profile_icon, badges from users where rowid = :id"
-        ),
+    u = util.exec_query(
+        conn,
+        "select username, rowid, role, bio, profile_icon, badges from users where rowid = :id",
         id=self,
     ).fetchone()
 
@@ -55,10 +53,9 @@ def from_github_id(self: int):
     conn = util.make_connection()
 
     # Select
-    u = conn.execute(
-        text(
-            "select username, rowid, role, bio, profile_icon, badges from users where github_id = :id"
-        ),
+    u = util.exec_query(
+        conn,
+        "select username, rowid, role, bio, profile_icon, badges from users where github_id = :id",
         id=self,
     ).fetchone()
 
@@ -78,10 +75,9 @@ def from_discord_id(self: int):
     conn = util.make_connection()
 
     # Select
-    u = conn.execute(
-        text(
-            "select username, rowid, role, bio, profile_icon, badges from users where discord_id = :id"
-        ),
+    u = util.exec_query(
+        conn,
+        "select username, rowid, role, bio, profile_icon, badges from users where discord_id = :id",
         id=self,
     ).fetchone()
 
@@ -101,10 +97,9 @@ def from_token(token: str):
     conn = util.make_connection()
 
     # Select
-    u = conn.execute(
-        text(
-            "select username, rowid, role, bio, profile_icon, badges from users where token = :token"
-        ),
+    u = util.exec_query(
+        conn,
+        "select username, rowid, role, bio, profile_icon, badges from users where token = :token",
         token=util.clean(token),
     ).fetchone()
 

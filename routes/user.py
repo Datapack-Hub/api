@@ -8,10 +8,10 @@ import time
 import traceback
 
 from flask import Blueprint, request
-from sqlalchemy import create_engine, text
+from sqlalchemy import text
 
 import config
-import utilities.auth_utils
+import utilities.auth_utils as auth_util
 import utilities.get_user
 import utilities.post
 import utilities.util as util
@@ -52,12 +52,11 @@ def badges(id: int):
 
             print(badge_str)
 
-            conn.execute(
-                text(
-                    """UPDATE users 
+            util.exec_query(
+                conn,
+                """UPDATE users 
                     SET badges = :badges
-                    WHERE rowid = :id"""
-                ),
+                    WHERE rowid = :id""",
                 badges=badge_str,
                 id=id,
             )
@@ -77,8 +76,9 @@ def staff(role):
     conn = util.make_connection()
     if not role in ["admin", "moderator", "helper"]:
         return "Role has to be staff role", 400
-    list = conn.execute(
-        text("select username, rowid, bio, profile_icon from users where role = :role"),
+    list = util.exec_query(
+        conn,
+        "select username, rowid, bio, profile_icon from users where role = :role",
         role=util.clean(role),
     ).fetchall()
     finale = []
@@ -117,15 +117,16 @@ def get_user(username):
     }
 
     if request.headers.get("Authorization"):
-        usr = utilities.auth_utils.authenticate(request.headers.get("Authorization"))
+        usr = auth_util.authenticate(request.headers.get("Authorization"))
         if usr == 32:
             return "Please make sure authorization type = Basic", 400
         if usr == 33:
             return "Token Expired", 401
 
         conn = util.make_connection()
-        followed = conn.execute(
-            text("select * from follows where follower = :fid and followed = :uid;"),
+        followed = util.exec_query(
+            conn,
+            "select * from follows where follower = :fid and followed = :uid;",
             fid=u.id,
             uid=usr.id,
         ).fetchall()
@@ -155,19 +156,16 @@ def get_user_id(id):
         }
 
         if request.headers.get("Authorization"):
-            usr = utilities.auth_utils.authenticate(
-                request.headers.get("Authorization")
-            )
+            usr = auth_util.authenticate(request.headers.get("Authorization"))
             if usr == 32:
                 return "Please make sure authorization type = Basic", 400
             if usr == 33:
                 return "Token Expired", 401
 
             conn = util.make_connection()
-            followed = conn.execute(
-                text(
-                    "select * from follows where follower = :fid and followed = :uid;"
-                ),
+            followed = util.exec_query(
+                conn,
+                "select * from follows where follower = :fid and followed = :uid;",
                 fid=u.id,
                 uid=usr.id,
             ).fetchall()
@@ -180,7 +178,7 @@ def get_user_id(id):
     elif request.method == "PATCH":
         dat = request.get_json(force=True)
 
-        usr = utilities.auth_utils.authenticate(request.headers.get("Authorization"))
+        usr = auth_util.authenticate(request.headers.get("Authorization"))
         if usr == 32:
             return "Please make sure authorization type = Basic", 400
         if usr == 33:
@@ -204,19 +202,22 @@ def get_user_id(id):
 
         conn = util.make_connection()
         try:
-            conn.execute(
-                text("UPDATE users SET username = :name where rowid = :id"),
+            util.exec_query(
+                conn,
+                "UPDATE users SET username = :name where rowid = :id",
                 name=util.clean(dat["username"]),
                 id=id,
             )
-            conn.execute(
-                text("UPDATE users SET bio = ':bio where rowid = :id"),
+            util.exec_query(
+                conn,
+                "UPDATE users SET bio = ':bio where rowid = :id",
                 bio=util.clean(dat["bio"]),
                 id=id,
             )
             if usr.role == "admin":
-                conn.execute(
-                    text("UPDATE users SET role = :role where rowid = :id"),
+                util.exec_query(
+                    conn,
+                    "UPDATE users SET role = :role where rowid = :id",
                     role=util.clean(dat["role"]),
                     id=id,
                 )
@@ -237,7 +238,7 @@ def me():
     if not request.headers.get("Authorization"):
         return "Authorization required", 401
 
-    usr = utilities.auth_utils.authenticate(request.headers.get("Authorization"))
+    usr = auth_util.authenticate(request.headers.get("Authorization"))
     if usr == 32:
         return "Please make sure authorization type = Basic", 400
     if usr == 33:
@@ -254,15 +255,18 @@ def me():
 
     # banned?
     conn = util.make_connection()
-    x = conn.execute(
-        text("SELECT rowid, expires, reason from banned_users where id = :id"),
+    x = util.exec_query(
+        conn,
+        "SELECT rowid, expires, reason from banned_users where id = :id",
         id=usr.id,
     ).fetchall()
     if len(x) == 1:
         current = int(time.time())
         expires = x[0][1]
         if current > expires:
-            conn.execute(text("delete from banned_users where rowid = :id"), id=x[0][0])
+            util.exec_query(
+                conn, "delete from banned_users where rowid = :id", id=x[0][0]
+            )
             conn.commit()
         else:
             user_data["banned"] = True
@@ -272,8 +276,9 @@ def me():
 
     # fail safe
     if usr.username in ADMINS:
-        conn.execute(
-            text("update users set role = 'admin' where username = :uname"),
+        util.exec_query(
+            conn,
+            "update users set role = 'admin' where username = :uname",
             uname=util.clean(usr.username),
         )
         conn.commit()
@@ -288,7 +293,7 @@ def user_projects(username):
     # Check if user is authenticated
     t = request.headers.get("Authorization")
     user = utilities.get_user.from_username(username)
-    authed = utilities.auth_utils.authenticate(t)
+    authed = auth_util.authenticate(t)
     if authed == 32:
         return "Make sure authorization is basic!", 400
     elif authed == 33:
@@ -297,10 +302,9 @@ def user_projects(username):
     if t:
         if authed.id == user.id:
             # Get all submissions
-            r = conn.execute(
-                text(
-                    "select rowid, * from projects where author = :id and status != 'deleted'"
-                ),
+            r = util.exec_query(
+                conn,
+                "select rowid, * from projects where author = :id and status != 'deleted'",
                 id=user.id,
             ).fetchall()
 
@@ -321,10 +325,9 @@ def user_projects(username):
             return {"count": len(out), "result": out}
         else:
             # Get all PUBLIC submissions
-            r = conn.execute(
-                text(
-                    "select rowid, * from projects where author = :id and status = 'live'"
-                ),
+            r = util.exec_query(
+                conn,
+                "select rowid, * from projects where author = :id and status = 'live'",
                 id=user.id,
             ).fetchall()
 
@@ -345,10 +348,9 @@ def user_projects(username):
             return {"count": len(out), "result": out}
     else:
         # Get all PUBLIC submissions
-        r = conn.execute(
-            text(
-                "select rowid, * from projects where author = :id and status = 'live'"
-            ),
+        r = util.exec_query(
+            conn,
+            "select rowid, * from projects where author = :id and status = 'live'",
             id=user.id,
         ).fetchall()
 
@@ -374,7 +376,7 @@ def follow(id):
     if not request.headers.get("Authorization"):
         return "Authorization required", 401
 
-    follower = utilities.auth_utils.authenticate(request.headers.get("Authorization"))
+    follower = auth_util.authenticate(request.headers.get("Authorization"))
     if follower == 32:
         return "Please make sure authorization type = Basic", 400
     if follower == 33:
@@ -385,14 +387,16 @@ def follow(id):
         return "User doesn't exist.", 404
 
     conn = util.make_connection()
-    fol = conn.execute(
-        text("select * from follows where follower = :fid and followed = :fid;"),
+    fol = util.exec_query(
+        conn,
+        "select * from follows where follower = :fid and followed = :fid;",
         fid=follower.id,
     ).fetchall()
     if len(fol) == 0:
         try:
-            conn.execute(
-                text("insert into follows values (:follower, :followed);"),
+            util.exec_query(
+                conn,
+                "insert into follows values (:follower, :followed);",
                 follower=follower.id,
                 followed=followed.id,
             )
@@ -401,10 +405,9 @@ def follow(id):
             conn.close()
             return "Something went wrong.", 500
         else:
-            conn.execute(
-                text(
-                    "INSERT INTO notifs VALUES (:title, :msg, False, 'default', :fid)"
-                ),
+            util.exec_query(
+                conn,
+                "INSERT INTO notifs VALUES (:title, :msg, False, 'default', :fid)",
                 title="New follower",
                 msg=f"[{follower.username}](https://datapackhub.net/user/{follower.username}) followed you!",
                 fid=followed.id,
@@ -414,10 +417,9 @@ def follow(id):
             return "Followed user!", 200
     else:
         try:
-            conn.execute(
-                text(
-                    "delete from follows where follower = :follower and followed = :followed;"
-                ),
+            util.exec_query(
+                conn,
+                "delete from follows where follower = :follower and followed = :followed;",
                 follower=follower.id,
                 followed=followed.id,
             )
