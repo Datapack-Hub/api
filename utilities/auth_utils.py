@@ -22,7 +22,7 @@ def authenticate(auth: str):
 
     token = auth[6:]
 
-    conn = create_engine(config.DATA + "data.db")
+    conn = create_engine("sqlite://" + config.DATA + "data.db")
 
     u = conn.execute(
         text(
@@ -43,7 +43,7 @@ def authenticate(auth: str):
 
 
 def get_user_token(github_id: int):
-    conn = create_engine(config.DATA + "data.db")
+    conn = create_engine("sqlite://" + config.DATA + "data.db")
 
     # Select
     u = conn.execute(
@@ -59,7 +59,7 @@ def get_user_token(github_id: int):
 
 
 def get_user_token_from_discord_id(discord: int):
-    conn = create_engine(config.DATA + "data.db")
+    conn = create_engine("sqlite://" + config.DATA + "data.db")
 
     # Select
     u = conn.execute(
@@ -75,7 +75,7 @@ def get_user_token_from_discord_id(discord: int):
 
 
 def log_user_out(id: int):
-    conn = create_engine(config.DATA + "data.db")
+    conn = create_engine("sqlite://" + config.DATA + "data.db")
 
     token = secrets.token_urlsafe()
 

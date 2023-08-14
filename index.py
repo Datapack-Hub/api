@@ -42,7 +42,7 @@ app.register_blueprint(notifs)
 app.register_blueprint(comments)
 
 # Database things
-if not exists(config.DATA + "data.db"):
+if not exists("sqlite://" + config.DATA + "data.db"):
     gen_example_data.reset("no-drop")
 
 # Run the app
