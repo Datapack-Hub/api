@@ -149,12 +149,12 @@ def query():
     # SQL stuff
     conn = util.make_connection()
     if sort == "updated":
-        r = conn.execute(
-            "select rowid, * from projects where status = 'live' ORDER BY updated DESC"
+        r = conn.execute(text(
+            "select rowid, * from projects where status = 'live' ORDER BY updated DESC")
         ).fetchall()
     elif sort == "downloads":
-        r = conn.execute(
-            "select rowid, * from projects where status = 'live' ORDER BY downloads DESC"
+        r = conn.execute(text(
+            "select rowid, * from projects where status = 'live' ORDER BY downloads DESC")
         ).fetchall()
     else:
         return "Unknown sorting method.", 400
@@ -283,7 +283,7 @@ def random():
 def count():
     conn = util.make_connection()
     x = (
-        conn.execute("select * from projects where status = 'live'")
+        conn.execute(text("select * from projects where status = 'live'"))
         .fetchall()
         .__len__()
     )
@@ -803,8 +803,8 @@ def feature(id):
 @projects.route("/featured")
 def featured():
     conn = util.make_connection()
-    proj = conn.execute(
-        "SELECT rowid, * FROM projects where status = 'live' and featured_until > 0"
+    proj = conn.execute(text(
+        "SELECT rowid, * FROM projects where status = 'live' and featured_until > 0")
     ).fetchall()
 
     out = []
