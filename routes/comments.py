@@ -17,7 +17,7 @@ comments = Blueprint("comments", __name__, url_prefix="/comments")
 
 @comments.route("/thread/<int:thread>")
 def messages_from_thread(thread: int):
-    conn = create_engine(config.DATA + "data.db")
+    conn = create_engine("sqlite://" + config.DATA + "data.db")
     cmts = conn.execute(
         text(
             "select rowid, message, author, sent from comments where thread_id = :thread and parent_id is null order by sent desc"
@@ -82,7 +82,7 @@ def post_msg(thread: int):
     if usr == 33:
         return "Token Expired", 401
 
-    conn = create_engine(config.DATA + "data.db")
+    conn = create_engine("sqlite://" + config.DATA + "data.db")
     cmt_data = request.get_json(True)
     try:
         cmt_data["message"]
@@ -179,7 +179,7 @@ def post_msg(thread: int):
 @comments.route("/id/<int:id>", methods=["GET", "DELETE"])
 def get_comment(id: int):
     if request.method == "GET":
-        conn = create_engine(config.DATA + "data.db")
+        conn = create_engine("sqlite://" + config.DATA + "data.db")
         comment = conn.execute(
             text(
                 "select rowid, message, author, sent from comments where rowid = :id and parent_id is null order by sent desc"
@@ -234,7 +234,7 @@ def get_comment(id: int):
             "replies": reps,
         }
     elif request.method == "DELETE":
-        conn = create_engine(config.DATA + "data.db")
+        conn = create_engine("sqlite://" + config.DATA + "data.db")
         comment = conn.execute(
             text(
                 "select rowid, message, author, sent from comments where rowid = :id and parent_id is null order by sent desc"

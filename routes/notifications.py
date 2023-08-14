@@ -28,7 +28,7 @@ def all():
     if usr == 33:
         return "Token Expired", 401
 
-    conn = create_engine(config.DATA + "data.db")
+    conn = create_engine("sqlite://" + config.DATA + "data.db")
     notifs = conn.execute(
         text(
             "select rowid, message, description, read, type from notifs where user = :id order by rowid desc limit 20"
@@ -75,7 +75,7 @@ def unread():
     if usr == 33:
         return "Token Expired", 401
 
-    conn = create_engine(config.DATA + "data.db")
+    conn = create_engine("sqlite://" + config.DATA + "data.db")
     notifs = conn.execute(
         text(
             "select rowid, message, description, read, type from notifs where user = :id and read = 0 order by rowid desc"
@@ -118,7 +118,7 @@ def send(target):
 
     notif_data = request.get_json(force=True)
 
-    conn = create_engine(config.DATA + "data.db")
+    conn = create_engine("sqlite://" + config.DATA + "data.db")
     try:
         conn.execute(
             text("INSERT INTO notifs VALUES (:title, :msg, False, :type, :target)"),
@@ -151,7 +151,7 @@ def delete(id):
     if usr == 33:
         return "Token Expired", 401
 
-    conn = create_engine(config.DATA + "data.db")
+    conn = create_engine("sqlite://" + config.DATA + "data.db")
     notif = conn.execute(
         text("SELECT user FROM notifs WHERE rowid = :id"), id=id
     ).fetchone()

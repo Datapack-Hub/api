@@ -10,13 +10,13 @@ import random
 def create_user_account(
     github_data: dict,
 ):
-    conn = create_engine(config.DATA + "data.db")
+    conn = create_engine("sqlite://" + config.DATA + "data.db")
 
     token = secrets.token_urlsafe()
 
     check = conn.execute(
         text("select username from users where username = :login;"),
-        login=github_data['login']
+        login=github_data["login"],
     ).fetchall()
     if len(check) == 0:
         username = github_data["login"]
@@ -44,7 +44,7 @@ def create_user_account(
 
 @lru_cache
 def get_user_ban_data(id: int):
-    conn = create_engine(config.DATA + "data.db")
+    conn = create_engine("sqlite://" + config.DATA + "data.db")
 
     banned_user = conn.execute(
         text("select reason, expires from banned_users where id = :id"), id=id
@@ -60,7 +60,7 @@ def get_user_ban_data(id: int):
 
 @lru_cache
 def user_owns_project(project: int, author: int):
-    conn = create_engine(config.DATA + "data.db")
+    conn = create_engine("sqlite://" + config.DATA + "data.db")
     proj = conn.execute(
         text("select rowid from projects where rowid = :project and author = :author"),
         project=project,
@@ -75,7 +75,7 @@ def clean(query: str):
 
 
 # def get_user_data(id: int, data: list[str])
-#     conn = create_engine(config.DATA + "data.db")
+#     conn = create_engine("sqlite://"  + config.DATA + "data.db")
 #     query_props = ",".join(data)
 #     user = conn.execute(
 #         f"SELECT {clean(query_props)} FROM users WHERE rowid = {str(id)}"

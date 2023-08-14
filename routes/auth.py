@@ -116,7 +116,7 @@ def callback_dc():
 
     if not u:
         # Make account
-        conn = create_engine(config.DATA + "data.db")
+        conn = create_engine("sqlite://" + config.DATA + "data.db")
 
         token = secrets.token_urlsafe()
         sql = text(
@@ -125,7 +125,7 @@ def callback_dc():
 
         check = conn.execute(
             text("select username from users where username = :dis_uname;"),
-            dis_uname=discord['username']
+            dis_uname=discord["username"],
         ).fetchall()
         if len(check) == 0:
             username = discord["username"]
@@ -204,7 +204,7 @@ def link_discord():
         timeout=120,
     ).json()["id"]
 
-    conn = create_engine(config.DATA + "data.db")
+    conn = create_engine("sqlite://" + config.DATA + "data.db")
     try:
         conn.execute(
             text("update users set discord_id = :id where rowid = :user;"),
@@ -253,7 +253,7 @@ def link_github():
         timeout=120,
     ).json()
 
-    conn = create_engine(config.DATA + "data.db")
+    conn = create_engine("sqlite://" + config.DATA + "data.db")
     try:
         conn.execute(
             text("update users set github_id = :g_id where rowid = :id;"),
