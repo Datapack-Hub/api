@@ -6,8 +6,10 @@ import config
 import utilities.post as post
 import random
 
+
 def make_connection() -> Connection:
     return create_engine("sqlite://" + config.DATA + "data.db").connect()
+
 
 def create_user_account(
     github_data: dict,
