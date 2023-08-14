@@ -8,7 +8,7 @@ import time
 
 from flask import Blueprint, request
 from flask_cors import CORS
-from sqlalchemy import create_engine, text
+from sqlalchemy import text
 from werkzeug.exceptions import BadRequestKeyError
 
 import config
@@ -24,7 +24,7 @@ CORS(versions)
 @versions.route("/project/<int:id>")
 def project(id: int):
     # Select all versions where the project is this one
-    conn = create_engine(f"{config.DATA}data.db")
+    conn = util.make_connection(f"{config.DATA}data.db")
     v = conn.execute(
         text("SELECT * FROM versions WHERE project = :pid ORDER BY rowid DESC"), pid=id
     ).fetchall()
@@ -48,7 +48,7 @@ def project(id: int):
 
 @versions.route("/project/url/<string:id>")
 def project_from_str(id: str):
-    conn = create_engine(f"{config.DATA}data.db")
+    conn = util.make_connection(f"{config.DATA}data.db")
     # Get the project
     p = conn.execute(
         text("SELECT rowid FROM projects WHERE url = :url;"), url=util.clean(id)
@@ -91,7 +91,7 @@ def code(id: int, code: str):
             return "Token expired!", 401
 
         if util.user_owns_project(id, usr.id):
-            conn = create_engine(f"{config.DATA}data.db")
+            conn = util.make_connection(f"{config.DATA}data.db")
             try:
                 conn.execute(
                     text(
@@ -110,7 +110,7 @@ def code(id: int, code: str):
             return "Not your version! :P", 403
     else:
         # Select all versions where the project is this one
-        conn = create_engine(f"{config.DATA}data.db")
+        conn = util.make_connection(f"{config.DATA}data.db")
         v = conn.execute(
             text(
                 "SELECT * FROM versions WHERE version_code = :code AND project = :id ORDER BY rowid DESC"
@@ -163,7 +163,7 @@ def new(project: int):
 
     # now do the stuff
     data = request.get_json(force=True)
-    conn = create_engine(f"{config.DATA}data.db")
+    conn = util.make_connection(f"{config.DATA}data.db")
 
     try:
         data["name"]
