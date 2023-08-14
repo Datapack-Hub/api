@@ -1,20 +1,22 @@
 from utilities import util
+from sqlalchemy import text
+
 
 def reset(table: str):
     connection = util.make_connection()
 
     if table != "no-drop":
-        connection.execute(f"DROP TABLE {table}")
+        text(f"DROP TABLE {table}")
 
     # SQLite optimizations
-    connection.execute("PRAGMA synchronous = NORMAL")
-    connection.execute("PRAGMA mmap_size = 1000000000")
+    text("PRAGMA synchronous = NORMAL")
+    text("PRAGMA mmap_size = 1000000000")
 
     # ! This operation may not be supported, disable if you run into issues
-    connection.execute("PRAGMA journal_mode = WAL")
+    text("PRAGMA journal_mode = WAL")
 
     # Projects Data
-    connection.execute(
+    text(
         """CREATE TABLE \"projects\"(
             type TEXT NOT NULL,
             author INT NOT NULL,
@@ -36,7 +38,7 @@ def reset(table: str):
     )
 
     # Versions Data
-    connection.execute(
+    text(
         """CREATE TABLE IF NOT EXISTS versions(
         name TEXT NOT NULL,
         description TEXT NOT NULL,
@@ -50,7 +52,7 @@ def reset(table: str):
     )
 
     # User data
-    connection.execute(
+    text(
         """CREATE TABLE IF NOT EXISTS users (
         username TEXT NOT NULL UNIQUE, 
         token TEXT NOT NULL UNIQUE, 
@@ -64,7 +66,7 @@ def reset(table: str):
     )
 
     # Banned User Data
-    connection.execute(
+    text(
         """CREATE TABLE IF NOT EXISTS banned_users (
         id int NOT NULL UNIQUE,
         expires int,
@@ -73,7 +75,7 @@ def reset(table: str):
     )
 
     # Notification Data
-    connection.execute(
+    text(
         """CREATE TABLE IF NOT EXISTS notifs(
         message TEXT NOT NULL,
         description TEXT NOT NULL,
@@ -85,7 +87,7 @@ def reset(table: str):
     )
 
     # Report Data
-    connection.execute(
+    text(
         """CREATE TABLE IF NOT EXISTS reports(
         message TEXT NOT NULL,
         reporter INT NOT NULL,
@@ -95,7 +97,7 @@ def reset(table: str):
     )
 
     # Comment data
-    connection.execute(
+    text(
         """CREATE TABLE IF NOT EXISTS comments(
         thread_id INT,
         message TEXT NOT NULL,
@@ -107,7 +109,7 @@ def reset(table: str):
     )
 
     # Follow data
-    connection.execute(
+    text(
         """CREATE TABLE IF NOT EXISTS follows(
         follower INT,
         followed INT
@@ -125,15 +127,15 @@ if __name__ == "__main__":
 
     conn = util.make_connection()
 
-    conn.execute(
+    text(
         """INSERT INTO users (username, token, role, bio, github_id, profile_icon) VALUES ("HoodieRocks", "LOREMIPSUM", "admin", "rock", 123897432978, "example.com")"""
     )
 
-    # conn.execute(
+    # text(
     #     'update users set badges = \'{"badges": ["contributor"]}\' WHERE rowid = 1'
     # )
 
-    print(conn.execute("""SELECT * FROM users WHERE rowid = 1""").fetchone())
+    print(text("""SELECT * FROM users WHERE rowid = 1""").fetchone())
 
     conn.commit()
     conn.close()
