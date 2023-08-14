@@ -1,9 +1,8 @@
 import secrets
 
-from sqlalchemy import create_engine, text
-import config
+from sqlalchemy import text
 from utilities.commons import User
-import util
+import utilities.util as util
 
 import json
 import sqlite3

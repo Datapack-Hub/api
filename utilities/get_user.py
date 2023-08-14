@@ -1,12 +1,8 @@
-from sqlalchemy import create_engine, text
-import config
+from sqlalchemy import text
 from utilities.commons import User
-from utilities.util import clean
-
 
 import json
-import sqlite3
-import util
+import utilities.util as util
 
 
 def from_username(self: str):
@@ -17,7 +13,7 @@ def from_username(self: str):
         text(
             "select username, rowid, role, bio, profile_icon, badges from users where lower(username) = :uname"
         ),
-        uname=clean(self.lower()),
+        uname=util.clean(self.lower()),
     ).fetchone()
 
     if not u:
@@ -109,7 +105,7 @@ def from_token(token: str):
         text(
             "select username, rowid, role, bio, profile_icon, badges from users where token = :token"
         ),
-        token=clean(token),
+        token=util.clean(token),
     ).fetchone()
 
     if not u:
