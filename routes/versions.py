@@ -8,10 +8,8 @@ import time
 
 from flask import Blueprint, request
 from flask_cors import CORS
-from sqlalchemy import text
 from werkzeug.exceptions import BadRequestKeyError
 
-import config
 import utilities.auth_utils
 import utilities.files as files
 import utilities.util as util

@@ -14,7 +14,7 @@ import bleach
 import requests
 from flask import Blueprint, request
 from flask_cors import CORS
-from sqlalchemy import create_engine, text
+from sqlalchemy import text
 
 import config
 import gen_example_data
