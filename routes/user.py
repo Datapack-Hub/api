@@ -73,7 +73,7 @@ def badges(id: int):
 @user.route("/staff/<role>")
 def staff(role):
     conn = util.make_connection()
-    if not role in ["admin", "moderator", "helper"]:
+    if role not in ["admin", "moderator", "helper"]:
         return "Role has to be staff role", 400
     list = util.exec_query(
         conn,
