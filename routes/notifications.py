@@ -5,9 +5,7 @@
 import sqlite3
 
 from flask import Blueprint, request
-from sqlalchemy import create_engine, text
 
-import config
 import utilities.auth_utils
 import utilities.post
 import utilities.util as util

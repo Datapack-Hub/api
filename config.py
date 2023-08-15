@@ -1,4 +1,4 @@
-# Note: this is highly unsafe, please move this to somewhere else before publicizing
+# Please move this to somewhere else before publicizing
 # Also change the values if you don't wipe the commit history
 # Yours truly, -Cobble
 

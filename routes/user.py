@@ -8,7 +8,6 @@ import time
 import traceback
 
 from flask import Blueprint, request
-from sqlalchemy import text
 
 import config
 import utilities.auth_utils as auth_util

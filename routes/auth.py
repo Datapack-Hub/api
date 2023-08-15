@@ -10,7 +10,7 @@ import random
 import flask
 import requests
 from flask import request
-from sqlalchemy import create_engine, text
+from sqlalchemy import text
 
 import config
 import utilities.auth_utils
@@ -39,9 +39,8 @@ def callback_gh():
     # Get an access token
     code = request.args.get("code")
     access_token = requests.post(
-        quote(
-            f"https://github.com/login/oauth/access_token?client_id={config.github.client_id}&client_secret={config.github.client_secret}&code={code}"
-        ),
+            f"https://github.com/login/oauth/access_token?client_id={config.github.client_id}&client_secret={config.github.client_secret}&code={quote(code)}"
+        ,
         headers={"Accept": "application/json"},
         timeout=180,
     ).json()
@@ -92,7 +91,7 @@ def callback_dc():
         "client_id": 1121129295868334220,
         "client_secret": "BvADF8zUtHmhb1XfVAg9bdpfNithjqo3",
         "grant_type": "authorization_code",
-        "code": code,
+        "code": quote(code),
         "redirect_uri": "https://api.datapackhub.net/auth/callback/discord",
     }
     headers = {"Content-Type": "application/x-www-form-urlencoded"}

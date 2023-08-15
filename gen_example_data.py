@@ -1,12 +1,11 @@
 from utilities import util
-from sqlalchemy import text
 
 
 def reset(table: str):
     connection = util.make_connection()
 
     if table != "no-drop":
-        util.exec_query(connection, f"DROP TABLE {table}")
+        util.exec_query(connection, "DROP TABLE :table", table=table)
 
     # SQLite optimizations
     util.exec_query(connection, "PRAGMA synchronous = NORMAL")

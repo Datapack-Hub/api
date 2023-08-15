@@ -4,7 +4,6 @@
 
 import sqlite3
 from flask import Blueprint, request
-from sqlalchemy import text
 import utilities.auth_utils
 import utilities.get_user
 import utilities.util as util

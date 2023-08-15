@@ -1,8 +1,9 @@
-from sqlalchemy import text
-from utilities.commons import User
-
 import json
+
+from sqlalchemy import text
+
 import utilities.util as util
+from utilities.commons import User
 
 
 def from_username(self: str):

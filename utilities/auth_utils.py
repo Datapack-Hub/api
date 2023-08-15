@@ -1,11 +1,9 @@
-import secrets
-
-from sqlalchemy import text
-from utilities.commons import User
-import utilities.util as util
-
 import json
+import secrets
 import sqlite3
+
+import utilities.util as util
+from utilities.commons import User
 
 
 def authenticate(auth: str):

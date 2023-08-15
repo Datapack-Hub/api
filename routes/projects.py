@@ -12,7 +12,7 @@ import traceback
 import regex as re
 from flask import Blueprint, request
 from flask_cors import CORS
-from sqlalchemy import Engine, create_engine, text
+from sqlalchemy import Engine, text
 
 import config
 import utilities.auth_utils
