@@ -87,8 +87,8 @@ def callback_dc():
     code = request.args.get("code")
 
     data = {
-        "client_id": 1121129295868334220,
-        "client_secret": "BvADF8zUtHmhb1XfVAg9bdpfNithjqo3",
+        "client_id": config.discord.client_id,
+        "client_secret": config.discord.client_secret,
         "grant_type": "authorization_code",
         "code": code,
         "redirect_uri": "https://api.datapackhub.net/auth/callback/discord",
@@ -179,8 +179,8 @@ def link_discord():
 
     # Get discord user info
     data = {
-        "client_id": 1121129295868334220,
-        "client_secret": "BvADF8zUtHmhb1XfVAg9bdpfNithjqo3",
+        "client_id": config.discord.client_id,
+        "client_secret": config.discord.client_secret,
         "grant_type": "authorization_code",
         "code": code,
         "redirect_uri": "https://datapackhub.net/settings/discord",
