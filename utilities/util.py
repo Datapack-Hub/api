@@ -29,7 +29,7 @@ def create_user_account(
     check = exec_query(
         conn,
         "select username from users where username = :login;",
-        params={"login": github_data["login"]},
+        login=github_data["login"],
     ).fetchall()
     if len(check) == 0:
         username = github_data["login"]
@@ -40,12 +40,10 @@ def create_user_account(
     exec_query(
         conn,
         'INSERT INTO users (username, role, bio, github_id, token, profile_icon) VALUES (:g_login, "default", "A new Datapack Hub user!", :id, :token, :avatar)',
-        params={
-            "g_login": username,
-            "id": github_data["id"],
-            "token": token,
-            "avatar": github_data["avatar_url"],
-        },
+        g_login=username,
+        id=github_data["id"],
+        token=token,
+        avatar=github_data["avatar_url"],
     )
 
     conn.commit()
@@ -63,7 +61,7 @@ def get_user_ban_data(id: int):
     banned_user = exec_query(
         conn,
         "select reason, expires from banned_users where id = :id",
-        params={"id": id},
+        id=id,
     ).fetchone()
 
     if not banned_user:
@@ -80,7 +78,8 @@ def user_owns_project(project: int, author: int):
     proj = exec_query(
         conn,
         "select rowid from projects where rowid = :project and author = :author",
-        params={"project": project, "author": author},
+        project=project,
+        author=author,
     ).fetchall()
     conn.close()
     return len(proj) == 1
@@ -104,11 +103,9 @@ def send_notif(conn: Engine, title: str, msg: str, receiver: int):
     exec_query(
         conn,
         "INSERT INTO notifs VALUES (:title, :msg, False, 'default', :uid})",
-        params={
-            "title": title,
-            "msg": msg,
-            "uid": receiver,
-        },
+        title=title,
+        msg=msg,
+        uid=receiver,
     )
 
 
