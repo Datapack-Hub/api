@@ -72,7 +72,7 @@ def parse_project(output: tuple, conn: Engine):
     }
 
     if type(this_user) is dict:
-        if this_user.id == output[2] and output[12]:
+        if (this_user.id == output[2] or this_user.role in ["moderator", "admin"]) and output[12]:
             temp["mod_message"] = output[12]
 
     if output[14]:
@@ -92,7 +92,7 @@ def parse_project(output: tuple, conn: Engine):
 @projects.route("/search", methods=["GET"])
 def search():
     x = time.time()
-    query = request.args.get("query", "").replace("'", "")
+    query = util.clean(request.args.get("query", ""))
     page = int(request.args.get("page", 1))
     sort = request.args.get("sort", "updated")
 
