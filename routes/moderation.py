@@ -113,7 +113,7 @@ def console():
         try:
             conn = util.make_connection()
             result = conn.execute(text(sql_command)).fetchall()
-            out = [r[0] for r in result]
+            out = [r for r, in result]
             conn.commit()
             conn.close()
         except sqlite3.Error as error:
