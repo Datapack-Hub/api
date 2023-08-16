@@ -112,14 +112,15 @@ def console():
         # Run SQLITE command
         try:
             conn = util.make_connection()
-            out = conn.execute(text(sql_command)).fetchall()
+            result = conn.execute(text(sql_command)).fetchall()
+            out = [r[0] for r in result]
             conn.commit()
             conn.close()
         except sqlite3.Error as error:
             return "SQL Error: " + (" ".join(error.args)), 400
         else:
             return (
-                json.dumps(out, indent=2).replace("\n", "<br>"),
+                bleach.clean(json.dumps(out, indent=2).replace("\n", "<br>"), ["br"]),
                 200,
             )
     elif cmd == "user":
