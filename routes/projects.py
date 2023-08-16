@@ -16,6 +16,7 @@ from sqlalchemy import Engine, text
 
 import config
 import utilities.auth_utils
+from utilities.commons import User
 import utilities.files as files
 import utilities.post
 import utilities.util as util
@@ -71,7 +72,7 @@ def parse_project(output: tuple, conn: Engine):
         "dependencies": str(output[9]).split(","),
     }
 
-    if type(this_user) is dict:
+    if type(this_user) is User:
         if (
             this_user.id == output[2] or this_user.role in ["moderator", "admin"]
         ) and output[12]:
@@ -514,7 +515,7 @@ def edit(id: int):
                 title = :title,
                 description = :desc,
                 body = :body,
-                category = :cat,
+                category = :cat
                 where rowid = :id""",
                 title=util.clean(data["title"]),
                 desc=util.clean(data["description"]),
