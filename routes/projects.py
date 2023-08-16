@@ -72,7 +72,9 @@ def parse_project(output: tuple, conn: Engine):
     }
 
     if type(this_user) is dict:
-        if (this_user.id == output[2] or this_user.role in ["moderator", "admin"]) and output[12]:
+        if (
+            this_user.id == output[2] or this_user.role in ["moderator", "admin"]
+        ) and output[12]:
             temp["mod_message"] = output[12]
 
     if output[14]:
