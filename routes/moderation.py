@@ -112,8 +112,7 @@ def console():
         # Run SQLITE command
         try:
             conn = util.make_connection()
-            result = conn.execute(text(sql_command)).fetchall()
-            out = [r for r, in result]
+            out = [tuple(row) for row in conn.execute(text(sql_command)).fetchall()]
             conn.commit()
             conn.close()
         except sqlite3.Error as error:

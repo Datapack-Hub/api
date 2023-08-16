@@ -454,7 +454,7 @@ def edit(id: int):
 
     if not (
         util.user_owns_project(project=id, author=user.id)
-        or user.id in ["admin", "moderator"]
+        or user.role in ["admin", "moderator"]
     ):
         return "You don't have permission to edit this project. ", 403
 
