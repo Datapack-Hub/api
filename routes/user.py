@@ -209,7 +209,7 @@ def get_user_id(id):
             )
             util.exec_query(
                 conn,
-                "UPDATE users SET bio = ':bio where rowid = :id",
+                "UPDATE users SET bio = :bio where rowid = :id",
                 bio=util.clean(dat["bio"]),
                 id=id,
             )
