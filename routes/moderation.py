@@ -119,7 +119,7 @@ def console():
             return "SQL Error: " + (" ".join(error.args)), 400
         else:
             return (
-                bleach.clean(json.dumps(out, indent=3).replace("\n", "<br />"), ["br"]),
+                json.dumps(out, indent=2).replace("\n", "<br>"),
                 200,
             )
     elif cmd == "user":
@@ -141,8 +141,8 @@ def console():
         else:
             return_this = ""
             for u in out:
-                return_this += f"{u[0]} (ID {u[2]}) | Role: {u[1]}\n"
-            return bleach.clean(return_this)
+                return_this += f"{bleach.clean(u[0])} (ID {u[2]}) | Role: {u[1]}\n"
+            return return_this
     elif cmd == "hello":
         return "Beep boop! Hi!"
     elif cmd == "reset":
@@ -216,7 +216,7 @@ def logout(id: int):
                 request.headers.get("Authorization")[6:]
             ).username,
             "Logged user out",
-            f"Logged out user`{id}`",
+            f"Logged out user `{id}`",
         )
         return "Success!", 200
 
@@ -576,7 +576,7 @@ def change_status(proj: int):
                 conn,
                 "INSERT INTO notifs VALUES (:title, :msg, False, 'important', :id)",
                 title="New Mod Message",
-                msg="A moderator left a message on your project {project[2]}.",
+                msg=f"A moderator left a message on your project {project[2]}.",
                 id=project[3],
             )
             conn.commit()
