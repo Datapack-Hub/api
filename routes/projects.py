@@ -197,7 +197,7 @@ def get_proj(id):
     if not proj:
         return "Not found", 404
 
-    if (proj[8] in ["disabled","draft","unpublished","review_queue","publish_queue"]):
+    if proj[8] in ["disabled", "draft", "unpublished", "review_queue", "publish_queue"]:
         if not this_user:
             return "Not found", 404
         if proj[2] != this_user.id and this_user.role not in ["admin", "moderator"]:
