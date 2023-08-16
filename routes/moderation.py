@@ -120,7 +120,7 @@ def console():
             return "SQL Error: " + (" ".join(error.args)), 400
         else:
             return (
-                bleach.clean(json.dumps(out, indent=2).replace("\n", "<br>"), ["br"]),
+                json.dumps(out, indent=2).replace("\n", "<br>"),
                 200,
             )
     elif cmd == "user":
