@@ -227,7 +227,7 @@ def new(project: int):
                 rpath = files.upload_zipfile(
                     data["resource_pack_download"],
                     html.escape(
-                        f"project/{project}/{data['version_code']}/Resourcepack-{data['filename']}"
+                        f"project/{project}/{data['version_code']}/Resources-{data['filename']}"
                     ),
                     usr.username,
                 )
