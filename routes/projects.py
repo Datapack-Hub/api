@@ -337,6 +337,9 @@ def new_project():
 
     if len(data["category"]) > 3:
         return "Categories exceed 3", 400
+    
+    if len(data["url"]) > 50 and not re.match(r"^[a-z0-9]+(?:-[a-z0-9]+)*$"):
+        return "Slug exceeds max length!", 400
 
     if not re.match(r'^[\w!@$()`.+,"\-\']{3,64}$', data["url"]):
         return "URL is bad", 400
