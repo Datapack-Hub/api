@@ -384,7 +384,7 @@ def follow(id):
     followed = utilities.get_user.from_id(id)
     if not followed:
         return "User doesn't exist.", 404
-    
+
     if followed.id == follower.id:
         return "You can't follow yourself, silly!", 400
 
