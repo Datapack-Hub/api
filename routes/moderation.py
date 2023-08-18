@@ -15,6 +15,7 @@ import requests
 from flask import Blueprint, request
 from flask_cors import CORS
 from sqlalchemy import text
+import sqlalchemy.exc
 
 import config
 import gen_example_data
@@ -443,19 +444,21 @@ def change_status(proj: int):
         return "action is missing", 400
 
     conn = util.make_connection()
-    project = util.exec_query(
-        conn,
-        "select rowid, status, title, author, description, icon, url from projects where rowid = :pid",
-        pid=proj,
-    ).fetchall()
-
-    project = project[0]
+    
+    project = None
+    
+    try:
+        project = util.exec_query(
+            conn,
+            "select rowid, status, title, author, description, icon, url from projects where rowid = :pid",
+            pid=proj,
+        ).one()
+    except sqlalchemy.exc.NoResultFound:
+        return "No project found", 404
+    except sqlalchemy.exc.MultipleResultsFound:
+        return "How did this happen", 500
 
     usr = get_user.from_id(project[3])
-
-    if len(project) == 0:
-        conn.close()
-        return "project not found", 404
 
     if data["action"] == "publish":
         if project[1] != "live":
@@ -491,7 +494,7 @@ def change_status(proj: int):
             )
             return "yep i did the thing", 200
         else:
-            return "already live!", 400
+            return "Already live!", 400
     elif data["action"] == "delete":
         util.exec_query(
             conn, "update projects set status = 'deleted' where rowid = :id", id=proj
