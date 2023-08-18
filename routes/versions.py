@@ -5,6 +5,7 @@
 import html
 import sqlite3
 import time
+from urllib.parse import quote
 
 from flask import Blueprint, request
 from flask_cors import CORS
@@ -196,7 +197,7 @@ def new(project: int):
 
         dpath = files.upload_zipfile(
             data["primary_download"],
-            f"project/{project}/{data['version_code']}/{data['filename']}",
+            f"project/{project}/{quote(data['version_code'])}/{quote(data['filename'])}",
             usr.username,
             sq,
         )
@@ -212,7 +213,7 @@ def new(project: int):
                         minecraft_versions,
                         version_code,
                         project
-                    ) VALUES (:name, :desc, :path,:mcv, :vc, :project)""",
+                    ) VALUES (:name, :desc, :path, :mcv, :vc, :project)""",
                 name=data["name"],
                 desc=data["description"],
                 path=dpath,
@@ -221,13 +222,11 @@ def new(project: int):
                 project=project,
             )
         else:
-            if (data["resource_pack_download"] is not None) and (
-                data["resource_pack_download"] != ""
-            ):
+            if data["resource_pack_download"] != "":
                 rpath = files.upload_zipfile(
                     data["resource_pack_download"],
                     html.escape(
-                        f"project/{project}/{data['version_code']}/Resources-{data['filename']}"
+                        f"project/{project}/{quote(data['version_code'])}/Resources-{quote(data['filename'])}"
                     ),
                     usr.username,
                 )
