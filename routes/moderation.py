@@ -444,9 +444,9 @@ def change_status(proj: int):
         return "action is missing", 400
 
     conn = util.make_connection()
-    
+
     project = None
-    
+
     try:
         project = util.exec_query(
             conn,
