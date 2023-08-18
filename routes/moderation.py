@@ -450,7 +450,7 @@ def change_status(proj: int):
     try:
         project = util.exec_query(
             conn,
-            "select rowid, status, title, author, description, icon, url from projects where rowid = :pid",
+            "select status, title, author, description, icon, url from projects where rowid = :pid",
             pid=proj,
         ).one()
     except sqlalchemy.exc.NoResultFound:
@@ -480,7 +480,7 @@ def change_status(proj: int):
                     conn,
                     f"{usr.username} posted a project!",
                     f"[{usr.username}](https://datapackhub.net/user/{usr.username}) just posted a new project: [{util.clean(project[2])}](https://datapackhub.net/project/{project[6]})",
-                    i[0],
+                    i,
                 )
             conn.commit()
             conn.close()
@@ -602,7 +602,7 @@ def dismiss(proj: int):
     conn = util.make_connection()
     project = util.exec_query(
         conn,
-        "select rowid, status, author, mod_message from projects where rowid = :id",
+        "select status, author, mod_message from projects where rowid = :id",
         id=proj,
     ).fetchall()
 
@@ -611,7 +611,7 @@ def dismiss(proj: int):
         conn.close()
         return "project not found", 404
 
-    project = project[0]
+    project = proj
 
     # Check if user owns project.
     if not (project[2] != user.id or user.role in ["admin", "moderator"]):
@@ -623,7 +623,7 @@ def dismiss(proj: int):
 
     # Delete message
     util.exec_query(
-        conn, "update projects set mod_message = null where rowid = :id", id=id
+        conn, "update projects set mod_message = null where rowid = :id", id=proj
     )
     conn.commit()
     conn.close()
