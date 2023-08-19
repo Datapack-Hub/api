@@ -457,10 +457,10 @@ def change_status(proj: int):
     except sqlalchemy.exc.MultipleResultsFound:
         return "How did this happen", 500
 
-    usr = get_user.from_id(project[3])
+    usr = get_user.from_id(project[2])
 
     if data["action"] == "publish":
-        if project[1] != "live":
+        if project[0] != "live":
             util.exec_query(
                 conn, "update projects set status = 'live' where rowid = :pid", pid=proj
             )
@@ -485,11 +485,11 @@ def change_status(proj: int):
             conn.close()
             utilities.post.approval(
                 user.username,
-                project[2],
-                project[4],
-                project[5],
+                project[1],
                 project[3],
-                project[6],
+                project[4],
+                project[2],
+                project[5],
             )
             return "yep i did the thing", 200
         else:
@@ -502,17 +502,17 @@ def change_status(proj: int):
             util.exec_query(
                 conn,
                 "INSERT INTO notifs VALUES (:title, :msg, False, 'important', :author)",
-                title=f"Project {project[2]} deleted', msg=f'Your project was deleted for the following reason: {util.clean(data['message'])}",
-                author=project[3],
+                title=f"Project {project[1]} deleted', msg=f'Your project was deleted for the following reason: {util.clean(data['message'])}",
+                author=project[2],
             )
         utilities.post.deletion(
             user.username,
-            project[2],
-            project[4],
-            project[5],
+            project[1],
             project[3],
+            project[4],
+            project[2],
             data["message"],
-            project[6],
+            project[5],
         )
         conn.commit()
         conn.close()
@@ -524,9 +524,9 @@ def change_status(proj: int):
         util.exec_query(
             conn,
             "INSERT INTO notifs VALUES (:title, :msg, False, 'important', :id)",
-            title=f"Project {project[2]} restored",
-            msg=f"Your project, {project[2]}, was restored by staff.",
-            id=project[3],
+            title=f"Project {project[1]} restored",
+            msg=f"Your project, {project[1]}, was restored by staff.",
+            id=project[2],
         )
         conn.commit()
         conn.close()
@@ -546,20 +546,20 @@ def change_status(proj: int):
             util.exec_query(
                 conn,
                 "INSERT INTO notifs VALUES (:title, :msg, False, 'important', :id)",
-                title=f"Project {project[2]} disabled",
-                msg=f"Your project, {project[2]}, was disabled. You need to make changes and then submit it for review. Reason: {util.clean(data['message'])}",
-                id=project[3],
+                title=f"Project {project[1]} disabled",
+                msg=f"Your project, {project[1]}, was disabled. You need to make changes and then submit it for review. Reason: {util.clean(data['message'])}",
+                id=project[2],
             )
             conn.commit()
             conn.close()
             utilities.post.disabled(
                 user.username,
-                project[2],
-                project[4],
-                project[5],
+                project[1],
                 project[3],
+                project[4],
+                project[2],
                 data["message"],
-                project[6],
+                project[5],
             )
             return "disabled the project lmao xd xd", 200
     elif data["action"] == "write_note":
@@ -578,8 +578,8 @@ def change_status(proj: int):
                 conn,
                 "INSERT INTO notifs VALUES (:title, :msg, False, 'important', :id)",
                 title="New Mod Message",
-                msg=f"A moderator left a message on your project {project[2]}.",
-                id=project[3],
+                msg=f"A moderator left a message on your project {project[1]}.",
+                id=project[2],
             )
             conn.commit()
             conn.close()
