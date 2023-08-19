@@ -8,7 +8,7 @@ from flask import Blueprint, request
 
 import utilities.auth_utils
 import utilities.post
-import utilities.util as util
+from utilities import util
 
 notifs = Blueprint("notifications", __name__, url_prefix="/notifs")
 
@@ -33,18 +33,10 @@ def all():
         id=usr.id,
     ).fetchall()
 
-    res = []
-
-    for i in notifs:
-        res.append(
-            {
-                "id": i[0],
-                "message": i[1],
-                "description": i[2],
-                "read": i[3],
-                "type": i[4],
-            }
-        )
+    res = [
+        {"id": i[0], "message": i[1], "description": i[2], "read": i[3], "type": i[4]}
+        for i in notifs
+    ]
 
     # Mark as read
     for i in res:
@@ -79,18 +71,10 @@ def unread():
         id=usr.id,
     ).fetchall()
 
-    res = []
-
-    for i in notifs:
-        res.append(
-            {
-                "id": i[0],
-                "message": i[1],
-                "description": i[2],
-                "read": i[3],
-                "type": i[4],
-            }
-        )
+    res = [
+        {"id": i[0], "message": i[1], "description": i[2], "read": i[3], "type": i[4]}
+        for i in notifs
+    ]
 
     conn.commit()
     conn.close()

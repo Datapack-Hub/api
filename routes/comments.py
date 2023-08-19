@@ -3,12 +3,14 @@
 """
 
 import sqlite3
+import time
+
+import regex
 from flask import Blueprint, request
+
 import utilities.auth_utils
 import utilities.get_user
-import utilities.util as util
-import time
-import regex
+from utilities import util
 
 comments = Blueprint("comments", __name__, url_prefix="/comments")
 

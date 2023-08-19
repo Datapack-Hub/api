@@ -2,10 +2,10 @@
 **Auth API Endpoints**
 """
 
+import random
 import secrets
 import sqlite3
 from urllib.parse import quote
-import random
 
 import flask
 import requests
@@ -15,7 +15,7 @@ from sqlalchemy import text
 import config
 import utilities.auth_utils
 import utilities.get_user
-import utilities.util as util
+from utilities import util
 
 auth = flask.Blueprint("auth", __name__, url_prefix="/auth")
 

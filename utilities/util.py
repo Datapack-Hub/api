@@ -1,10 +1,11 @@
-from functools import lru_cache
+import random
 import secrets
+from functools import lru_cache
 
 from sqlalchemy import Connection, CursorResult, Engine, create_engine, text
+
 import config
-import utilities.post as post
-import random
+from utilities import post
 
 
 def make_connection() -> Connection:
