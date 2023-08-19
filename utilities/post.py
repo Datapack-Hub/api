@@ -1,7 +1,9 @@
-import config
-import utilities.get_user as get_user
-import disnake
 import datetime
+
+import disnake
+
+import config
+from utilities import get_user
 
 
 def site_log(user: str, action: str, content: str):

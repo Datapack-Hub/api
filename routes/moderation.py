@@ -9,20 +9,19 @@ import shlex
 import sqlite3
 import time
 from datetime import date
-import bleach
 
+import bleach
 import requests
+import sqlalchemy.exc
 from flask import Blueprint, request
 from flask_cors import CORS
 from sqlalchemy import text
-import sqlalchemy.exc
 
 import config
 import gen_example_data
 import utilities.auth_utils
-import utilities.get_user as get_user
 import utilities.post
-import utilities.util as util
+from utilities import get_user, util
 
 console_commands = [
     "sql",

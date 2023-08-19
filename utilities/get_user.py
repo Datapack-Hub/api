@@ -1,7 +1,6 @@
 import json
 
-
-import utilities.util as util
+from utilities import util
 from utilities.commons import User
 
 

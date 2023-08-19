@@ -2,13 +2,13 @@
 **Projects API endpoints**
 """
 
-import bleach
 import math
 import secrets
 import sqlite3
 import time
 import traceback
 
+import bleach
 import regex as re
 from flask import Blueprint, request
 from flask_cors import CORS
@@ -16,11 +16,9 @@ from sqlalchemy import Engine, text
 
 import config
 import utilities.auth_utils
-from utilities.commons import User
-import utilities.files as files
 import utilities.post
-import utilities.util as util
-import utilities.get_user as get_user
+from utilities import files, get_user, util
+from utilities.commons import User
 
 projects = Blueprint("projects", __name__, url_prefix="/projects")
 
@@ -339,15 +337,15 @@ def new_project():
         return "Categories exceed 3", 400
 
     if len(data["url"]) > 50 and not re.match(r"^[a-z0-9]+(?:-[a-z0-9]+)*$"):
-        return "Slug exceeds max length!", 400
+        return "Slug is invalid!", 400
 
     if not re.match(r'^[\w!@$()`.+,"\-\']{3,64}$', data["url"]):
-        return "URL is bad", 400
+        return "URL is invalid!", 400
 
     if "icon" in data and data["icon"]:
         icon = files.upload_file(
             data["icon"],
-            f"icons/{str(secrets.randbelow(999999))}.png",
+            f"icons/{secrets.randbelow(999999)!s}.png",
             user.username,
         )
 
@@ -484,7 +482,7 @@ def edit(id: int):
     if "icon" in data and data["icon"]:
         icon = files.upload_file(
             data["icon"],
-            f"icons/{str(secrets.randbelow(999999))}.png",
+            f"icons/{secrets.randbelow(999999)!s}.png",
             user.username,
         )
 

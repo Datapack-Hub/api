@@ -13,9 +13,9 @@ import config
 import utilities.auth_utils as auth_util
 import utilities.get_user
 import utilities.post
-import utilities.util as util
 from routes.moderation import auth
 from routes.projects import parse_project
+from utilities import util
 
 ADMINS = ["Silabear", "Flynecraft", "HoodieRocks"]
 user = Blueprint("user", __name__, url_prefix="/user")
@@ -80,17 +80,16 @@ def staff(role):
         "select username, rowid, bio, profile_icon from users where role = :role",
         role=util.clean(role),
     ).fetchall()
-    finale = []
-    for i in list:
-        finale.append(
-            {
-                "id": i[1],
-                "username": i[0],
-                "role": role,
-                "bio": i[2],
-                "profile_icon": i[3],
-            }
-        )
+    finale = [
+        {
+            "id": i[1],
+            "username": i[0],
+            "role": role,
+            "bio": i[2],
+            "profile_icon": i[3],
+        }
+        for i in list
+    ]
     return {"count": len(finale), "values": finale}
 
 

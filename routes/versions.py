@@ -11,8 +11,7 @@ from flask_cors import CORS
 from werkzeug.exceptions import BadRequestKeyError
 
 import utilities.auth_utils
-import utilities.files as files
-import utilities.util as util
+from utilities import files, util
 
 versions = Blueprint("versions", __name__, url_prefix="/versions")
 
