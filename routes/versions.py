@@ -187,11 +187,8 @@ def new(project: int):
         if len(data["version_code"]) > 15:
             return "Version code too long", 400
 
-        if "squash" in data:
-            if data["squash"] is True:
-                sq = True
-            else:
-                sq = False
+        if "squash" in data and data["squash"] is True:
+            sq = True
         else:
             sq = False
 
@@ -217,7 +214,7 @@ def new(project: int):
                 name=data["name"],
                 desc=data["description"],
                 path=dpath,
-                mcc=",".join(data["minecraft_versions"]),
+                mcv=",".join(data["minecraft_versions"]),
                 vc=data["version_code"],
                 project=project,
             )
@@ -225,9 +222,7 @@ def new(project: int):
             if data["resource_pack_download"] != "":
                 rpath = files.upload_zipfile(
                     data["resource_pack_download"],
-                    html.escape(
-                        f"project/{project}/{quote(data['version_code'])}/Resources-{quote(data['filename'])}"
-                    ),
+                    f"project/{project}/{quote(data['version_code'])}/resourcepack-{quote(data['filename'])}",
                     usr.username,
                 )
                 util.exec_query(
@@ -240,12 +235,12 @@ def new(project: int):
                             minecraft_versions,
                             version_code,
                             project
-                        ) VALUES (:name, :desc, :dpath,:rpath,:mcv, :vc, :project)""",
+                        ) VALUES (:name, :desc, :dpath, :rpath, :mcv, :vc, :project)""",
                     name=data["name"],
                     desc=data["description"],
                     dpath=dpath,
                     rpath=rpath,
-                    mcc=",".join(data["minecraft_versions"]),
+                    mcv=",".join(data["minecraft_versions"]),
                     vc=data["version_code"],
                     project=project,
                 )

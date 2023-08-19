@@ -142,8 +142,8 @@ def console():
         else:
             return_this = ""
             for u in out:
-                return_this += f"{bleach.clean(u[0])} (ID {u[2]}) | Role: {u[1]}\n"
-            return return_this
+                return_this += f"{u[0]} (ID {u[2]}) | Role: {u[1]}\n"
+            return bleach.clean(return_this)
     elif cmd == "hello":
         return "Beep boop! Hi!"
     elif cmd == "reset":
