@@ -2,7 +2,6 @@
 **Versions API endpoints**
 """
 
-import html
 import sqlite3
 import time
 from urllib.parse import quote
