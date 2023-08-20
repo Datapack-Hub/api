@@ -256,7 +256,7 @@ def new(project: int):
                     name=data["name"],
                     desc=data["description"],
                     path=dpath,
-                    mcc=",".join(data["minecraft_versions"]),
+                    mcv=",".join(data["minecraft_versions"]),
                     vc=data["version_code"],
                     project=project,
                 )
