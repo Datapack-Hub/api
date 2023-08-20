@@ -70,14 +70,13 @@ def parse_project(output: tuple, conn: Engine):
         "dependencies": str(output[9]).split(","),
     }
 
-    if type(this_user) is User:
-        if (
-            this_user.id == output[2] or this_user.role in ["moderator", "admin"]
-        ) and output[12]:
-            temp["mod_message"] = output[12]
+    if type(this_user) is User and (
+        this_user.id == output[2] or this_user.role in ["moderator", "admin"]
+    ) and output[12]:
+        temp["mod_message"] = output[12]
 
     if output[14]:
-        temp["featured"] is True
+        temp["featured"] = True
 
     if len(latest_version) != 0:
         temp["latest_version"] = {
@@ -798,7 +797,6 @@ def feature(id):
         )
         conn.commit()
         conn.close()
-        # util.post.fea(user.username, project[2], project[4], project[5], project[3], data["message"])
         return "Featured project!"
 
 

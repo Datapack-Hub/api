@@ -91,13 +91,7 @@ def clean(query: str):
 
 
 # def get_user_data(id: int, data: list[str])
-#     conn = create_engine("sqlite://"  + config.DATA + "data.db")
-#     query_props = ",".join(data)
-#     user = conn.execute(
-#         f"SELECT {clean(query_props)} FROM users WHERE rowid = {str(id)}"
 #     ).fetchone()
-#     conn.close()
-#     return [*user]
 
 
 def send_notif(conn: Engine, title: str, msg: str, receiver: int):

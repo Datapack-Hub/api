@@ -20,13 +20,10 @@ from utilities import util
 ADMINS = ["Silabear", "Flynecraft", "HoodieRocks"]
 user = Blueprint("user", __name__, url_prefix="/user")
 
-# CORS(user)
 
 
 # @user.after_request
 # def after(resp):
-#     resp.headers.add("Access-Control-Allow-Methods", "GET, POST, PATCH, OPTIONS")
-#     return resp
 
 
 @user.route("/badges/<int:id>", methods=["PATCH", "GET"])
