@@ -19,10 +19,7 @@ def from_username(self: str):
 
     conn.close()
 
-    if u[5]:
-        badges = json.loads(u[5])
-    else:
-        badges = None
+    badges = json.loads(u[5]) if u[5] else None
     return User(u[1], u[0], u[2], u[3], profile_icon=u[4], badges=badges)
 
 
@@ -41,10 +38,7 @@ def from_id(self: int):
 
     conn.close()
 
-    if u[5]:
-        badges = json.loads(u[5])
-    else:
-        badges = None
+    badges = json.loads(u[5]) if u[5] else None
     return User(u[1], u[0], u[2], u[3], profile_icon=u[4], badges=badges)
 
 
@@ -63,10 +57,7 @@ def from_github_id(self: int):
 
     conn.close()
 
-    if u[5]:
-        badges = json.loads(u[5])
-    else:
-        badges = None
+    badges = json.loads(u[5]) if u[5] else None
     return User(u[1], u[0], u[2], u[3], profile_icon=u[4], badges=badges)
 
 
@@ -85,10 +76,7 @@ def from_discord_id(self: int):
 
     conn.close()
 
-    if u[5]:
-        badges = json.loads(u[5])
-    else:
-        badges = None
+    badges = json.loads(u[5]) if u[5] else None
     return User(u[1], u[0], u[2], u[3], profile_icon=u[4], badges=badges)
 
 
@@ -108,8 +96,5 @@ def from_token(token: str):
 
     conn.close()
 
-    if u[5]:
-        badges = json.loads(u[5])
-    else:
-        badges = None
+    badges = json.loads(u[5]) if u[5] else None
     return User(u[1], u[0], u[2], u[3], profile_icon=u[4], badges=badges)

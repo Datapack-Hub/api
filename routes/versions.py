@@ -82,7 +82,7 @@ def code(id: int, code: str):
     if request.method == "DELETE":
         usr = utilities.auth_utils.authenticate(request.headers.get("Authorization"))
         if usr == 31:
-            return "You need to be signed in!"
+            return "You need to be signed in!", 401
         elif usr == 32:
             return "Make sure authorization is basic!", 400
         elif usr == 33:
@@ -185,10 +185,7 @@ def new(project: int):
         if len(data["version_code"]) > 15:
             return "Version code too long", 400
 
-        if "squash" in data and data["squash"] is True:
-            sq = True
-        else:
-            sq = False
+        sq = bool("squash" in data and data["squash"] is True)
 
         dpath = files.upload_zipfile(
             data["primary_download"],
@@ -274,7 +271,7 @@ def new(project: int):
     }
 
     if v[3] is not None:
-        o["resource_pack_download"]: v[3]
+        o["resource_pack_download"] = v[3]
 
     util.exec_query(
         conn,

@@ -140,8 +140,6 @@ if __name__ == "__main__":
     )
 
     # text(
-    #     'update users set badges = \'{"badges": ["contributor"]}\' WHERE rowid = 1'
-    # )
 
     print(util.exec_query(conn, """SELECT * FROM users WHERE rowid = 1""").fetchone())
 
