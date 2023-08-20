@@ -39,7 +39,7 @@ def callback_gh():
     # Get an access token
     code = request.args.get("code")
     access_token = requests.post(
-        f"https://github.com/login/oauth/access_token?client_id={config.github.client_id}&client_secret={config.github.client_secret}&code={code}",
+        f"https://github.com/login/oauth/access_token?client_id={config.github.client_id}&client_secret={config.github.client_secret}&code={quote(code)}",
         headers={"Accept": "application/json"},
         timeout=180,
     ).json()
