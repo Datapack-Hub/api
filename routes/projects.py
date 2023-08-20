@@ -70,9 +70,11 @@ def parse_project(output: tuple, conn: Engine):
         "dependencies": str(output[9]).split(","),
     }
 
-    if type(this_user) is User and (
-        this_user.id == output[2] or this_user.role in ["moderator", "admin"]
-    ) and output[12]:
+    if (
+        type(this_user) is User
+        and (this_user.id == output[2] or this_user.role in ["moderator", "admin"])
+        and output[12]
+    ):
         temp["mod_message"] = output[12]
 
     if output[14]:
