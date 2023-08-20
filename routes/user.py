@@ -21,7 +21,6 @@ ADMINS = ["Silabear", "Flynecraft", "HoodieRocks"]
 user = Blueprint("user", __name__, url_prefix="/user")
 
 
-
 # @user.after_request
 # def after(resp):
 
