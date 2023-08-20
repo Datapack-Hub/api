@@ -613,11 +613,11 @@ def dismiss(proj: int):
     project = proj
 
     # Check if user owns project.
-    if not (project[2] != user.id or user.role in ["admin", "moderator"]):
+    if not (project[1] != user.id or user.role in ["admin", "moderator"]):
         return "You don't own this project!", 403
 
     # Check status of project
-    if project[1] == "disabled":
+    if project[0] == "disabled":
         return "While the project is disabled, you can't delete the message", 400
 
     # Delete message
