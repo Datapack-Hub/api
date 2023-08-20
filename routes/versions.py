@@ -96,7 +96,7 @@ def code(id: int, code: str):
                     "DELETE FROM versions WHERE version_code = :code AND project = :id",
                     code=code,
                     id=id,
-                ).fetchone()
+                )
             except sqlite3.Error:
                 return "There was an error deleting that version!", 500
             else:
