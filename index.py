@@ -3,10 +3,10 @@ from os.path import exists
 import flask
 from flask_compress import Compress
 from flask_cors import CORS
-from prod import PROD
 
 import config
 import gen_example_data
+from prod import PROD
 
 # Register blueprints
 from routes.auth import auth
