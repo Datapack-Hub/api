@@ -48,7 +48,7 @@ def project_from_str(id: str):
     conn = util.make_connection()
     # Get the project
     p = util.exec_query(
-        conn, "SELECT rowid FROM projects WHERE url = :url;", url=util.clean(id)
+        conn, "SELECT rowid FROM projects WHERE url = :url;", url=id
     ).fetchall()
     if len(p) == 0:
         return "Project not found", 404

@@ -74,7 +74,7 @@ def staff(role):
     list = util.exec_query(
         conn,
         "select username, rowid, bio, profile_icon from users where role = :role",
-        role=util.clean(role),
+        role=role,
     ).fetchall()
     finale = [
         {
@@ -199,20 +199,20 @@ def get_user_id(id):
             util.exec_query(
                 conn,
                 "UPDATE users SET username = :name where rowid = :id",
-                name=util.clean(dat["username"]),
+                name=dat["username"],
                 id=id,
             )
             util.exec_query(
                 conn,
                 "UPDATE users SET bio = :bio where rowid = :id",
-                bio=util.clean(dat["bio"]),
+                bio=dat["bio"],
                 id=id,
             )
             if usr.role == "admin":
                 util.exec_query(
                     conn,
                     "UPDATE users SET role = :role where rowid = :id",
-                    role=util.clean(dat["role"]),
+                    role=dat["role"],
                     id=id,
                 )
                 utilities.post.site_log(

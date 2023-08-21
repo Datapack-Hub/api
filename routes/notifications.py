@@ -103,9 +103,9 @@ def send(target):
         util.exec_query(
             conn,
             "INSERT INTO notifs VALUES (:title, :msg, False, :type, :target)",
-            title=util.clean(notif_data["message"]),
-            msg=util.clean(notif_data["description"]),
-            type=util.clean(notif_data["type"]),
+            title=notif_data["message"],
+            msg=notif_data["description"],
+            type=notif_data["type"],
             target=target,
         )
     except sqlite3.Error as er:
