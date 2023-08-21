@@ -94,7 +94,7 @@ def parse_project(output: tuple, conn: Engine):
 @projects.route("/search", methods=["GET"])
 def search():
     x = time.time()
-    query = util.clean(request.args.get("query", ""))
+    query = request.args.get("query", "")
     page = int(request.args.get("page", 1))
     sort = request.args.get("sort", "updated")
 
