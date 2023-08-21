@@ -86,10 +86,6 @@ def user_owns_project(project: int, author: int):
     return len(proj) == 1
 
 
-def clean(query: str):
-    return query.replace("'", r"''").replace(";", r"\;")
-
-
 # def get_user_data(id: int, data: list[str])
 #     ).fetchone()
 

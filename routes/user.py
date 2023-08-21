@@ -273,7 +273,7 @@ def me():
         util.exec_query(
             conn,
             "update users set role = 'admin' where username = :uname",
-            uname=util.clean(usr.username),
+            uname=usr.username,
         )
         conn.commit()
     conn.close()

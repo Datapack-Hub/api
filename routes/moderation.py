@@ -502,7 +502,7 @@ def change_status(proj: int):
             util.exec_query(
                 conn,
                 "INSERT INTO notifs VALUES (:title, :msg, False, 'important', :author)",
-                title=f"Project {project[1]} deleted', msg=f'Your project was deleted for the following reason: {util.clean(data['message'])}",
+                title=f"Project {project[1]} deleted', msg=f'Your project was deleted for the following reason: {data['message']}",
                 author=project[2],
             )
         utilities.post.deletion(
@@ -547,7 +547,7 @@ def change_status(proj: int):
                 conn,
                 "INSERT INTO notifs VALUES (:title, :msg, False, 'important', :id)",
                 title=f"Project {project[1]} disabled",
-                msg=f"Your project, {project[1]}, was disabled. You need to make changes and then submit it for review. Reason: {util.clean(data['message'])}",
+                msg=f"Your project, {project[1]}, was disabled. You need to make changes and then submit it for review. Reason: {data['message']}",
                 id=project[2],
             )
             conn.commit()

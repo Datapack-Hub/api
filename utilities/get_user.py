@@ -11,7 +11,7 @@ def from_username(self: str):
     u = util.exec_query(
         conn,
         "select username, rowid, role, bio, profile_icon, badges from users where lower(username) = :uname",
-        uname=util.clean(self.lower()),
+        uname=self.lower(),
     ).fetchone()
 
     if not u:
