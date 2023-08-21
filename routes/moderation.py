@@ -240,7 +240,7 @@ def ban(user: int):
                 "insert into banned_users values (:user, :expiry, :msg)",
                 user=user,
                 expiry=expiry,
-                msg=util.clean(dat["message"]),
+                msg=dat["message"],
             )
         except sqlite3.Error as er:
             return " ".join(er.args)
@@ -478,7 +478,7 @@ def change_status(proj: int):
                 util.send_notif(
                     conn,
                     f"{usr.username} posted a project!",
-                    f"[{usr.username}](https://datapackhub.net/user/{usr.username}) just posted a new project: [{util.clean(project[2])}](https://datapackhub.net/project/{project[6]})",
+                    f"[{usr.username}](https://datapackhub.net/user/{usr.username}) just posted a new project: [{project[2]}](https://datapackhub.net/project/{project[6]})",
                     i,
                 )
             conn.commit()
@@ -540,7 +540,7 @@ def change_status(proj: int):
             util.exec_query(
                 conn,
                 "update projects set status = 'disabled', mod_message = :msg where rowid = :id",
-                msg=util.clean(data["message"]),
+                msg=data["message"],
                 id=proj,
             )
             util.exec_query(
@@ -571,7 +571,7 @@ def change_status(proj: int):
             util.exec_query(
                 conn,
                 "update projects set mod_message = :msg where rowid = :id",
-                msg=util.clean(data["message"]),
+                msg=data["message"],
                 id=proj,
             )
             util.exec_query(

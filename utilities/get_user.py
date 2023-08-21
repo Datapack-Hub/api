@@ -87,7 +87,7 @@ def from_token(token: str):
     u = util.exec_query(
         conn,
         "select username, rowid, role, bio, profile_icon, badges from users where token = :token",
-        token=util.clean(token),
+        token=token,
     ).fetchone()
 
     if not u:

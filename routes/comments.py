@@ -112,7 +112,7 @@ def post_msg(thread: int):
                 conn,
                 "INSERT INTO comments VALUES (:thread, :msg, :uid, :time, null)",
                 thread=thread,
-                msg=util.clean(cmt_data["message"]),
+                msg=cmt_data["message"],
                 uid=usr.id,
                 time=time.time(),
             )
@@ -138,7 +138,7 @@ def post_msg(thread: int):
                 uid=usr.id,
                 time=time.time(),
                 pid=cmt_data["parent_id"],
-                msg=util.clean(cmt_data["message"]),
+                msg=cmt_data["message"],
                 thread=thread,
             )
 

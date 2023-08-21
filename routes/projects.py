@@ -108,13 +108,13 @@ def search():
         r = util.exec_query(
             conn,
             "select rowid, * from projects where status = 'live' and trim(title) LIKE :query ORDER BY updated DESC",
-            query=f"%{util.clean(query)}%",
+            query=f"%{query}%",
         ).fetchall()
     elif sort == "downloads":
         r = util.exec_query(
             conn,
             "select rowid, * from projects where status = 'live' and trim(title) LIKE :query ORDER BY downloads DESC",
-            query=f"%{util.clean(query)}%",
+            query=f"%{query}%",
         ).fetchall()
     else:
         return "Unknown sorting method.", 400
@@ -234,7 +234,7 @@ def get_project(slug: str):
 
     # gimme dat project and gtfo
     proj = util.exec_query(
-        conn, "select rowid, * from projects where url = :url", url=util.clean(slug)
+        conn, "select rowid, * from projects where url = :url", url=slug
     ).fetchone()
 
     # hey u didn't give me a project, hate u
@@ -381,13 +381,13 @@ def new_project():
                         :uploaded,
                         :updated,
                         :icon)""",
-            type=util.clean(data["type"]),
+            type=data["type"],
             id=user.id,
-            title=util.clean(data["title"]),
-            desc=util.clean(data["description"]),
-            body=util.clean(data["body"]),
-            categories=util.clean(cat_str),
-            url=util.clean(data["url"]),
+            title=data["title"],
+            desc=data["description"],
+            body=data["body"],
+            categories=cat_str,
+            url=data["url"],
             uploaded=str(int(time.time())),
             updated=str(int(time.time())),
             icon=icon,
@@ -416,13 +416,13 @@ def new_project():
                         'unpublished',
                         :uploaded,
                         :updated)""",
-            type=util.clean(data["type"]),
+            type=data["type"],
             id=user.id,
-            title=util.clean(data["title"]),
-            desc=util.clean(data["description"]),
-            body=util.clean(data["body"]),
-            categories=util.clean(cat_str),
-            url=util.clean(data["url"]),
+            title=data["title"],
+            desc=data["description"],
+            body=data["body"],
+            categories=cat_str,
+            url=data["url"],
             uploaded=str(int(time.time())),
             updated=str(int(time.time())),
         )
@@ -503,10 +503,10 @@ def edit(id: int):
                 category = :cat,
                 icon = :icon 
                 where rowid = :id""",
-                title=util.clean(data["title"]),
-                desc=util.clean(data["description"]),
-                body=util.clean(data["body"]),
-                cat=util.clean(cat_str),
+                title=data["title"],
+                desc=data["description"],
+                body=data["body"],
+                cat=cat_str,
                 icon=icon,
                 id=id,
             )
@@ -519,10 +519,10 @@ def edit(id: int):
                 body = :body,
                 category = :cat
                 where rowid = :id""",
-                title=util.clean(data["title"]),
-                desc=util.clean(data["description"]),
-                body=util.clean(data["body"]),
-                cat=util.clean(cat_str),
+                title=data["title"],
+                desc=data["description"],
+                body=data["body"],
+                cat=cat_str,
                 id=id,
             )
     except sqlite3.Error:
@@ -670,7 +670,7 @@ def report(id):
         util.exec_query(
             conn,
             "insert into reports values (:msg, :uid, :pid)",
-            msg=util.clean(report_data["message"]),
+            msg=report_data["message"],
             uid=user.id,
             pid=id,
         )
