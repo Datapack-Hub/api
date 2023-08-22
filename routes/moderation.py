@@ -98,7 +98,7 @@ def console():
             conn.execute(text(sql_command))
             conn.commit()
             conn.close()
-        except sqlite3.Error as error:
+        except sqlalchemy.exc.SQLAlchemyError as error:
             return "SQL Error: " + (" ".join(error.args)), 400
         else:
             return "Processed SQL command!", 200
@@ -115,8 +115,12 @@ def console():
             out = [tuple(row) for row in conn.execute(text(sql_command)).fetchall()]
             conn.commit()
             conn.close()
-        except sqlite3.Error as error:
-            return "SQL Error: " + (" ".join(error.args)), 400
+        except sqlalchemy.exc.NoResultFound:
+            return "No results found!", 400
+        except sqlalchemy.exc.OperationalError as error:
+            return "SQL Syntax Error, check to make sure that you spelt your command correctly! (Error: " + " ".join(error.args) + ")", 400
+        except sqlalchemy.exc.SQLAlchemyError as error:
+            return "SQL error: " + (" ".join(error.args)), 400
         else:
             return (
                 bleach.clean(json.dumps(out, indent=2).replace("\n", "<br>"), ["br"]),
@@ -136,7 +140,7 @@ def console():
             ).fetchall()
             conn.commit()
             conn.close()
-        except sqlite3.Error as error:
+        except sqlalchemy.exc.SQLAlchemyError as error:
             return "SQL Error: " + (" ".join(error.args)), 400
         else:
             return_this = ""
@@ -152,7 +156,7 @@ def console():
             ).username
             != "Silabear"
         ):
-            return "Only Silabear can run this command!", 403
+            return "Only Silabear can run this command! :(", 403
         gen_example_data.reset(args[0])
         return "Reset the database."
     elif cmd == "backup":
@@ -191,7 +195,7 @@ def console():
                 arg2=args[2],
                 arg3=args[3],
             )
-        except sqlite3.Error as er:
+        except sqlalchemy.exc.SQLAlchemyError as er:
             return "Error: " + " ".join(er.args), 400
         conn.commit()
         conn.close()
