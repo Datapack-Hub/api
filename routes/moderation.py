@@ -20,6 +20,7 @@ from sqlalchemy import text
 import config
 import gen_example_data
 import utilities.auth_utils
+import utilities.db
 import utilities.post
 from utilities import get_user, util
 
@@ -94,7 +95,7 @@ def console():
 
         # Run SQLITE command
         try:
-            conn = util.make_connection()
+            conn = utilities.db.make_connection()
             conn.execute(text(sql_command))
             conn.commit()
             conn.close()
@@ -111,7 +112,7 @@ def console():
 
         # Run SQLITE command
         try:
-            conn = util.make_connection()
+            conn = utilities.db.make_connection()
             out = [tuple(row) for row in conn.execute(text(sql_command)).fetchall()]
             conn.commit()
             conn.close()
@@ -137,8 +138,8 @@ def console():
 
         # Run SQLITE command
         try:
-            conn = util.make_connection()
-            out = util.exec_query(
+            conn = utilities.db.make_connection()
+            out = utilities.db.exec_query(
                 conn,
                 "select username, role, rowid from users where trim(username) like :uname",
                 uname=args[0],
@@ -190,9 +191,9 @@ def console():
             return "You can't run this command!", 403
         if len(args) < 3:
             return "Missing values!", 400
-        conn = util.make_connection()
+        conn = utilities.db.make_connection()
         try:
-            util.exec_query(
+            utilities.db.exec_query(
                 conn,
                 "INSERT INTO notifs VALUES (:arg1, :arg2, False, :arg0, :arg3)",
                 arg0=args[0],
@@ -242,9 +243,9 @@ def ban(user: int):
         current = time.time()
         expiry = current + (86400 * dat["expires"])
 
-        conn = util.make_connection()
+        conn = utilities.db.make_connection()
         try:
-            util.exec_query(
+            utilities.db.exec_query(
                 conn,
                 "insert into banned_users values (:user, :expiry, :msg)",
                 user=user,
@@ -266,9 +267,9 @@ def ban(user: int):
             return "worked fine"
     else:
         dat = request.get_json(force=True)
-        conn = util.make_connection()
+        conn = utilities.db.make_connection()
         try:
-            util.exec_query(
+            utilities.db.exec_query(
                 conn, "delete from banned_users where self = :user", user=user
             )
         except sqlite3.Error as er:
@@ -293,8 +294,8 @@ def user_data(id):
     ):
         return "You can't do this!", 403
 
-    conn = util.make_connection()
-    ban_data = util.exec_query(
+    conn = utilities.db.make_connection()
+    ban_data = utilities.db.exec_query(
         conn, "SELECT * FROM banned_users WHERE id = :id", id=id
     ).fetchall()
 
@@ -316,7 +317,7 @@ def queue(type: str):
     ):
         return "You can't do this!", 403
 
-    conn = util.make_connection()
+    conn = utilities.db.make_connection()
 
     if type == "publish":
         r = conn.execute(
@@ -390,7 +391,7 @@ def queue(type: str):
         # Form array
         out = []
         for item in r:
-            proj = util.exec_query(
+            proj = utilities.db.exec_query(
                 conn,
                 "select type, author, title, icon, url, description, rowid, status from projects where rowid = :i2",
                 i2=item[2],
@@ -451,12 +452,12 @@ def change_status(proj: int):
     except KeyError:
         return "action is missing", 400
 
-    conn = util.make_connection()
+    conn = utilities.db.make_connection()
 
     project = None
 
     try:
-        project = util.exec_query(
+        project = utilities.db.exec_query(
             conn,
             "select status, title, author, description, icon, url from projects where rowid = :pid",
             pid=proj,
@@ -470,17 +471,17 @@ def change_status(proj: int):
 
     if data["action"] == "publish":
         if project[0] != "live":
-            util.exec_query(
+            utilities.db.exec_query(
                 conn, "update projects set status = 'live' where rowid = :pid", pid=proj
             )
-            util.exec_query(
+            utilities.db.exec_query(
                 conn,
                 "INSERT INTO notifs VALUES (:title, :msg, False, 'default', :uid)",
                 title=f"Published {project[2]}",
                 msg=f"Your project, {project[2]}, was published by a staff member.",
                 uid=usr.id,
             )
-            followers = util.exec_query(
+            followers = utilities.db.exec_query(
                 conn, "select follower from follows where followed = :uid", uid=usr.id
             ).fetchall()
             for i in followers:
@@ -504,11 +505,11 @@ def change_status(proj: int):
         else:
             return "Already live!", 400
     elif data["action"] == "delete":
-        util.exec_query(
+        utilities.db.exec_query(
             conn, "update projects set status = 'deleted' where rowid = :id", id=proj
         )
         if "message" in data:
-            util.exec_query(
+            utilities.db.exec_query(
                 conn,
                 "INSERT INTO notifs VALUES (:title, :msg, False, 'important', :author)",
                 title=f"Project {project[1]} deleted', msg=f'Your project was deleted for the following reason: {data['message']}",
@@ -527,10 +528,10 @@ def change_status(proj: int):
         conn.close()
         return "deleted project"
     elif data["action"] == "restore":
-        util.exec_query(
+        utilities.db.exec_query(
             conn, "update projects set status = 'live' where rowid = :id", id=proj
         )
-        util.exec_query(
+        utilities.db.exec_query(
             conn,
             "INSERT INTO notifs VALUES (:title, :msg, False, 'important', :id)",
             title=f"Project {project[1]} restored",
@@ -546,13 +547,13 @@ def change_status(proj: int):
         except KeyError:
             return "message is missing, its a disable", 400
         else:
-            util.exec_query(
+            utilities.db.exec_query(
                 conn,
                 "update projects set status = 'disabled', mod_message = :msg where rowid = :id",
                 msg=data["message"],
                 id=proj,
             )
-            util.exec_query(
+            utilities.db.exec_query(
                 conn,
                 "INSERT INTO notifs VALUES (:title, :msg, False, 'important', :id)",
                 title=f"Project {project[1]} disabled",
@@ -577,13 +578,13 @@ def change_status(proj: int):
         except KeyError:
             return "message is missing, its a freaking write note action", 400
         else:
-            util.exec_query(
+            utilities.db.exec_query(
                 conn,
                 "update projects set mod_message = :msg where rowid = :id",
                 msg=data["message"],
                 id=proj,
             )
-            util.exec_query(
+            utilities.db.exec_query(
                 conn,
                 "INSERT INTO notifs VALUES (:title, :msg, False, 'important', :id)",
                 title="New Mod Message",
@@ -607,8 +608,8 @@ def dismiss(proj: int):
         return "Token Expired", 401
 
     # Get project.
-    conn = util.make_connection()
-    project = util.exec_query(
+    conn = utilities.db.make_connection()
+    project = utilities.db.exec_query(
         conn,
         "select status, author, mod_message from projects where rowid = :id",
         id=proj,
@@ -630,7 +631,7 @@ def dismiss(proj: int):
         return "While the project is disabled, you can't delete the message", 400
 
     # Delete message
-    util.exec_query(
+    utilities.db.exec_query(
         conn, "update projects set mod_message = null where rowid = :id", id=proj
     )
     conn.commit()
@@ -646,15 +647,15 @@ def remove_report(id: int):
     ):
         return "You can't do this!", 403
 
-    conn = util.make_connection()
+    conn = utilities.db.make_connection()
 
-    rep = util.exec_query(
+    rep = utilities.db.exec_query(
         conn, "select rowid from reports where rowid = :id", id=id
     ).fetchall()
     if len(rep) == 0:
         return "Report not found", 404
 
-    util.exec_query(conn, "delete from reports where rowid = :id", id=id)
+    utilities.db.exec_query(conn, "delete from reports where rowid = :id", id=id)
     conn.commit()
     conn.close()
 

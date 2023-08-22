@@ -16,6 +16,7 @@ from sqlalchemy import Engine, text
 
 import config
 import utilities.auth_utils
+import utilities.db
 import utilities.post
 from utilities import files, get_user, util
 from utilities.commons import User
@@ -36,7 +37,7 @@ def after(resp):
 def parse_project(output: tuple, conn: Engine):
     this_user = utilities.auth_utils.authenticate(request.headers.get("Authorization"))
 
-    latest_version = util.exec_query(
+    latest_version = utilities.db.exec_query(
         conn,
         "SELECT * FROM versions WHERE project = :out0 ORDER BY rowid DESC",
         out0=output[0],
@@ -103,15 +104,15 @@ def search():
 
     page = request.args.get("page", 1)
 
-    conn = util.make_connection()
+    conn = utilities.db.make_connection()
     if sort == "updated":
-        r = util.exec_query(
+        r = utilities.db.exec_query(
             conn,
             "select rowid, * from projects where status = 'live' and trim(title) LIKE :query ORDER BY updated DESC",
             query=f"%{query}%",
         ).fetchall()
     elif sort == "downloads":
-        r = util.exec_query(
+        r = utilities.db.exec_query(
             conn,
             "select rowid, * from projects where status = 'live' and trim(title) LIKE :query ORDER BY downloads DESC",
             query=f"%{query}%",
@@ -149,7 +150,7 @@ def query():
     sort = request.args.get("sort", "updated")
 
     # SQL stuff
-    conn = util.make_connection()
+    conn = utilities.db.make_connection()
     if sort == "updated":
         r = conn.execute(
             text(
@@ -184,7 +185,7 @@ def query():
 
 @projects.route("/id/<int:id>")
 def get_proj(id):
-    conn = util.make_connection()
+    conn = utilities.db.make_connection()
 
     this_user = utilities.auth_utils.authenticate(request.headers.get("Authorization"))
     if this_user == 32:
@@ -192,7 +193,7 @@ def get_proj(id):
     elif this_user == 33:
         return "Token expired!", 401
 
-    proj = util.exec_query(
+    proj = utilities.db.exec_query(
         conn, "select rowid, * from projects where rowid = :id", id=id
     ).fetchone()
 
@@ -220,7 +221,7 @@ def get_proj(id):
 @projects.route("/get/<string:slug>")
 def get_project(slug: str):
     # connect to the thingy
-    conn = util.make_connection()
+    conn = utilities.db.make_connection()
 
     # do we need auth? no
     # do we have auth? yes
@@ -233,7 +234,7 @@ def get_project(slug: str):
         return "Token expired!", 401
 
     # gimme dat project and gtfo
-    proj = util.exec_query(
+    proj = utilities.db.exec_query(
         conn, "select rowid, * from projects where url = :url", url=slug
     ).fetchone()
 
@@ -262,8 +263,8 @@ def get_project(slug: str):
 def random():
     count = request.args.get("count", 1)
 
-    conn = util.make_connection()
-    proj = util.exec_query(
+    conn = utilities.db.make_connection()
+    proj = utilities.db.exec_query(
         conn,
         "SELECT rowid, * FROM projects where status = 'live' ORDER BY RANDOM() LIMIT :count",
         count=count,
@@ -281,7 +282,7 @@ def random():
 
 @projects.route("/count")
 def count():
-    conn = util.make_connection()
+    conn = utilities.db.make_connection()
     x = (
         conn.execute(text("select * from projects where status = 'live'"))
         .fetchall()
@@ -351,12 +352,12 @@ def new_project():
         )
 
     # Update database
-    conn = util.make_connection()
+    conn = utilities.db.make_connection()
 
     cat_str = ",".join(data["category"])
 
     if "icon" in data and data["icon"]:
-        util.exec_query(
+        utilities.db.exec_query(
             conn,
             """insert into projects(
                     type, 
@@ -393,7 +394,7 @@ def new_project():
             icon=icon,
         )
     else:
-        util.exec_query(
+        utilities.db.exec_query(
             conn,
             """insert into projects(
                     type, 
@@ -488,13 +489,13 @@ def edit(id: int):
         )
 
     # Update database
-    conn = util.make_connection()
+    conn = utilities.db.make_connection()
 
     cat_str = ",".join(data["category"])
 
     try:
         if "icon" in data and data["icon"]:
-            util.exec_query(
+            utilities.db.exec_query(
                 conn,
                 """update projects set
                 title = :title,
@@ -511,7 +512,7 @@ def edit(id: int):
                 id=id,
             )
         else:
-            util.exec_query(
+            utilities.db.exec_query(
                 conn,
                 """update projects set
                 title = :title,
@@ -553,8 +554,8 @@ def publish(id):
     elif user == 33:
         return "Token expired!", 401
 
-    conn = util.make_connection()
-    proj = util.exec_query(
+    conn = utilities.db.make_connection()
+    proj = utilities.db.exec_query(
         conn,
         "select author, status, title, description, icon, url from projects where rowid = :id",
         id=id,
@@ -570,7 +571,7 @@ def publish(id):
 
     # now onto the fun stuff >:)
     if proj[1] == "unpublished":
-        util.exec_query(
+        utilities.db.exec_query(
             conn,
             "update projects set status = 'publish_queue' where rowid = :id",
             id=id,
@@ -581,7 +582,7 @@ def publish(id):
         utilities.post.in_queue(proj[2], proj[3], proj[4], proj[0], proj[5])
         return "The project is now in the publish queue.", 200
     elif proj[1] == "draft":
-        util.exec_query(
+        utilities.db.exec_query(
             conn, "update projects set status = 'live' where rowid = :id", id=id
         )
 
@@ -589,7 +590,7 @@ def publish(id):
         conn.close()
         return "The project is now live.", 200
     elif proj[1] == "disabled":
-        util.exec_query(
+        utilities.db.exec_query(
             conn, "update projects set status = 'review_queue' where rowid = :id", id=id
         )
 
@@ -613,8 +614,8 @@ def draft(id):
     elif user == 33:
         return "Token expired!", 401
 
-    conn = util.make_connection()
-    proj = util.exec_query(
+    conn = utilities.db.make_connection()
+    proj = utilities.db.exec_query(
         conn, "select author, status from projects where rowid = :id", id=id
     ).fetchall()
 
@@ -628,7 +629,7 @@ def draft(id):
 
     # now onto the fun stuff >:)
     if proj[1] == "live":
-        util.exec_query(
+        utilities.db.exec_query(
             conn, "update projects set status = 'draft' where rowid = :id", id=id
         )
 
@@ -651,8 +652,8 @@ def report(id):
     elif user == 33:
         return "Token expired!", 401
 
-    conn = util.make_connection()
-    proj = util.exec_query(
+    conn = utilities.db.make_connection()
+    proj = utilities.db.exec_query(
         conn, "select author from projects where rowid = :id", id=id
     ).fetchall()
 
@@ -667,7 +668,7 @@ def report(id):
     except KeyError:
         return "Please provide a `message` field."
     else:
-        util.exec_query(
+        utilities.db.exec_query(
             conn,
             "insert into reports values (:msg, :uid, :pid)",
             msg=report_data["message"],
@@ -691,8 +692,8 @@ def remove(id):
     elif user == 33:
         return "Token expired!", 401
 
-    conn = util.make_connection()
-    proj = util.exec_query(
+    conn = utilities.db.make_connection()
+    proj = utilities.db.exec_query(
         conn, "select author, status from projects where rowid = :id", id=id
     ).fetchall()
 
@@ -706,7 +707,7 @@ def remove(id):
 
     # now onto the fun stuff >:)
     if proj[1] != "deleted":
-        util.exec_query(
+        utilities.db.exec_query(
             conn, "update projects set status = 'deleted' where rowid = :id", id=id
         )
 
@@ -723,15 +724,15 @@ def download(id):
     if tok != "ThisIsVeryLegitComeFromCDNNotSpoofedBroTrustMe12":
         return "This is a private route!", 403
 
-    conn = util.make_connection()
-    proj = util.exec_query(
+    conn = utilities.db.make_connection()
+    proj = utilities.db.exec_query(
         conn, "select downloads from projects where rowid = :id", id=id
     ).fetchall()
 
     if len(proj) == 0:
         return "Project not found.", 404
 
-    util.exec_query(
+    utilities.db.exec_query(
         conn, "update projects set downloads = downloads + 1 where rowid = :id", id=id
     )
 
@@ -761,8 +762,8 @@ def feature(id):
         return "Expiry parameter missing", 400
 
     # Validate project
-    conn = util.make_connection()
-    proj = util.exec_query(
+    conn = utilities.db.make_connection()
+    proj = utilities.db.exec_query(
         conn, "select author, status, title, url from projects where rowid = :id", id=id
     ).fetchall()
 
@@ -779,7 +780,7 @@ def feature(id):
     expiry = current + (86400 * dat["expires"])
 
     try:
-        util.exec_query(
+        utilities.db.exec_query(
             conn,
             "UPDATE projects SET featured_until = :expiry WHERE rowid = :id",
             expiry=expiry,
@@ -790,7 +791,7 @@ def feature(id):
         conn.close()
         return "There was an error."
     else:
-        util.exec_query(
+        utilities.db.exec_query(
             conn,
             "INSERT INTO notifs VALUES (:title, :msg, False,  'announcement', :id)",
             title="Project Featured",
@@ -804,7 +805,7 @@ def feature(id):
 
 @projects.route("/featured")
 def featured():
-    conn = util.make_connection()
+    conn = utilities.db.make_connection()
     proj = conn.execute(
         text(
             "SELECT rowid, * FROM projects where status = 'live' and featured_until > 0"
@@ -814,7 +815,7 @@ def featured():
     out = []
     for i in proj:
         if time.time() > i[14]:
-            util.exec_query(
+            utilities.db.exec_query(
                 conn,
                 "update projects set featured_until = null where rowid = :id",
                 id=i[0],

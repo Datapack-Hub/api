@@ -2,22 +2,10 @@ import random
 import secrets
 from functools import lru_cache
 
-from sqlalchemy import Connection, CursorResult, Engine, create_engine, text
+from sqlalchemy import Engine
 
-import config
 from utilities import post
-
-
-def make_connection() -> Connection:
-    return create_engine("sqlite:///" + config.DATA + "data.db").connect()
-
-
-def exec_query(conn: Connection, query: str, **params) -> CursorResult:
-    q = text(query)
-
-    if params:
-        q = q.bindparams(**params)
-    return conn.execute(q)
+from utilities.db import exec_query, make_connection
 
 
 def create_user_account(

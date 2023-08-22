@@ -9,16 +9,16 @@ import regex
 from flask import Blueprint, request
 
 import utilities.auth_utils
+import utilities.db
 import utilities.get_user
-from utilities import util
 
 comments = Blueprint("comments", __name__, url_prefix="/comments")
 
 
 @comments.route("/thread/<int:thread>")
 def messages_from_thread(thread: int):
-    conn = util.make_connection()
-    cmts = util.exec_query(
+    conn = utilities.db.make_connection()
+    cmts = utilities.db.exec_query(
         conn,
         "select rowid, message, author, sent from comments where thread_id = :thread and parent_id is null order by sent desc",
         thread=thread,
@@ -27,7 +27,7 @@ def messages_from_thread(thread: int):
     out = []
     for cmt in cmts:
         author = utilities.get_user.from_id(cmt[2])
-        replies = util.exec_query(
+        replies = utilities.db.exec_query(
             conn,
             "select rowid, message, author, sent from comments where thread_id = :thread and parent_id = :comment order by sent desc",
             thread=thread,
@@ -80,7 +80,7 @@ def post_msg(thread: int):
     if usr == 33:
         return "Token Expired", 401
 
-    conn = util.make_connection()
+    conn = utilities.db.make_connection()
     cmt_data = request.get_json(True)
     try:
         cmt_data["message"]
@@ -92,12 +92,12 @@ def post_msg(thread: int):
         for user in mentions:
             user = utilities.get_user.from_username(user)
             if user:
-                auth = util.exec_query(
+                auth = utilities.db.exec_query(
                     conn,
                     "select author, title, url from projects where rowid = :thread",
                     thread=thread,
                 ).fetchone()
-                util.exec_query(
+                utilities.db.exec_query(
                     conn,
                     "INSERT INTO notifs VALUES (:title, :msg, False, :type, :uid)",
                     title="You were mentioned!",
@@ -108,7 +108,7 @@ def post_msg(thread: int):
         try:
             cmt_data["parent_id"]
         except KeyError:
-            util.exec_query(
+            utilities.db.exec_query(
                 conn,
                 "INSERT INTO comments VALUES (:thread, :msg, :uid, :time, null)",
                 thread=thread,
@@ -117,7 +117,7 @@ def post_msg(thread: int):
                 time=time.time(),
             )
 
-            auth = util.exec_query(
+            auth = utilities.db.exec_query(
                 conn,
                 "select author, title, url from projects where rowid = :thread",
                 thread=thread,
@@ -125,14 +125,14 @@ def post_msg(thread: int):
 
             # Notify author
             if usr.id != auth[0]:
-                util.exec_query(
+                utilities.db.exec_query(
                     conn,
                     "INSERT INTO notifs VALUES ('New comment', :msg, False,  'default', :uid)",
                     msg=f"[{usr.username}](https://datapackhub.net/user/{usr.username}) left a comment on your project [{auth[1]}](https://datapackhub.net/project/{auth[2]}).",
                     uid=auth[0],
                 )
         else:
-            util.exec_query(
+            utilities.db.exec_query(
                 conn,
                 "INSERT INTO comments VALUES (:thread, :msg, :uid, :time, :pid)",
                 uid=usr.id,
@@ -142,7 +142,7 @@ def post_msg(thread: int):
                 thread=thread,
             )
 
-            auth = util.exec_query(
+            auth = utilities.db.exec_query(
                 conn,
                 "select author from comments where rowid = :pid",
                 pid=cmt_data["parent_id"],
@@ -152,13 +152,13 @@ def post_msg(thread: int):
             if (
                 usr.id != auth[0]
             ):  # I got bored and added my suggestion myself -HoodieRocks
-                proj = util.exec_query(
+                proj = utilities.db.exec_query(
                     conn,
                     "select title, url from projects where rowid = :thread",
                     thread=thread,
                 ).fetchone()
 
-                util.exec_query(
+                utilities.db.exec_query(
                     conn,
                     "INSERT INTO notifs VALUES ('New reply', :msg, False,  'default', :uid)",
                     msg=f"[{usr.username}](https://datapackhub.net/user/{usr.username}) left a reply to your comment on project [{proj[0]}](https://datapackhub.net/project/{proj[1]}).",
@@ -178,8 +178,8 @@ def post_msg(thread: int):
 @comments.route("/id/<int:id>", methods=["GET", "DELETE"])
 def get_comment(id: int):
     if request.method == "GET":
-        conn = util.make_connection()
-        comment = util.exec_query(
+        conn = utilities.db.make_connection()
+        comment = utilities.db.exec_query(
             conn,
             "select rowid, message, author, sent from comments where rowid = :id and parent_id is null order by sent desc",
             id=id,
@@ -192,7 +192,7 @@ def get_comment(id: int):
 
         author = utilities.get_user.from_id(comment[2])
 
-        replies = util.exec_query(
+        replies = utilities.db.exec_query(
             conn,
             "select rowid, message, author, sent from comments where parent_id = :id order by sent desc",
             id=id,
@@ -231,8 +231,8 @@ def get_comment(id: int):
             "replies": reps,
         }
     elif request.method == "DELETE":
-        conn = util.make_connection()
-        comment = util.exec_query(
+        conn = utilities.db.make_connection()
+        comment = utilities.db.exec_query(
             conn,
             "select rowid, message, author, sent from comments where rowid = :id and parent_id is null order by sent desc",
             id=id,
@@ -258,8 +258,8 @@ def get_comment(id: int):
             conn.close()
             return "This isn't your comment.", 403
 
-        util.exec_query(conn, "delete from comments where rowid = :id", id=id)
-        util.exec_query(conn, "delete from comments where parent_id = :id", id=id)
+        utilities.db.exec_query(conn, "delete from comments where rowid = :id", id=id)
+        utilities.db.exec_query(conn, "delete from comments where parent_id = :id", id=id)
 
         conn.commit()
         conn.close()

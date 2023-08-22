@@ -1,21 +1,20 @@
-from utilities import util
-
+import utilities.db as db
 
 def reset(table: str):
-    connection = util.make_connection()
+    connection = db.make_connection()
 
     if table != "no-drop":
-        util.exec_query(connection, "DROP TABLE :table", table=table)
+        db.exec_query(connection, "DROP TABLE :table", table=table)
 
     # SQLite optimizations
-    util.exec_query(connection, "PRAGMA synchronous = NORMAL")
-    util.exec_query(connection, "PRAGMA mmap_size = 1000000000")
+    db.exec_query(connection, "PRAGMA synchronous = NORMAL")
+    db.exec_query(connection, "PRAGMA mmap_size = 1000000000")
 
     # ! This operation may not be supported, disable if you run into issues
-    util.exec_query(connection, "PRAGMA journal_mode = WAL")
+    db.exec_query(connection, "PRAGMA journal_mode = WAL")
 
     # Projects Data
-    util.exec_query(
+    db.exec_query(
         connection,
         """CREATE TABLE \"projects\"(
             type TEXT NOT NULL,
@@ -38,7 +37,7 @@ def reset(table: str):
     )
 
     # Versions Data
-    util.exec_query(
+    db.exec_query(
         connection,
         """CREATE TABLE IF NOT EXISTS versions(
         name TEXT NOT NULL,
@@ -53,7 +52,7 @@ def reset(table: str):
     )
 
     # User data
-    util.exec_query(
+    db.exec_query(
         connection,
         """CREATE TABLE IF NOT EXISTS users (
         username TEXT NOT NULL UNIQUE, 
@@ -68,7 +67,7 @@ def reset(table: str):
     )
 
     # Banned User Data
-    util.exec_query(
+    db.exec_query(
         connection,
         """CREATE TABLE IF NOT EXISTS banned_users (
         id int NOT NULL UNIQUE,
@@ -78,7 +77,7 @@ def reset(table: str):
     )
 
     # Notification Data
-    util.exec_query(
+    db.exec_query(
         connection,
         """CREATE TABLE IF NOT EXISTS notifs(
         message TEXT NOT NULL,
@@ -91,7 +90,7 @@ def reset(table: str):
     )
 
     # Report Data
-    util.exec_query(
+    db.exec_query(
         connection,
         """CREATE TABLE IF NOT EXISTS reports(
         message TEXT NOT NULL,
@@ -102,7 +101,7 @@ def reset(table: str):
     )
 
     # Comment data
-    util.exec_query(
+    db.exec_query(
         connection,
         """CREATE TABLE IF NOT EXISTS comments(
         thread_id INT,
@@ -115,7 +114,7 @@ def reset(table: str):
     )
 
     # Follow data
-    util.exec_query(
+    db.exec_query(
         connection,
         """CREATE TABLE IF NOT EXISTS follows(
         follower INT,
@@ -132,16 +131,16 @@ def reset(table: str):
 if __name__ == "__main__":
     reset("no-drop")
 
-    conn = util.make_connection()
+    conn = db.make_connection()
 
-    util.exec_query(
+    db.exec_query(
         conn,
         """INSERT INTO users (username, token, role, bio, github_id, profile_icon) VALUES ("HoodieRocks", "LOREMIPSUM", "admin", "rock", 123897432978, "https://example.com/")""",
     )
 
     # text(
 
-    print(util.exec_query(conn, """SELECT * FROM users WHERE rowid = 1""").fetchone())
+    print(db.exec_query(conn, """SELECT * FROM users WHERE rowid = 1""").fetchone())
 
     conn.commit()
     conn.close()

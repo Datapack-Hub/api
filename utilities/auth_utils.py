@@ -2,8 +2,8 @@ import json
 import secrets
 import sqlite3
 
-from utilities import util
 from utilities.commons import User
+import utilities.db
 
 
 def authenticate(auth: str):
@@ -20,9 +20,9 @@ def authenticate(auth: str):
 
     token = auth[6:]
 
-    conn = util.make_connection()
+    conn = utilities.db.make_connection()
 
-    u = util.exec_query(
+    u = utilities.db.exec_query(
         conn,
         "select username, rowid, role, bio, profile_icon, badges from users where token = :token",
         token=token,
@@ -37,10 +37,10 @@ def authenticate(auth: str):
 
 
 def get_user_token(github_id: int):
-    conn = util.make_connection()
+    conn = utilities.db.make_connection()
 
     # Select
-    u = util.exec_query(
+    u = utilities.db.exec_query(
         conn, "select token from users where github_id = :g_id", g_id=github_id
     ).fetchone()
 
@@ -53,10 +53,10 @@ def get_user_token(github_id: int):
 
 
 def get_user_token_from_discord_id(discord: int):
-    conn = util.make_connection()
+    conn = utilities.db.make_connection()
 
     # Select
-    u = util.exec_query(
+    u = utilities.db.exec_query(
         conn, "select token from users where discord_id = :discord", discord=discord
     ).fetchone()
 
@@ -69,13 +69,13 @@ def get_user_token_from_discord_id(discord: int):
 
 
 def log_user_out(id: int):
-    conn = util.make_connection()
+    conn = utilities.db.make_connection()
 
     token = secrets.token_urlsafe()
 
     # Create user entry in database
     try:
-        util.exec_query(
+        utilities.db.exec_query(
             conn,
             "UPDATE users SET token = :token WHERE rowid = :id",
             token=token,

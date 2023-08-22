@@ -1,14 +1,14 @@
 import json
 
-from utilities import util
 from utilities.commons import User
+import utilities.db
 
 
 def from_username(self: str):
-    conn = util.make_connection()
+    conn = utilities.db.make_connection()
 
     # Select
-    u = util.exec_query(
+    u = utilities.db.exec_query(
         conn,
         "select username, rowid, role, bio, profile_icon, badges from users where lower(username) = :uname",
         uname=self.lower(),
@@ -24,10 +24,10 @@ def from_username(self: str):
 
 
 def from_id(self: int):
-    conn = util.make_connection()
+    conn = utilities.db.make_connection()
 
     # Select
-    u = util.exec_query(
+    u = utilities.db.exec_query(
         conn,
         "select username, rowid, role, bio, profile_icon, badges from users where rowid = :id",
         id=self,
@@ -43,10 +43,10 @@ def from_id(self: int):
 
 
 def from_github_id(self: int):
-    conn = util.make_connection()
+    conn = utilities.db.make_connection()
 
     # Select
-    u = util.exec_query(
+    u = utilities.db.exec_query(
         conn,
         "select username, rowid, role, bio, profile_icon, badges from users where github_id = :id",
         id=self,
@@ -62,10 +62,10 @@ def from_github_id(self: int):
 
 
 def from_discord_id(self: int):
-    conn = util.make_connection()
+    conn = utilities.db.make_connection()
 
     # Select
-    u = util.exec_query(
+    u = utilities.db.exec_query(
         conn,
         "select username, rowid, role, bio, profile_icon, badges from users where discord_id = :id",
         id=self,
@@ -81,10 +81,10 @@ def from_discord_id(self: int):
 
 
 def from_token(token: str):
-    conn = util.make_connection()
+    conn = utilities.db.make_connection()
 
     # Select
-    u = util.exec_query(
+    u = utilities.db.exec_query(
         conn,
         "select username, rowid, role, bio, profile_icon, badges from users where token = :token",
         token=token,

@@ -12,6 +12,7 @@ from werkzeug.exceptions import BadRequestKeyError
 
 import utilities.auth_utils
 from utilities import files, util
+import utilities.db
 
 versions = Blueprint("versions", __name__, url_prefix="/versions")
 
@@ -21,8 +22,8 @@ CORS(versions)
 @versions.route("/project/<int:id>")
 def project(id: int):
     # Select all versions where the project is this one
-    conn = util.make_connection()
-    v = util.exec_query(
+    conn = utilities.db.make_connection()
+    v = utilities.db.exec_query(
         conn, "SELECT * FROM versions WHERE project = :pid ORDER BY rowid DESC", pid=id
     ).fetchall()
     out = []
@@ -45,16 +46,16 @@ def project(id: int):
 
 @versions.route("/project/url/<string:id>")
 def project_from_str(id: str):
-    conn = util.make_connection()
+    conn = utilities.db.make_connection()
     # Get the project
-    p = util.exec_query(
+    p = utilities.db.exec_query(
         conn, "SELECT rowid FROM projects WHERE url = :url;", url=id
     ).fetchall()
     if len(p) == 0:
         return "Project not found", 404
 
     # Select all versions where the project is this one
-    v = util.exec_query(
+    v = utilities.db.exec_query(
         conn,
         "SELECT * FROM versions WHERE project = :id ORDER BY rowid DESC",
         id=p[0][0],
@@ -89,9 +90,9 @@ def code(id: int, code: str):
             return "Token expired!", 401
 
         if util.user_owns_project(id, usr.id):
-            conn = util.make_connection()
+            conn = utilities.db.make_connection()
             try:
-                util.exec_query(
+                utilities.db.exec_query(
                     conn,
                     "DELETE FROM versions WHERE version_code = :code AND project = :id",
                     code=code,
@@ -107,8 +108,8 @@ def code(id: int, code: str):
             return "Not your version! :P", 403
     else:
         # Select all versions where the project is this one
-        conn = util.make_connection()
-        v = util.exec_query(
+        conn = utilities.db.make_connection()
+        v = utilities.db.exec_query(
             conn,
             "SELECT * FROM versions WHERE version_code = :code AND project = :id ORDER BY rowid DESC",
             code=code,
@@ -159,7 +160,7 @@ def new(project: int):
 
     # now do the stuff
     data = request.get_json(force=True)
-    conn = util.make_connection()
+    conn = utilities.db.make_connection()
 
     try:
         data["name"]
@@ -196,7 +197,7 @@ def new(project: int):
         try:
             data["resource_pack_download"]
         except BadRequestKeyError:
-            util.exec_query(
+            utilities.db.exec_query(
                 conn,
                 """INSERT INTO versions(
                         name,
@@ -220,7 +221,7 @@ def new(project: int):
                     f"project/{project}/{quote(data['version_code'])}/resourcepack-{quote(data['filename'])}",
                     usr.username,
                 )
-                util.exec_query(
+                utilities.db.exec_query(
                     conn,
                     """INSERT INTO versions(
                             name,
@@ -240,7 +241,7 @@ def new(project: int):
                     project=project,
                 )
             else:
-                util.exec_query(
+                utilities.db.exec_query(
                     conn,
                     """INSERT INTO versions(
                             name,
@@ -258,7 +259,7 @@ def new(project: int):
                     project=project,
                 )
 
-    v = util.exec_query(
+    v = utilities.db.exec_query(
         conn, "SELECT * FROM versions WHERE version_code = :vc", vc=data["version_code"]
     ).fetchone()
 
@@ -273,7 +274,7 @@ def new(project: int):
     if v[3] is not None:
         o["resource_pack_download"] = v[3]
 
-    util.exec_query(
+    utilities.db.exec_query(
         conn,
         "update projects set updated = :updated where rowid = :id;",
         updated=str(int(time.time())),

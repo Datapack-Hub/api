@@ -11,6 +11,7 @@ from flask import Blueprint, request
 
 import config
 import utilities.auth_utils as auth_util
+import utilities.db
 import utilities.get_user
 import utilities.post
 from routes.moderation import auth
@@ -27,7 +28,7 @@ user = Blueprint("user", __name__, url_prefix="/user")
 
 @user.route("/badges/<int:id>", methods=["PATCH", "GET"])
 def badges(id: int):
-    conn = util.make_connection()
+    conn = utilities.db.make_connection()
 
     if request.method == "GET":
         return {"badges": utilities.get_user.from_id(id).badges}
@@ -47,7 +48,7 @@ def badges(id: int):
 
             print(badge_str)
 
-            util.exec_query(
+            utilities.db.exec_query(
                 conn,
                 """UPDATE users 
                     SET badges = :badges
@@ -68,10 +69,10 @@ def badges(id: int):
 
 @user.route("/staff/<role>")
 def staff(role):
-    conn = util.make_connection()
+    conn = utilities.db.make_connection()
     if role not in ["admin", "moderator", "helper"]:
         return "Role has to be staff role", 400
-    list = util.exec_query(
+    list = utilities.db.exec_query(
         conn,
         "select username, rowid, bio, profile_icon from users where role = :role",
         role=role,
@@ -117,8 +118,8 @@ def get_user(username):
         if usr == 33:
             return "Token Expired", 401
 
-        conn = util.make_connection()
-        followed = util.exec_query(
+        conn = utilities.db.make_connection()
+        followed = utilities.db.exec_query(
             conn,
             "select * from follows where follower = :fid and followed = :uid;",
             fid=u.id,
@@ -156,8 +157,8 @@ def get_user_id(id):
             if usr == 33:
                 return "Token Expired", 401
 
-            conn = util.make_connection()
-            followed = util.exec_query(
+            conn = utilities.db.make_connection()
+            followed = utilities.db.exec_query(
                 conn,
                 "select * from follows where follower = :fid and followed = :uid;",
                 fid=u.id,
@@ -194,22 +195,22 @@ def get_user_id(id):
         if len(dat["bio"]) > 500:
             return "Bio too long", 400
 
-        conn = util.make_connection()
+        conn = utilities.db.make_connection()
         try:
-            util.exec_query(
+            utilities.db.exec_query(
                 conn,
                 "UPDATE users SET username = :name where rowid = :id",
                 name=dat["username"],
                 id=id,
             )
-            util.exec_query(
+            utilities.db.exec_query(
                 conn,
                 "UPDATE users SET bio = :bio where rowid = :id",
                 bio=dat["bio"],
                 id=id,
             )
             if usr.role == "admin":
-                util.exec_query(
+                utilities.db.exec_query(
                     conn,
                     "UPDATE users SET role = :role where rowid = :id",
                     role=dat["role"],
@@ -248,8 +249,8 @@ def me():
     }
 
     # banned?
-    conn = util.make_connection()
-    x = util.exec_query(
+    conn = utilities.db.make_connection()
+    x = utilities.db.exec_query(
         conn,
         "SELECT rowid, expires, reason from banned_users where id = :id",
         id=usr.id,
@@ -258,7 +259,7 @@ def me():
         current = int(time.time())
         expires = x[0][1]
         if current > expires:
-            util.exec_query(
+            utilities.db.exec_query(
                 conn, "delete from banned_users where rowid = :id", id=x[0][0]
             )
             conn.commit()
@@ -270,7 +271,7 @@ def me():
 
     # fail safe
     if usr.username in ADMINS:
-        util.exec_query(
+        utilities.db.exec_query(
             conn,
             "update users set role = 'admin' where username = :uname",
             uname=usr.username,
@@ -282,7 +283,7 @@ def me():
 
 @user.route("/<string:username>/projects")
 def user_projects(username):
-    conn = util.make_connection()
+    conn = utilities.db.make_connection()
 
     # Check if user is authenticated
     t = request.headers.get("Authorization")
@@ -296,7 +297,7 @@ def user_projects(username):
     if t:
         if authed.id == user.id:
             # Get all submissions
-            r = util.exec_query(
+            r = utilities.db.exec_query(
                 conn,
                 "select rowid, * from projects where author = :id and status != 'deleted'",
                 id=user.id,
@@ -319,7 +320,7 @@ def user_projects(username):
             return {"count": len(out), "result": out}
         else:
             # Get all PUBLIC submissions
-            r = util.exec_query(
+            r = utilities.db.exec_query(
                 conn,
                 "select rowid, * from projects where author = :id and status = 'live'",
                 id=user.id,
@@ -342,7 +343,7 @@ def user_projects(username):
             return {"count": len(out), "result": out}
     else:
         # Get all PUBLIC submissions
-        r = util.exec_query(
+        r = utilities.db.exec_query(
             conn,
             "select rowid, * from projects where author = :id and status = 'live'",
             id=user.id,
@@ -383,15 +384,15 @@ def follow(id):
     if followed.id == follower.id:
         return "You can't follow yourself, silly!", 400
 
-    conn = util.make_connection()
-    fol = util.exec_query(
+    conn = utilities.db.make_connection()
+    fol = utilities.db.exec_query(
         conn,
         "select * from follows where follower = :fid and followed = :fid;",
         fid=follower.id,
     ).fetchall()
     if len(fol) == 0:
         try:
-            util.exec_query(
+            utilities.db.exec_query(
                 conn,
                 "insert into follows values (:follower, :followed);",
                 follower=follower.id,
@@ -402,7 +403,7 @@ def follow(id):
             conn.close()
             return "Something went wrong.", 500
         else:
-            util.exec_query(
+            utilities.db.exec_query(
                 conn,
                 "INSERT INTO notifs VALUES (:title, :msg, False, 'default', :fid)",
                 title="New follower",
@@ -414,7 +415,7 @@ def follow(id):
             return "Followed user!", 200
     else:
         try:
-            util.exec_query(
+            utilities.db.exec_query(
                 conn,
                 "delete from follows where follower = :follower and followed = :followed;",
                 follower=follower.id,

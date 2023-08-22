@@ -7,8 +7,8 @@ import sqlite3
 from flask import Blueprint, request
 
 import utilities.auth_utils
+import utilities.db
 import utilities.post
-from utilities import util
 
 notifs = Blueprint("notifications", __name__, url_prefix="/notifs")
 
@@ -26,8 +26,8 @@ def all():
     if usr == 33:
         return "Token Expired", 401
 
-    conn = util.make_connection()
-    notifs = util.exec_query(
+    conn = utilities.db.make_connection()
+    notifs = utilities.db.exec_query(
         conn,
         "select rowid, message, description, read, type from notifs where user = :id order by rowid desc limit 20",
         id=usr.id,
@@ -41,7 +41,7 @@ def all():
     # Mark as read
     for i in res:
         if i["read"] is False:
-            util.exec_query(
+            utilities.db.exec_query(
                 conn, "UPDATE notifs SET read = 1 WHERE rowid = :id", id=i["id"]
             )
 
@@ -64,8 +64,8 @@ def unread():
     if usr == 33:
         return "Token Expired", 401
 
-    conn = util.make_connection()
-    notifs = util.exec_query(
+    conn = utilities.db.make_connection()
+    notifs = utilities.db.exec_query(
         conn,
         "select rowid, message, description, read, type from notifs where user = :id and read = 0 order by rowid desc",
         id=usr.id,
@@ -98,9 +98,9 @@ def send(target):
 
     notif_data = request.get_json(force=True)
 
-    conn = util.make_connection()
+    conn = utilities.db.make_connection()
     try:
-        util.exec_query(
+        utilities.db.exec_query(
             conn,
             "INSERT INTO notifs VALUES (:title, :msg, False, :type, :target)",
             title=notif_data["message"],
@@ -132,15 +132,15 @@ def delete(id):
     if usr == 33:
         return "Token Expired", 401
 
-    conn = util.make_connection()
-    notif = util.exec_query(
+    conn = utilities.db.make_connection()
+    notif = utilities.db.exec_query(
         conn, "SELECT user FROM notifs WHERE rowid = :id", id=id
     ).fetchone()
 
     if usr.id != notif[0]:
         return "Not your notif!", 403
     try:
-        util.exec_query(conn, "DELETE FROM notifs WHERE rowid = :id", id=id)
+        utilities.db.exec_query(conn, "DELETE FROM notifs WHERE rowid = :id", id=id)
         conn.commit()
     except sqlite3.Error:
         return "Something bad happened", 500

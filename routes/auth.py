@@ -14,6 +14,7 @@ from sqlalchemy import text
 
 import config
 import utilities.auth_utils
+import utilities.db
 import utilities.get_user
 from utilities import util
 
@@ -114,11 +115,11 @@ def callback_dc():
 
     if not u:
         # Make account
-        conn = util.make_connection()
+        conn = utilities.db.make_connection()
 
         token = secrets.token_urlsafe()
 
-        check = util.exec_query(
+        check = utilities.db.exec_query(
             conn,
             "select username from users where username = :dis_uname;",
             dis_uname=discord["username"],
@@ -128,7 +129,7 @@ def callback_dc():
         else:
             username = discord["username"] + str(random.randint(1, 99999))
 
-        util.exec_query(
+        utilities.db.exec_query(
             conn,
             'INSERT INTO users (username, role, bio, discord_id, token, profile_icon) VALUES (:username, "default", "A new Datapack Hub user!", :d_id, :token, :avatar)',
             username=username,
@@ -201,12 +202,12 @@ def link_discord():
         timeout=120,
     ).json()["id"]
 
-    conn = util.make_connection()
+    conn = utilities.db.make_connection()
     try:
         update_user = text("update users set discord_id = :id where rowid = :user;")
         update_user.bindparams(id=None, user=None)
 
-        util.exec_query(
+        utilities.db.exec_query(
             conn,
             "update users set discord_id = :id where rowid = :user;",
             id=discord_id,
@@ -254,12 +255,12 @@ def link_github():
         timeout=120,
     ).json()
 
-    conn = util.make_connection()
+    conn = utilities.db.make_connection()
     try:
         update_ghub = text("update users set github_id = :g_id where rowid = :id;")
         update_ghub.bindparams(g_id=None, id=None)
 
-        util.exec_query(
+        utilities.db.exec_query(
             conn,
             "update users set github_id = :g_id where rowid = :id;",
             g_id=github["id"],

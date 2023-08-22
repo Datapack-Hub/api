@@ -1,5 +1,9 @@
 from dataclasses import dataclass
 
+from sqlalchemy import Column, Integer, Text
+from sqlalchemy.orm import declarative_base
+
+Base = declarative_base()
 
 @dataclass
 class User:
@@ -57,3 +61,20 @@ class Comment:
     author: int
     content: str
     replies: int
+
+#
+# DB MODELS
+#
+
+class UserModel(Base):
+    __tablename__ = 'users'
+
+    rowid = Column(Integer, primary_key=True)
+    username = Column(Text, unique=True, nullable=False)
+    token = Column(Text, unique=True, nullable=False)
+    role = Column(Text, nullable=False)
+    bio = Column(Text)
+    github_id = Column(Integer, unique=True)
+    discord_id = Column(Integer, unique=True)
+    badges = Column(Text)
+    profile_icon = Column(Text, nullable=False)
