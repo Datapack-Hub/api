@@ -118,7 +118,12 @@ def console():
         except sqlalchemy.exc.NoResultFound:
             return "No results found!", 400
         except sqlalchemy.exc.OperationalError as error:
-            return "SQL Syntax Error, check to make sure that you spelt your command correctly! (Error: " + " ".join(error.args) + ")", 400
+            return (
+                "SQL Syntax Error, check to make sure that you spelt your command correctly! (Error: "
+                + " ".join(error.args)
+                + ")",
+                400,
+            )
         except sqlalchemy.exc.SQLAlchemyError as error:
             return "SQL error: " + (" ".join(error.args)), 400
         else:
