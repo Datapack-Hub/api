@@ -113,7 +113,7 @@ def console():
         # Run SQLITE command
         try:
             conn = utilities.db.make_connection()
-            out = [tuple(row) for row in conn.execute(text(sql_command)).fetchall()]
+            out = [tuple(row) for row in conn.execute(text(sql_command)).all()]
             conn.commit()
             conn.close()
         except sqlalchemy.exc.NoResultFound:
@@ -143,7 +143,7 @@ def console():
                 conn,
                 "select username, role, rowid from users where trim(username) like :uname",
                 uname=args[0],
-            ).fetchall()
+            ).all()
             conn.commit()
             conn.close()
         except sqlalchemy.exc.SQLAlchemyError as error:
@@ -297,7 +297,7 @@ def user_data(id):
     conn = utilities.db.make_connection()
     ban_data = utilities.db.exec_query(
         conn, "SELECT * FROM banned_users WHERE id = :id", id=id
-    ).fetchall()
+    ).all()
 
     if len(ban_data) == 0:
         return {"banned": False, "banMessage": None, "banExpiry": None}
@@ -324,7 +324,7 @@ def queue(type: str):
             text(
                 "select type, author, title, icon, url, description, rowid, status from projects where status = 'publish_queue'"
             )
-        ).fetchall()
+        ).all()
 
         # Form array
         out = []
@@ -357,7 +357,7 @@ def queue(type: str):
             text(
                 "select type, author, title, icon, url, description, rowid, status from projects where status = 'review_queue'"
             )
-        ).fetchall()
+        ).all()
 
         # Form array
         out = []
@@ -386,7 +386,7 @@ def queue(type: str):
         conn.close()
         return {"count": len(out), "projects": out}
     elif type == "report":
-        r = conn.execute(text("select *, rowid from reports")).fetchall()
+        r = conn.execute(text("select *, rowid from reports")).all()
 
         # Form array
         out = []
@@ -395,7 +395,7 @@ def queue(type: str):
                 conn,
                 "select type, author, title, icon, url, description, rowid, status from projects where rowid = :i2",
                 i2=item[2],
-            ).fetchone()
+            ).one()
 
             usr = get_user.from_id(item[1])
 
@@ -483,7 +483,7 @@ def change_status(proj: int):
             )
             followers = utilities.db.exec_query(
                 conn, "select follower from follows where followed = :uid", uid=usr.id
-            ).fetchall()
+            ).all()
             for i in followers:
                 util.send_notif(
                     conn,
@@ -613,7 +613,7 @@ def dismiss(proj: int):
         conn,
         "select status, author, mod_message from projects where rowid = :id",
         id=proj,
-    ).fetchall()
+    ).all()
 
     # Check existence of project.
     if len(project) == 0:
@@ -651,7 +651,7 @@ def remove_report(id: int):
 
     rep = utilities.db.exec_query(
         conn, "select rowid from reports where rowid = :id", id=id
-    ).fetchall()
+    ).all()
     if len(rep) == 0:
         return "Report not found", 404
 

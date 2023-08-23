@@ -76,7 +76,7 @@ def staff(role):
         conn,
         "select username, rowid, bio, profile_icon from users where role = :role",
         role=role,
-    ).fetchall()
+    ).all()
     finale = [
         {
             "id": i[1],
@@ -124,7 +124,7 @@ def get_user(username):
             "select * from follows where follower = :fid and followed = :uid;",
             fid=u.id,
             uid=usr.id,
-        ).fetchall()
+        ).all()
         if len(followed) == 0:
             return_data["followed"] = False
         else:
@@ -163,7 +163,7 @@ def get_user_id(id):
                 "select * from follows where follower = :fid and followed = :uid;",
                 fid=u.id,
                 uid=usr.id,
-            ).fetchall()
+            ).all()
             if len(followed) == 0:
                 return_data["followed"] = False
             else:
@@ -254,7 +254,7 @@ def me():
         conn,
         "SELECT rowid, expires, reason from banned_users where id = :id",
         id=usr.id,
-    ).fetchall()
+    ).all()
     if len(x) == 1:
         current = int(time.time())
         expires = x[0][1]
@@ -301,7 +301,7 @@ def user_projects(username):
                 conn,
                 "select rowid, * from projects where author = :id and status != 'deleted'",
                 id=user.id,
-            ).fetchall()
+            ).all()
 
             # Form array
             out = []
@@ -324,7 +324,7 @@ def user_projects(username):
                 conn,
                 "select rowid, * from projects where author = :id and status = 'live'",
                 id=user.id,
-            ).fetchall()
+            ).all()
 
             # Form array
             out = []
@@ -347,7 +347,7 @@ def user_projects(username):
             conn,
             "select rowid, * from projects where author = :id and status = 'live'",
             id=user.id,
-        ).fetchall()
+        ).all()
 
         # Form array
         out = []
@@ -389,7 +389,7 @@ def follow(id):
         conn,
         "select * from follows where follower = :fid and followed = :fid;",
         fid=follower.id,
-    ).fetchall()
+    ).all()
     if len(fol) == 0:
         try:
             utilities.db.exec_query(

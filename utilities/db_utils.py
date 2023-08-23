@@ -28,12 +28,14 @@ if __name__ == "__main__":
     user_table.create(bind=make_connection(), checkfirst=True)
 
     # session.execute(db.insert(user_table).values(username="hoodierocks", token="LOREMIPSUM", role="admin", bio="hoodierocks", github_id=1, profile_icon="https://hoodierocks.com"))
-    query = db.select(UserModel.username).where(UserModel.username == "hoodierocks")
+    query = db.select(UserModel.username, UserModel.token).where(
+        UserModel.username == "hoodierocks"
+    )
     session = make_session()
 
-    check = session.execute(query).fetchall()
-    
-    print(check)
+    check = session.execute(query).all()
+
+    print(check[0])
 
     # for user in check.scalars():
     #     print(user)

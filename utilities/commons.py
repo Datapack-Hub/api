@@ -5,6 +5,7 @@ from sqlalchemy.orm import declarative_base
 
 Base = declarative_base()
 
+
 @dataclass
 class User:
     id: int
@@ -62,12 +63,14 @@ class Comment:
     content: str
     replies: int
 
+
 #
 # DB MODELS
 #
 
+
 class UserModel(Base):
-    __tablename__ = 'users'
+    __tablename__ = "users"
 
     rowid = Column(Integer, primary_key=True)
     username = Column(Text, unique=True, nullable=False)

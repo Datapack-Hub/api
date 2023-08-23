@@ -3,23 +3,24 @@ import secrets
 from functools import lru_cache
 
 from sqlalchemy import Engine
+import sqlalchemy as sq
 
 from utilities import post
-from utilities.db import exec_query, make_connection
+from utilities.commons import UserModel
+from utilities.db_utils import exec_query, make_session
 
 
 def create_user_account(
     github_data: dict,
 ):
-    conn = make_connection()
+    conn = make_session()
 
     token = secrets.token_urlsafe()
 
-    check = exec_query(
-        conn,
-        "select username from users where username = :login;",
-        login=github_data["login"],
-    ).fetchall()
+    check = conn.execute(
+        sq.select(UserModel.username).where(UserModel.username == github_data["login"])
+    ).all()
+
     if len(check) == 0:
         username = github_data["login"]
     else:
@@ -51,7 +52,7 @@ def get_user_ban_data(id: int):
         conn,
         "select reason, expires from banned_users where id = :id",
         id=id,
-    ).fetchone()
+    ).one()
 
     if not banned_user:
         return None
@@ -69,13 +70,13 @@ def user_owns_project(project: int, author: int):
         "select rowid from projects where rowid = :project and author = :author",
         project=project,
         author=author,
-    ).fetchall()
+    ).all()
     conn.close()
     return len(proj) == 1
 
 
 # def get_user_data(id: int, data: list[str])
-#     ).fetchone()
+#     ).one()
 
 
 def send_notif(conn: Engine, title: str, msg: str, receiver: int):

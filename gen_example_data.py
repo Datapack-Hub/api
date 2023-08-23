@@ -1,5 +1,6 @@
 import utilities.db as db
 
+
 def reset(table: str):
     connection = db.make_connection()
 
@@ -140,7 +141,7 @@ if __name__ == "__main__":
 
     # text(
 
-    print(db.exec_query(conn, """SELECT * FROM users WHERE rowid = 1""").fetchone())
+    print(db.exec_query(conn, """SELECT * FROM users WHERE rowid = 1""").one())
 
     conn.commit()
     conn.close()

@@ -12,7 +12,7 @@ def from_username(self: str):
         conn,
         "select username, rowid, role, bio, profile_icon, badges from users where lower(username) = :uname",
         uname=self.lower(),
-    ).fetchone()
+    ).one()
 
     if not u:
         return None
@@ -31,7 +31,7 @@ def from_id(self: int):
         conn,
         "select username, rowid, role, bio, profile_icon, badges from users where rowid = :id",
         id=self,
-    ).fetchone()
+    ).one()
 
     if not u:
         return None
@@ -50,7 +50,7 @@ def from_github_id(self: int):
         conn,
         "select username, rowid, role, bio, profile_icon, badges from users where github_id = :id",
         id=self,
-    ).fetchone()
+    ).one()
 
     if not u:
         return None
@@ -69,7 +69,7 @@ def from_discord_id(self: int):
         conn,
         "select username, rowid, role, bio, profile_icon, badges from users where discord_id = :id",
         id=self,
-    ).fetchone()
+    ).one()
 
     if not u:
         return None
@@ -88,7 +88,7 @@ def from_token(token: str):
         conn,
         "select username, rowid, role, bio, profile_icon, badges from users where token = :token",
         token=token,
-    ).fetchone()
+    ).one()
 
     if not u:
         print("SillySilabearError: The user does not exist")

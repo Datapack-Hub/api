@@ -31,7 +31,7 @@ def all():
         conn,
         "select rowid, message, description, read, type from notifs where user = :id order by rowid desc limit 20",
         id=usr.id,
-    ).fetchall()
+    ).all()
 
     res = [
         {"id": i[0], "message": i[1], "description": i[2], "read": i[3], "type": i[4]}
@@ -69,7 +69,7 @@ def unread():
         conn,
         "select rowid, message, description, read, type from notifs where user = :id and read = 0 order by rowid desc",
         id=usr.id,
-    ).fetchall()
+    ).all()
 
     res = [
         {"id": i[0], "message": i[1], "description": i[2], "read": i[3], "type": i[4]}
@@ -135,7 +135,7 @@ def delete(id):
     conn = utilities.db.make_connection()
     notif = utilities.db.exec_query(
         conn, "SELECT user FROM notifs WHERE rowid = :id", id=id
-    ).fetchone()
+    ).one()
 
     if usr.id != notif[0]:
         return "Not your notif!", 403
