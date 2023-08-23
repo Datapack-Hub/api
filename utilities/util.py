@@ -7,7 +7,7 @@ import sqlalchemy as sq
 
 from utilities import post
 from utilities.commons import UserModel
-from utilities.db_utils import exec_query, make_session
+from utilities.db_utils import exec_query, make_session, make_connection
 
 
 def create_user_account(
