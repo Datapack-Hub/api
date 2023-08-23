@@ -122,7 +122,7 @@ def callback_dc():
             conn,
             "select username from users where username = :dis_uname;",
             dis_uname=discord["username"],
-        ).fetchall()
+        ).all()
         if len(check) == 0:
             username = discord["username"]
         else:

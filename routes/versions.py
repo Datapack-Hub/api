@@ -24,7 +24,7 @@ def project(id: int):
     conn = util.make_connection()
     v = util.exec_query(
         conn, "SELECT * FROM versions WHERE project = :pid ORDER BY rowid DESC", pid=id
-    ).fetchall()
+    ).all()
     out = []
     for i in v:
         o = {
@@ -49,7 +49,7 @@ def project_from_str(id: str):
     # Get the project
     p = util.exec_query(
         conn, "SELECT rowid FROM projects WHERE url = :url;", url=id
-    ).fetchall()
+    ).all()
     if len(p) == 0:
         return "Project not found", 404
 
@@ -58,7 +58,7 @@ def project_from_str(id: str):
         conn,
         "SELECT * FROM versions WHERE project = :id ORDER BY rowid DESC",
         id=p[0][0],
-    ).fetchall()
+    ).all()
     out = []
     for i in v:
         o = {
@@ -113,7 +113,7 @@ def code(id: int, code: str):
             "SELECT * FROM versions WHERE version_code = :code AND project = :id ORDER BY rowid DESC",
             code=code,
             id=id,
-        ).fetchone()
+        ).one()
 
         try:
             v[0]
@@ -260,7 +260,7 @@ def new(project: int):
 
     v = util.exec_query(
         conn, "SELECT * FROM versions WHERE version_code = :vc", vc=data["version_code"]
-    ).fetchone()
+    ).one()
 
     o = {
         "name": v[0],

@@ -141,7 +141,7 @@ if __name__ == "__main__":
 
     # text(
 
-    print(util.exec_query(conn, """SELECT * FROM users WHERE rowid = 1""").fetchone())
+    print(util.exec_query(conn, """SELECT * FROM users WHERE rowid = 1""").one())
 
     conn.commit()
     conn.close()
