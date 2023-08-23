@@ -22,7 +22,7 @@ def messages_from_thread(thread: int):
         conn,
         "select rowid, message, author, sent from comments where thread_id = :thread and parent_id is null order by sent desc",
         thread=thread,
-    ).fetchall()
+    ).all()
 
     out = []
     for cmt in cmts:
@@ -32,7 +32,7 @@ def messages_from_thread(thread: int):
             "select rowid, message, author, sent from comments where thread_id = :thread and parent_id = :comment order by sent desc",
             thread=thread,
             comment=cmt[0],
-        ).fetchall()
+        ).all()
         reps = []
         for reply in replies:
             repl_auth = utilities.get_user.from_id(reply[2])
@@ -96,7 +96,7 @@ def post_msg(thread: int):
                     conn,
                     "select author, title, url from projects where rowid = :thread",
                     thread=thread,
-                ).fetchone()
+                ).one()
                 util.exec_query(
                     conn,
                     "INSERT INTO notifs VALUES (:title, :msg, False, :type, :uid)",
@@ -121,7 +121,7 @@ def post_msg(thread: int):
                 conn,
                 "select author, title, url from projects where rowid = :thread",
                 thread=thread,
-            ).fetchone()
+            ).one()
 
             # Notify author
             if usr.id != auth[0]:
@@ -146,7 +146,7 @@ def post_msg(thread: int):
                 conn,
                 "select author from comments where rowid = :pid",
                 pid=cmt_data["parent_id"],
-            ).fetchone()
+            ).one()
 
             # Notify author
             if (
@@ -156,7 +156,7 @@ def post_msg(thread: int):
                     conn,
                     "select title, url from projects where rowid = :thread",
                     thread=thread,
-                ).fetchone()
+                ).one()
 
                 util.exec_query(
                     conn,
@@ -183,7 +183,7 @@ def get_comment(id: int):
             conn,
             "select rowid, message, author, sent from comments where rowid = :id and parent_id is null order by sent desc",
             id=id,
-        ).fetchall()
+        ).all()
 
         if len(comment) == 0:
             return "Not found.", 404
@@ -196,7 +196,7 @@ def get_comment(id: int):
             conn,
             "select rowid, message, author, sent from comments where parent_id = :id order by sent desc",
             id=id,
-        ).fetchall()
+        ).all()
         reps = []
         for reply in replies:
             repl_auth = utilities.get_user.from_id(reply[2])
@@ -236,7 +236,7 @@ def get_comment(id: int):
             conn,
             "select rowid, message, author, sent from comments where rowid = :id and parent_id is null order by sent desc",
             id=id,
-        ).fetchall()
+        ).all()
 
         if len(comment) == 0:
             return "Not found.", 404

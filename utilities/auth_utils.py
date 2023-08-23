@@ -26,7 +26,7 @@ def authenticate(auth: str):
         conn,
         "select username, rowid, role, bio, profile_icon, badges from users where token = :token",
         token=token,
-    ).fetchone()
+    ).one()
     if not u:
         print("user doth not exists")
         return 33
@@ -42,7 +42,7 @@ def get_user_token(github_id: int):
     # Select
     u = util.exec_query(
         conn, "select token from users where github_id = :g_id", g_id=github_id
-    ).fetchone()
+    ).one()
 
     conn.close()
 
@@ -58,7 +58,7 @@ def get_user_token_from_discord_id(discord: int):
     # Select
     u = util.exec_query(
         conn, "select token from users where discord_id = :discord", discord=discord
-    ).fetchone()
+    ).one()
 
     conn.close()
 

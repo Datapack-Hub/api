@@ -40,7 +40,7 @@ def parse_project(output: tuple, conn: Engine):
         conn,
         "SELECT * FROM versions WHERE project = :out0 ORDER BY rowid DESC",
         out0=output[0],
-    ).fetchall()
+    ).all()
 
     user = get_user.from_id(output[2])
 
@@ -109,13 +109,13 @@ def search():
             conn,
             "select rowid, * from projects where status = 'live' and trim(title) LIKE :query ORDER BY updated DESC",
             query=f"%{query}%",
-        ).fetchall()
+        ).all()
     elif sort == "downloads":
         r = util.exec_query(
             conn,
             "select rowid, * from projects where status = 'live' and trim(title) LIKE :query ORDER BY downloads DESC",
             query=f"%{query}%",
-        ).fetchall()
+        ).all()
     else:
         return "Unknown sorting method.", 400
 
@@ -155,13 +155,13 @@ def query():
             text(
                 "select rowid, * from projects where status = 'live' ORDER BY updated DESC"
             )
-        ).fetchall()
+        ).all()
     elif sort == "downloads":
         r = conn.execute(
             text(
                 "select rowid, * from projects where status = 'live' ORDER BY downloads DESC"
             )
-        ).fetchall()
+        ).all()
     else:
         return "Unknown sorting method.", 400
 
@@ -194,7 +194,7 @@ def get_proj(id):
 
     proj = util.exec_query(
         conn, "select rowid, * from projects where rowid = :id", id=id
-    ).fetchone()
+    ).one()
 
     if not proj:
         return "Not found", 404
@@ -235,7 +235,7 @@ def get_project(slug: str):
     # gimme dat project and gtfo
     proj = util.exec_query(
         conn, "select rowid, * from projects where url = :url", url=slug
-    ).fetchone()
+    ).one()
 
     # hey u didn't give me a project, hate u
     if not proj:
@@ -267,7 +267,7 @@ def random():
         conn,
         "SELECT rowid, * FROM projects where status = 'live' ORDER BY RANDOM() LIMIT :count",
         count=count,
-    ).fetchall()
+    ).all()
 
     out = []
     for i in proj:
@@ -284,7 +284,7 @@ def count():
     conn = util.make_connection()
     x = (
         conn.execute(text("select * from projects where status = 'live'"))
-        .fetchall()
+        .all()
         .__len__()
     )
     conn.close()
@@ -558,7 +558,7 @@ def publish(id):
         conn,
         "select author, status, title, description, icon, url from projects where rowid = :id",
         id=id,
-    ).fetchall()
+    ).all()
 
     if len(proj) == 0:
         return "Project not found.", 404
@@ -616,7 +616,7 @@ def draft(id):
     conn = util.make_connection()
     proj = util.exec_query(
         conn, "select author, status from projects where rowid = :id", id=id
-    ).fetchall()
+    ).all()
 
     if len(proj) == 0:
         return "Project not found.", 404
@@ -654,7 +654,7 @@ def report(id):
     conn = util.make_connection()
     proj = util.exec_query(
         conn, "select author from projects where rowid = :id", id=id
-    ).fetchall()
+    ).all()
 
     if len(proj) == 0:
         return "Project not found.", 404
@@ -694,7 +694,7 @@ def remove(id):
     conn = util.make_connection()
     proj = util.exec_query(
         conn, "select author, status from projects where rowid = :id", id=id
-    ).fetchall()
+    ).all()
 
     if len(proj) == 0:
         return "Project not found.", 404
@@ -726,7 +726,7 @@ def download(id):
     conn = util.make_connection()
     proj = util.exec_query(
         conn, "select downloads from projects where rowid = :id", id=id
-    ).fetchall()
+    ).all()
 
     if len(proj) == 0:
         return "Project not found.", 404
@@ -764,7 +764,7 @@ def feature(id):
     conn = util.make_connection()
     proj = util.exec_query(
         conn, "select author, status, title, url from projects where rowid = :id", id=id
-    ).fetchall()
+    ).all()
 
     if len(proj) == 0:
         return "Project not found.", 404
@@ -809,7 +809,7 @@ def featured():
         text(
             "SELECT rowid, * FROM projects where status = 'live' and featured_until > 0"
         )
-    ).fetchall()
+    ).all()
 
     out = []
     for i in proj:
