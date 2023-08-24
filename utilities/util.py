@@ -63,7 +63,7 @@ def get_user_ban_data(id: int):
         conn,
         "select reason, expires from banned_users where id = :id",
         id=id,
-    ).one()
+    ).one_or_none()
 
     if not banned_user:
         return None

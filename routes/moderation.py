@@ -612,12 +612,12 @@ def dismiss(proj: int):
         conn,
         "select status, author, mod_message from projects where rowid = :id",
         id=proj,
-    ).all()
+    ).one_or_none()
 
     # Check existence of project.
-    if len(project) == 0:
+    if project is None:
         conn.close()
-        return "project not found", 404
+        return "Project not found", 404
 
     # Check if user owns project.
     if not (project[1] != user.id or user.role in ["admin", "moderator"]):
