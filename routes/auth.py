@@ -203,9 +203,6 @@ def link_discord():
 
     conn = util.make_connection()
     try:
-        update_user = text("update users set discord_id = :id where rowid = :user;")
-        update_user.bindparams(id=None, user=None)
-
         util.exec_query(
             conn,
             "update users set discord_id = :id where rowid = :user;",
@@ -256,9 +253,6 @@ def link_github():
 
     conn = util.make_connection()
     try:
-        update_ghub = text("update users set github_id = :g_id where rowid = :id;")
-        update_ghub.bindparams(g_id=None, id=None)
-
         util.exec_query(
             conn,
             "update users set github_id = :g_id where rowid = :id;",
