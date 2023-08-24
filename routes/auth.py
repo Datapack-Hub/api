@@ -10,7 +10,6 @@ from urllib.parse import quote
 import flask
 import requests
 from flask import request
-from sqlalchemy import text
 
 import config
 import utilities.auth_utils
