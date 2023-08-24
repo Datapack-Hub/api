@@ -26,8 +26,8 @@ def authenticate(auth: str):
         conn,
         "select username, rowid, role, bio, profile_icon, badges from users where token = :token",
         token=token,
-    ).one()
-    if not u:
+    ).one_or_none()
+    if u is None:
         print("user doth not exists")
         return 33
     conn.close()
