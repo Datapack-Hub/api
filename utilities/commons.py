@@ -1,9 +1,10 @@
 from dataclasses import dataclass
 
-from sqlalchemy import Column, Integer, Text
-from sqlalchemy.orm import declarative_base
+from sqlalchemy import ForeignKey, Integer, Text
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
-Base = declarative_base()
+class Base(DeclarativeBase):
+    pass
 
 
 @dataclass
@@ -72,12 +73,34 @@ class Comment:
 class UserModel(Base):
     __tablename__ = "users"
 
-    rowid = Column(Integer, primary_key=True)
-    username = Column(Text, unique=True, nullable=False)
-    token = Column(Text, unique=True, nullable=False)
-    role = Column(Text, nullable=False)
-    bio = Column(Text)
-    github_id = Column(Integer, unique=True)
-    discord_id = Column(Integer, unique=True)
-    badges = Column(Text)
-    profile_icon = Column(Text, nullable=False)
+    rowid:Mapped[int] = mapped_column(primary_key=True)
+    username:Mapped[str] = mapped_column(Text, unique=True, nullable=False)
+    token:Mapped[str] = mapped_column(Text, unique=True, nullable=False)
+    role:Mapped[str] = mapped_column(Text, nullable=False)
+    bio:Mapped[str] = mapped_column(Text)
+    github_id:Mapped[int] = mapped_column(unique=True, nullable=True)
+    discord_id:Mapped[int] = mapped_column(unique=True, nullable=True)
+    badges:Mapped[str] = mapped_column(Text, nullable=True)
+    profile_icon:Mapped[str] = mapped_column(Text, nullable=False)
+
+
+class ProjectModel(Base):
+    __tablename__ = "projects"
+
+    rowid:Mapped[int] = mapped_column(primary_key=True)
+    type:Mapped[str] = mapped_column(Text, nullable=False)
+    author:Mapped[int] = mapped_column(ForeignKey("users.rowid"), nullable=False)
+    title:Mapped[str] = mapped_column(Text, nullable=False)
+    description:Mapped[str] = mapped_column(Text, nullable=False)
+    body:Mapped[str] = mapped_column(Text, nullable=False)
+    icon:Mapped[str] = mapped_column(Text)
+    url:Mapped[str] = mapped_column(Text, unique=True, nullable=False)
+    status:Mapped[str] = mapped_column(Text, default="draft", nullable=False)
+    category:Mapped[str] = mapped_column(Text, nullable=False)
+    uploaded:Mapped[int] = mapped_column(Integer, nullable=False)
+    updated:Mapped[int] = mapped_column(Integer, nullable=False)
+    mod_message:Mapped[str] = mapped_column(Text)
+    downloads:Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    featured_until:Mapped[int] = mapped_column(Integer)
+    licence:Mapped[str] = mapped_column(Text)
+    dependencies:Mapped[str] = mapped_column(Text)

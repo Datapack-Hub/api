@@ -1,22 +1,24 @@
-import utilities.db as db
+from sqlalchemy import insert, select
+from utilities.commons import UserModel
+import utilities.db_utils as db
 
 
 def reset(table: str):
-    connection = db.make_connection()
+    conn = db.make_connection()
 
     if table != "no-drop":
-        db.exec_query(connection, "DROP TABLE :table", table=table)
+        db.exec_query(conn, "DROP TABLE :table", table=table)
 
     # SQLite optimizations
-    db.exec_query(connection, "PRAGMA synchronous = NORMAL")
-    db.exec_query(connection, "PRAGMA mmap_size = 1000000000")
+    db.exec_query(conn, "PRAGMA synchronous = NORMAL")
+    db.exec_query(conn, "PRAGMA mmap_size = 1000000000")
 
     # ! This operation may not be supported, disable if you run into issues
-    db.exec_query(connection, "PRAGMA journal_mode = WAL")
+    db.exec_query(conn, "PRAGMA journal_mode = WAL")
 
     # Projects Data
     db.exec_query(
-        connection,
+        conn,
         """CREATE TABLE \"projects\"(
             type TEXT NOT NULL,
             author INT NOT NULL,
@@ -39,7 +41,7 @@ def reset(table: str):
 
     # Versions Data
     db.exec_query(
-        connection,
+        conn,
         """CREATE TABLE IF NOT EXISTS versions(
         name TEXT NOT NULL,
         description TEXT NOT NULL,
@@ -54,7 +56,7 @@ def reset(table: str):
 
     # User data
     db.exec_query(
-        connection,
+        conn,
         """CREATE TABLE IF NOT EXISTS users (
         username TEXT NOT NULL UNIQUE, 
         token TEXT NOT NULL UNIQUE, 
@@ -69,7 +71,7 @@ def reset(table: str):
 
     # Banned User Data
     db.exec_query(
-        connection,
+        conn,
         """CREATE TABLE IF NOT EXISTS banned_users (
         id int NOT NULL UNIQUE,
         expires int,
@@ -79,7 +81,7 @@ def reset(table: str):
 
     # Notification Data
     db.exec_query(
-        connection,
+        conn,
         """CREATE TABLE IF NOT EXISTS notifs(
         message TEXT NOT NULL,
         description TEXT NOT NULL,
@@ -92,7 +94,7 @@ def reset(table: str):
 
     # Report Data
     db.exec_query(
-        connection,
+        conn,
         """CREATE TABLE IF NOT EXISTS reports(
         message TEXT NOT NULL,
         reporter INT NOT NULL,
@@ -103,7 +105,7 @@ def reset(table: str):
 
     # Comment data
     db.exec_query(
-        connection,
+        conn,
         """CREATE TABLE IF NOT EXISTS comments(
         thread_id INT,
         message TEXT NOT NULL,
@@ -116,7 +118,7 @@ def reset(table: str):
 
     # Follow data
     db.exec_query(
-        connection,
+        conn,
         """CREATE TABLE IF NOT EXISTS follows(
         follower INT,
         followed INT
@@ -125,23 +127,20 @@ def reset(table: str):
     )
 
     # save and exit
-    connection.commit()
-    connection.close()
+    conn.commit()
+    conn.close()
 
 
 if __name__ == "__main__":
     reset("no-drop")
 
-    conn = db.make_connection()
-
-    db.exec_query(
-        conn,
-        """INSERT INTO users (username, token, role, bio, github_id, profile_icon) VALUES ("HoodieRocks", "LOREMIPSUM", "admin", "rock", 123897432978, "https://example.com/")""",
-    )
+    sess = db.make_session()
+    
+    sess.execute(insert(UserModel).values(username="HoodieRocks", token="LOREMIPSUM", role="admin", bio="rock", github_id=123897432978, profile_icon="https://example.com/"))
 
     # text(
 
-    print(db.exec_query(conn, """SELECT * FROM users WHERE rowid = 1""").one())
+    print(sess.execute(select(UserModel).where(UserModel.rowid == 1)).one())
 
-    conn.commit()
-    conn.close()
+    sess.commit()
+    sess.close()
