@@ -107,14 +107,14 @@ def search():
     if sort == "updated":
         r = util.exec_query(
             conn,
-            "select rowid, * from projects where status = 'live' and trim(title) LIKE :query ORDER BY updated DESC",
-            query=f"%{query}%",
+            "select rowid, * from projects where status = 'live' and trim(title) LIKE :q ORDER BY updated DESC",
+            q=f"%{query}%",
         ).all()
     elif sort == "downloads":
         r = util.exec_query(
             conn,
-            "select rowid, * from projects where status = 'live' and trim(title) LIKE :query ORDER BY downloads DESC",
-            query=f"%{query}%",
+            "select rowid, * from projects where status = 'live' and trim(title) LIKE :q ORDER BY downloads DESC",
+            q=f"%{query}%",
         ).all()
     else:
         return "Unknown sorting method.", 400
