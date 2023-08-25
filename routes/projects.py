@@ -194,9 +194,9 @@ def get_proj(id):
 
     proj = util.exec_query(
         conn, "select rowid, * from projects where rowid = :id", id=id
-    ).one()
+    ).one_or_none()
 
-    if not proj:
+    if proj is None:
         return "Not found", 404
 
     if proj[8] in ["disabled", "draft", "unpublished", "review_queue", "publish_queue"]:
@@ -235,10 +235,10 @@ def get_project(slug: str):
     # gimme dat project and gtfo
     proj = util.exec_query(
         conn, "select rowid, * from projects where url = :url", url=slug
-    ).one()
+    ).one_or_none()
 
     # hey u didn't give me a project, hate u
-    if not proj:
+    if proj is None:
         return "Not found", 404
 
     if proj[8] in ["disabled", "draft", "unpublished", "review_queue", "publish_queue"]:

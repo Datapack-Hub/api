@@ -42,11 +42,11 @@ def get_user_token(github_id: int):
     # Select
     u = util.exec_query(
         conn, "select token from users where github_id = :g_id", g_id=github_id
-    ).one()
+    ).one_or_none()
 
     conn.close()
 
-    if not u:
+    if u is None:
         return None
 
     return u[0]
@@ -58,11 +58,11 @@ def get_user_token_from_discord_id(discord: int):
     # Select
     u = util.exec_query(
         conn, "select token from users where discord_id = :discord", discord=discord
-    ).one()
+    ).one_or_none()
 
     conn.close()
 
-    if not u:
+    if u is None:
         return None
 
     return u[0]

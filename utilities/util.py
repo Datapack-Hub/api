@@ -65,7 +65,7 @@ def get_user_ban_data(id: int):
         id=id,
     ).one_or_none()
 
-    if not banned_user:
+    if banned_user is None:
         return None
 
     conn.close()

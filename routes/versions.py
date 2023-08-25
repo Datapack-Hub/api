@@ -113,7 +113,7 @@ def code(id: int, code: str):
             "SELECT * FROM versions WHERE version_code = :code AND project = :id ORDER BY rowid DESC",
             code=code,
             id=id,
-        ).one()
+        ).one_or_none()
 
         try:
             v[0]
