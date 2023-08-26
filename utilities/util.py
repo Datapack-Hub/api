@@ -6,6 +6,7 @@ from sqlalchemy import Connection, CursorResult, Engine, create_engine, text
 
 import config
 from utilities import post
+from utilities.commons import ShortBanData
 
 
 def make_connection() -> Connection:
@@ -20,9 +21,7 @@ def exec_query(conn: Connection, query: str, **params) -> CursorResult:
     return conn.execute(q)
 
 
-def create_user_account(
-    github_data: dict,
-):
+def create_user_account(github_data: dict) -> str:
     conn = make_connection()
 
     token = secrets.token_urlsafe()
@@ -55,8 +54,8 @@ def create_user_account(
     return token
 
 
-@lru_cache
-def get_user_ban_data(id: int):
+
+def get_user_ban_data(id: int) -> ShortBanData | None:
     conn = make_connection()
 
     banned_user = exec_query(
@@ -72,9 +71,8 @@ def get_user_ban_data(id: int):
 
     return {"reason": banned_user[0], "expires": banned_user[1]}
 
-
 @lru_cache
-def user_owns_project(project: int, author: int):
+def user_owns_project(project: int, author: int) -> bool:
     conn = make_connection()
     proj = exec_query(
         conn,
@@ -90,7 +88,7 @@ def user_owns_project(project: int, author: int):
 #     ).one()
 
 
-def send_notif(conn: Engine, title: str, msg: str, receiver: int):
+def send_notif(conn: Engine, title: str, msg: str, receiver: int) -> None:
     exec_query(
         conn,
         "INSERT INTO notifs VALUES (:title, :msg, False, 'default', :uid})",

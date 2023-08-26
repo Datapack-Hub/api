@@ -1,12 +1,13 @@
 import json
 import secrets
-import sqlite3
+
+from sqlalchemy.exc import SQLAlchemyError
 
 from utilities import util
 from utilities.commons import User
 
 
-def authenticate(auth: str):
+def authenticate(auth: str) -> User:
     """
     `dict` - If success returns user details\n
     `31` - If auth not supplied\n
@@ -36,7 +37,7 @@ def authenticate(auth: str):
     return User(u[1], u[0], u[2], u[3], profile_icon=u[4], badges=badges)
 
 
-def get_user_token(github_id: int):
+def get_user_token(github_id: int) -> str:
     conn = util.make_connection()
 
     # Select
@@ -52,7 +53,7 @@ def get_user_token(github_id: int):
     return u[0]
 
 
-def get_user_token_from_discord_id(discord: int):
+def get_user_token_from_discord_id(discord: int) -> str:
     conn = util.make_connection()
 
     # Select
@@ -68,7 +69,7 @@ def get_user_token_from_discord_id(discord: int):
     return u[0]
 
 
-def log_user_out(id: int):
+def log_user_out(id: int) -> str | SQLAlchemyError:
     conn = util.make_connection()
 
     token = secrets.token_urlsafe()
@@ -81,7 +82,7 @@ def log_user_out(id: int):
             token=token,
             id=id,
         )
-    except sqlite3.Error as err:
+    except SQLAlchemyError as err:
         return err
 
     conn.commit()

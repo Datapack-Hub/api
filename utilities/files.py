@@ -13,7 +13,7 @@ import requests
 import config
 
 
-def upload_zipfile(file: str, file_name: str, uploader: str, squash: bool = False):
+def upload_zipfile(file: str, file_name: str, uploader: str, squash: bool = False) -> str | False:
     file = file.split(",")[1].encode("unicode_escape")
     decoded = base64.b64decode(file)
 
@@ -43,7 +43,7 @@ def upload_zipfile(file: str, file_name: str, uploader: str, squash: bool = Fals
     return False
 
 
-def upload_file(file: str, file_name: str, uploader: str):
+def upload_file(file: str, file_name: str, uploader: str) -> str | tuple[str, int]:
     file = file.split(",")[1]
     file = file.encode("unicode_escape")
     decoded = base64.b64decode(file)
