@@ -59,6 +59,7 @@ class Comment:
     content: str
     replies: int
 
+
 class ShortBanData(TypedDict):
     reason: str
     expires: int
