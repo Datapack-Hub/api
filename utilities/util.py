@@ -54,7 +54,6 @@ def create_user_account(github_data: dict) -> str:
     return token
 
 
-
 def get_user_ban_data(id: int) -> ShortBanData | None:
     conn = make_connection()
 
@@ -70,6 +69,7 @@ def get_user_ban_data(id: int) -> ShortBanData | None:
     conn.close()
 
     return {"reason": banned_user[0], "expires": banned_user[1]}
+
 
 @lru_cache
 def user_owns_project(project: int, author: int) -> bool:
