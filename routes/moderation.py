@@ -454,14 +454,14 @@ def change_status(proj: int):
     conn = util.make_connection()
 
     project = util.exec_query(
-            conn,
-            "select status, title, author, description, icon, url from projects where rowid = :pid",
-            pid=proj,
-        ).all()
-    
+        conn,
+        "select status, title, author, description, icon, url from projects where rowid = :pid",
+        pid=proj,
+    ).all()
+
     if len(project) == 0:
         return "Project not found", 404
-    
+
     project = project[0]
 
     usr = get_user.from_id(project[2])
