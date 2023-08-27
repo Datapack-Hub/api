@@ -23,7 +23,7 @@ if PROD == 1:
         client_secret = "c3dd98c1ed8acc65989824e70d61fd49cf60640d"
 
 else:
-    DATA = ""
+    DATA = "./data/"
 
     class github:
         client_id = "cd983835f4e37148ba77"

@@ -146,7 +146,7 @@ def new(project: int):
     # Check if user is banned
     banned = util.get_user_ban_data(usr.id)
 
-    if banned:
+    if banned is not None:
         return {
             "banned": True,
             "reason": banned["reason"],
