@@ -453,18 +453,16 @@ def change_status(proj: int):
 
     conn = util.make_connection()
 
-    project = None
-
-    try:
-        project = util.exec_query(
+    project = util.exec_query(
             conn,
             "select status, title, author, description, icon, url from projects where rowid = :pid",
             pid=proj,
-        ).one()
-    except sqlalchemy.exc.NoResultFound:
-        return "No project found", 404
-    except sqlalchemy.exc.MultipleResultsFound:
-        return "How did this happen", 500
+        ).all()
+    
+    if len(project) == 0:
+        return "Project not found", 404
+    
+    project = project[0]
 
     usr = get_user.from_id(project[2])
 
@@ -476,8 +474,8 @@ def change_status(proj: int):
             util.exec_query(
                 conn,
                 "INSERT INTO notifs VALUES (:title, :msg, False, 'default', :uid)",
-                title=f"Published {project[2]}",
-                msg=f"Your project, {project[2]}, was published by a staff member.",
+                title=f"Published {project[1]}",
+                msg=f"Your project, {project[1]}, was published by a staff member.",
                 uid=usr.id,
             )
             followers = util.exec_query(
