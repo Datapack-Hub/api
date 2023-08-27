@@ -6,7 +6,7 @@ import config
 from utilities import get_user
 
 
-def site_log(user: str, action: str, content: str) -> None:
+def site_log(user: str, action: str, content: str):
     usr = get_user.from_username(user)
 
     webhook = disnake.SyncWebhook.from_url(config.MOD_LOGS)
@@ -19,7 +19,7 @@ def site_log(user: str, action: str, content: str) -> None:
     webhook.send(embed=emb)
 
 
-def error(title: str, message: str) -> None:
+def error(title: str, message: str):
     webhook = disnake.SyncWebhook.from_url(config.MOD_LOGS)
     emb = disnake.Embed(
         title=title,
@@ -32,7 +32,7 @@ def error(title: str, message: str) -> None:
 
 def approval(
     approver: str, title: str, description: str, icon: str, author: int, url: str
-) -> None:
+):
     author_obj = get_user.from_id(author)
 
     webhook = disnake.SyncWebhook.from_url(config.PROJ_LOGS)
@@ -62,7 +62,7 @@ def deletion(
     author: int,
     reason: str,
     url: str,
-) -> None:
+):
     author_obj = get_user.from_id(author)
 
     webhook = disnake.SyncWebhook.from_url(config.PROJ_LOGS)
@@ -93,7 +93,7 @@ def disabled(
     author: int,
     reason: str,
     url: str,
-) -> None:
+):
     author_obj = get_user.from_id(author)
 
     webhook = disnake.SyncWebhook.from_url(config.PROJ_LOGS)
@@ -116,7 +116,7 @@ def disabled(
     webhook.send(embed=emb)
 
 
-def in_queue(title: str, description: str, icon: str, author: int, url: str) -> None:
+def in_queue(title: str, description: str, icon: str, author: int, url: str):
     author_obj = get_user.from_id(author)
 
     webhook = disnake.SyncWebhook.from_url(config.PROJ_LOGS)

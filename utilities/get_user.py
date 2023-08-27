@@ -4,7 +4,7 @@ from utilities import util
 from utilities.commons import User
 
 
-def from_username(self: str) -> User:
+def from_username(self: str):
     conn = util.make_connection()
 
     # Select
@@ -23,7 +23,7 @@ def from_username(self: str) -> User:
     return User(u[1], u[0], u[2], u[3], profile_icon=u[4], badges=badges)
 
 
-def from_id(self: int) -> User:
+def from_id(self: int):
     conn = util.make_connection()
 
     # Select
@@ -42,7 +42,7 @@ def from_id(self: int) -> User:
     return User(u[1], u[0], u[2], u[3], profile_icon=u[4], badges=badges)
 
 
-def from_github_id(self: int) -> User:
+def from_github_id(self: int):
     conn = util.make_connection()
 
     # Select
@@ -61,7 +61,7 @@ def from_github_id(self: int) -> User:
     return User(u[1], u[0], u[2], u[3], profile_icon=u[4], badges=badges)
 
 
-def from_discord_id(self: int) -> User:
+def from_discord_id(self: int):
     conn = util.make_connection()
 
     # Select
@@ -80,7 +80,7 @@ def from_discord_id(self: int) -> User:
     return User(u[1], u[0], u[2], u[3], profile_icon=u[4], badges=badges)
 
 
-def from_token(token: str) -> User:
+def from_token(token: str):
     conn = util.make_connection()
 
     # Select
