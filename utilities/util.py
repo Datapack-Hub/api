@@ -63,10 +63,10 @@ def get_user_ban_data(id: int) -> ShortBanData | None:
         id=id,
     ).one_or_none()
 
+    conn.close()
+    
     if banned_user is None:
         return None
-
-    conn.close()
 
     return {"reason": banned_user[0], "expires": banned_user[1]}
 
