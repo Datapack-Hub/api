@@ -15,7 +15,7 @@ import config
 
 def upload_zipfile(
     file: str, file_name: str, uploader: str, squash: bool = False
-) -> str | False:
+):
     file = file.split(",")[1].encode("unicode_escape")
     decoded = base64.b64decode(file)
 
