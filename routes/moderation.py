@@ -464,7 +464,7 @@ def change_status(proj: int):
 
     project = project[0]
 
-    usr = get_user.from_id(project[2])
+    author = get_user.from_id(project[2])
 
     if data["action"] == "publish":
         if project[0] != "live":
@@ -476,17 +476,17 @@ def change_status(proj: int):
                 "INSERT INTO notifs VALUES (:title, :msg, False, 'default', :uid)",
                 title=f"Published {project[1]}",
                 msg=f"Your project, {project[1]}, was published by a staff member.",
-                uid=usr.id,
+                uid=author.id,
             )
             followers = util.exec_query(
-                conn, "select follower from follows where followed = :uid", uid=usr.id
+                conn, "select follower from follows where followed = :uid", uid=author.id
             ).all()
             if len(followers) > 0:
                 for i in followers:
                     util.send_notif(
                         conn,
-                        f"{usr.username} posted a project!",
-                        f"[{usr.username}](https://datapackhub.net/user/{usr.username}) just posted a new project: [{project[1]}](https://datapackhub.net/project/{project[5]})",
+                        f"{author.username} posted a project!",
+                        f"[{author.username}](https://datapackhub.net/user/{author.username}) just posted a new project: [{project[1]}](https://datapackhub.net/project/{project[5]})",
                         i,
                     )
             conn.commit()
