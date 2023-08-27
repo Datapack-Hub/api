@@ -481,13 +481,14 @@ def change_status(proj: int):
             followers = util.exec_query(
                 conn, "select follower from follows where followed = :uid", uid=usr.id
             ).all()
-            for i in followers:
-                util.send_notif(
-                    conn,
-                    f"{usr.username} posted a project!",
-                    f"[{usr.username}](https://datapackhub.net/user/{usr.username}) just posted a new project: [{project[2]}](https://datapackhub.net/project/{project[6]})",
-                    i,
-                )
+            if len(followers) > 0:
+                for i in followers:
+                    util.send_notif(
+                        conn,
+                        f"{usr.username} posted a project!",
+                        f"[{usr.username}](https://datapackhub.net/user/{usr.username}) just posted a new project: [{project[1]}](https://datapackhub.net/project/{project[5]})",
+                        i,
+                    )
             conn.commit()
             conn.close()
             utilities.post.approval(
