@@ -1,5 +1,4 @@
 from dataclasses import dataclass
-from typing import TypedDict
 
 
 @dataclass
@@ -58,8 +57,3 @@ class Comment:
     author: int
     content: str
     replies: int
-
-
-class ShortBanData(TypedDict):
-    reason: str
-    expires: int

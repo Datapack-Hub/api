@@ -43,7 +43,7 @@ def upload_zipfile(file: str, file_name: str, uploader: str, squash: bool = Fals
     return False
 
 
-def upload_file(file: str, file_name: str, uploader: str) -> str | tuple[str, int]:
+def upload_file(file: str, file_name: str, uploader: str):
     file = file.split(",")[1]
     file = file.encode("unicode_escape")
     decoded = base64.b64decode(file)
