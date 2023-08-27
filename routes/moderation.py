@@ -479,7 +479,9 @@ def change_status(proj: int):
                 uid=author.id,
             )
             followers = util.exec_query(
-                conn, "select follower from follows where followed = :uid", uid=author.id
+                conn,
+                "select follower from follows where followed = :uid",
+                uid=author.id,
             ).all()
             if len(followers) > 0:
                 for i in followers:
