@@ -2,11 +2,11 @@
 
 bleach==6.0.0
 disnake==2.9.0
-Flask==2.3.2
+Flask==2.3.3
 Flask-Compress==1.13
 Flask-Cors==4.0.0
 regex==2023.8.8
 requests==2.31.0
-Werkzeug==2.3.6
+Werkzeug==2.3.7
 aiohttp>=3.8.5 # not directly required, pinned by Snyk to avoid a vulnerability
 certifi>=2023.7.22 # not directly required, pinned by Snyk to avoid a vulnerability
