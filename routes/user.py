@@ -280,6 +280,24 @@ def me():
     return user_data
 
 
+@user.route("/me/log_out")
+def log_out_self():
+    if not request.headers.get("Authorization"):
+        return "You can't log yourself out if you're not logged in", 400
+
+    usr = auth_util.authenticate(request.headers.get("Authorization"))
+    if usr == 32:
+        return "Please make sure authorization type = Basic", 400
+    if usr == 33:
+        return (
+            "Your token expired or you're already logged out, we don't know at this point",
+            401,
+        )
+
+    auth_util.log_user_out(usr.id)
+    return "Successfully signed out!"
+
+
 @user.route("/<string:username>/projects")
 def user_projects(username):
     conn = util.make_connection()
