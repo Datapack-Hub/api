@@ -7,7 +7,7 @@ run.py
 *.cron
 *.sh
 
-# Ruff cahce
+# Ruff cache
 /.ruff_cache
 
 # Byte-compiled / optimized / DLL files
