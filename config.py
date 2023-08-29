@@ -10,7 +10,7 @@ FILES_TOKEN = "torsoHowardzetta6"
 BACKUPS_TOKEN = "supersecrettoken69"
 
 
-class discord:
+class Discord:
     client_id = 1121129295868334220
     client_secret = "BvADF8zUtHmhb1XfVAg9bdpfNithjqo3"
 
@@ -18,14 +18,14 @@ class discord:
 if PROD == 1:
     DATA = "/var/DatapackHub/"
 
-    class github:
+    class GitHub:
         client_id = "8a0527a3da5b002db8c9"
         client_secret = "c3dd98c1ed8acc65989824e70d61fd49cf60640d"
 
 else:
     DATA = "./data/"
 
-    class github:
+    class GitHub:
         client_id = "cd983835f4e37148ba77"
         client_secret = "56414b10caf5394328730deba6b41a6f38bfee8f"
 

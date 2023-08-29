@@ -96,7 +96,7 @@ def roles():
 
 @user.route("/<string:username>", methods=["GET"])
 def get_user(username):
-    # TODO mods can see banned users
+    # TODO: mods can see banned users
     u = utilities.get_user.from_username(username)
     if not u:
         return "User does not exist", 404
@@ -134,7 +134,7 @@ def get_user(username):
 
 @user.route("/id/<int:id>", methods=["GET", "PATCH"])
 def get_user_id(id):
-    # TODO mods can see banned users
+    # TODO: mods can see banned users
     if request.method == "GET":
         u = utilities.get_user.from_id(id)
         if not u:
