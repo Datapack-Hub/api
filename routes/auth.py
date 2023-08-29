@@ -22,7 +22,7 @@ auth = flask.Blueprint("auth", __name__, url_prefix="/auth")
 @auth.route("/login/github")
 def login_gh():
     return flask.redirect(
-        f"https://github.com/login/oauth/authorize?client_id={config.github.client_id}&redirect_uri=https%3A%2F%2Fapi.datapackhub.net%2Fauth%2Fcallback%2Fgithub"
+        f"https://github.com/login/oauth/authorize?client_id={config.GitHub.client_id}&redirect_uri=https%3A%2F%2Fapi.datapackhub.net%2Fauth%2Fcallback%2Fgithub"
     )
 
 
@@ -38,7 +38,7 @@ def callback_gh():
     # Get an access token
     code = request.args.get("code")
     access_token = requests.post(
-        f"https://github.com/login/oauth/access_token?client_id={config.github.client_id}&client_secret={config.github.client_secret}&code={quote(code)}",
+        f"https://github.com/login/oauth/access_token?client_id={config.GitHub.client_id}&client_secret={config.GitHub.client_secret}&code={quote(code)}",
         headers={"Accept": "application/json"},
         timeout=180,
     ).json()
@@ -86,8 +86,8 @@ def callback_dc():
     code = request.args.get("code")
 
     data = {
-        "client_id": config.discord.client_id,
-        "client_secret": config.discord.client_secret,
+        "client_id": config.Discord.client_id,
+        "client_secret": config.Discord.client_secret,
         "grant_type": "authorization_code",
         "code": code,
         "redirect_uri": "https://api.datapackhub.net/auth/callback/discord",
@@ -178,8 +178,8 @@ def link_discord():
 
     # Get discord user info
     data = {
-        "client_id": config.discord.client_id,
-        "client_secret": config.discord.client_secret,
+        "client_id": config.Discord.client_id,
+        "client_secret": config.Discord.client_secret,
         "grant_type": "authorization_code",
         "code": code,
         "redirect_uri": "https://datapackhub.net/settings/discord",
@@ -225,7 +225,7 @@ def link_github():
 
     access_token = requests.post(
         quote(
-            f"https://github.com/login/oauth/access_token?client_id={config.github.client_id}&client_secret={config.github.client_secret}&code={code}"
+            f"https://github.com/login/oauth/access_token?client_id={config.GitHub.client_id}&client_secret={config.GitHub.client_secret}&code={code}"
         ),
         headers={"Accept": "application/json"},
         timeout=180,

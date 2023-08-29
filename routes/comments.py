@@ -81,7 +81,7 @@ def post_msg(thread: int):
         return "Token Expired", 401
 
     conn = util.make_connection()
-    cmt_data = request.get_json(True)
+    cmt_data = request.get_json(force=True)
     try:
         cmt_data["message"]
     except KeyError:
