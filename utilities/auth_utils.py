@@ -7,15 +7,14 @@ from utilities.commons import User
 
 
 def authenticate(auth: str):
-    """
-    `dict` - If success returns user details\n
+    """`dict` - If success returns user details\n
     `31` - If auth not supplied\n
     `32` - If auth is not basic\n
-    `33` - If user is not existing\n
+    `33` - If user is not existing\n.
     """
     if not auth:
         return 31
-    if not auth.startswith("Basic"):
+    if not auth.startswith("Basic "):
         return 32
 
     token = auth[6:]

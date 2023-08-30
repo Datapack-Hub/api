@@ -6,6 +6,7 @@ import json
 import sqlite3
 import time
 import traceback
+from pathlib import Path
 
 from flask import Blueprint, request
 
@@ -91,7 +92,7 @@ def staff(role):
 
 @user.route("/staff/roles")
 def roles():
-    return json.load(open(config.DATA + "roles.json", "r+"))
+    return json.load(Path(config.DATA + "roles.json").open("r+"))
 
 
 @user.route("/<string:username>", methods=["GET"])

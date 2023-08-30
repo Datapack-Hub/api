@@ -1,6 +1,4 @@
-"""
-**Moderation API endpoints**
-"""
+"""**Moderation API endpoints**."""
 
 import difflib
 import json
@@ -9,6 +7,7 @@ import shlex
 import sqlite3
 import time
 from datetime import date
+from pathlib import Path
 
 import bleach
 import requests
@@ -171,7 +170,7 @@ def console():
         put = requests.put(
             "https://backups.datapackhub.net/"
             + date.today().strftime("custom-" + str(id)),
-            open(config.DATA + "data.db", "rb"),
+            Path(config.DATA + "data.db").open("rb"),
             headers={
                 "Authorization": config.BACKUPS_TOKEN,
             },

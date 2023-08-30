@@ -1,12 +1,12 @@
-from os.path import exists
+from pathlib import Path
 
 import flask
 from flask_compress import Compress
 from flask_cors import CORS
-from prod import PROD
 
 import config
 import gen_example_data
+from prod import PROD
 
 # Register blueprints
 from routes.auth import auth
@@ -42,7 +42,7 @@ app.register_blueprint(notifs)
 app.register_blueprint(comments)
 
 # Database things
-if not exists(config.DATA + "data.db"):
+if not Path(config.DATA + "data.db").exists():
     gen_example_data.reset("no-drop")
 
 # Run the app

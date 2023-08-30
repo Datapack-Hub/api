@@ -109,7 +109,7 @@ def send(target):
             target=target,
         )
     except sqlite3.Error as er:
-        return "There was a problem: " " ".join(er.args), 500
+        return "There was a problem: ".join(er.args), 500
 
     conn.commit()
     conn.close()
