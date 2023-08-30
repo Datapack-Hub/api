@@ -5,6 +5,7 @@ This code does some weird ass stuff which should probably upload files to the cl
 import base64
 import os
 import shutil
+from pathlib import Path
 from urllib.parse import quote
 from zipfile import ZipFile
 
@@ -14,24 +15,24 @@ import config
 
 
 def upload_zipfile(file: str, file_name: str, uploader: str, squash: bool = False):
-    file = file.split(",")[1].encode("unicode_escape")
-    decoded = base64.b64decode(file)
+    decoded = base64.b64decode(file.split(",")[1].encode("unicode_escape"))
+    zip_path = Path(config.DATA + "Temporary.zip")
+    folder_path = Path(config.DATA + "Temporary")
 
-    with open(config.DATA + "Temporary.zip", "wb") as out:
-        out.write(decoded)
+    zip_path.write_bytes(decoded)
 
-    if os.path.exists(config.DATA + "Temporary"):
+    if folder_path.exists(config.DATA + "Temporary"):
         shutil.rmtree(config.DATA + "Temporary")
-    os.makedirs(config.DATA + "Temporary")
+    folder_path.mkdir(parents=True, exist_ok=True)
 
     if squash:
-        with ZipFile(config.DATA + "Temporary.zip", "r") as zip_ref:
+        with ZipFile(zip_path.absolute(), "r") as zip_ref:
             zip_ref.extractall(config.DATA + "Temporary")
         os.system("packsquash '/var/www/html/api/squash.toml'")
 
     put = requests.put(
         "https://files.datapackhub.net/" + file_name,
-        open(config.DATA + "Temporary.zip", "rb"),
+        zip_path.read_bytes(),
         headers={"Authorization": config.FILES_TOKEN, "Author": uploader},
         timeout=300000,
     )
@@ -44,19 +45,17 @@ def upload_zipfile(file: str, file_name: str, uploader: str, squash: bool = Fals
 
 
 def upload_file(file: str, file_name: str, uploader: str):
-    file = file.split(",")[1]
-    file = file.encode("unicode_escape")
-    decoded = base64.b64decode(file)
+    decoded = base64.b64decode(file.split(",")[1].encode("unicode_escape"))
+    path = Path(config.DATA + "tempfile")
 
-    with open(config.DATA + "tempfile", "wb") as out:
-        out.write(decoded)
-        if out.tell() > 255999:
-            return "File too big."
-        out.close()
+    if path.stat().st_size > 255999:
+        return "File too big."
+
+    path.write_bytes(decoded)
 
     put = requests.put(
         "https://files.datapackhub.net/" + quote(file_name),
-        open(config.DATA + "tempfile", "rb"),
+        path.read_bytes(),
         headers={"Authorization": config.FILES_TOKEN, "Author": uploader},
         timeout=300,
     )
@@ -66,9 +65,9 @@ def upload_file(file: str, file_name: str, uploader: str):
     return "Error Uploading", 500
 
 
-if __name__ == "__main__":
-    upload_zipfile(
-        open("D:\Datapack Hub testing zips\Datapack.zip", "rb"),
-        "Datapack.zip",
-        "Silabear",
-    )
+# if __name__ == "__main__":
+#     upload_zipfile(
+#         open("D:\Datapack Hub testing zips\Datapack.zip", "rb"),
+#         "Datapack.zip",
+#         "Silabear",
+#     )
