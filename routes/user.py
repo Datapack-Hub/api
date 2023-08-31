@@ -46,7 +46,7 @@ def badges(id: int):
         try:
             badge_str = str(body["badges"]).replace("'", '"')
 
-            print(badge_str)
+            util.log(badge_str)
 
             util.exec_query(
                 conn,
@@ -57,7 +57,7 @@ def badges(id: int):
                 id=id,
             )
         except sqlite3.Error:
-            print(traceback.print_exc())
+            util.log(traceback.print_exc())
             conn.rollback()
             conn.close()
             return "Database Error", 500
@@ -125,7 +125,7 @@ def get_user(username):
             fid=u.id,
             uid=usr.id,
         ).all()
-        if len(followed) == 0:
+        if not followed:
             return_data["followed"] = False
         else:
             return_data["followed"] = True
@@ -164,7 +164,7 @@ def get_user_id(id):
                 fid=u.id,
                 uid=usr.id,
             ).all()
-            if len(followed) == 0:
+            if not followed:
                 return_data["followed"] = False
             else:
                 return_data["followed"] = True
@@ -408,7 +408,7 @@ def follow(id):
         "select * from follows where follower = :fid and followed = :fid;",
         fid=follower.id,
     ).all()
-    if len(fol) == 0:
+    if not fol:
         try:
             util.exec_query(
                 conn,

@@ -27,7 +27,7 @@ def authenticate(auth: str):
         token=token,
     ).one_or_none()
     if u is None:
-        print("user doth not exists")
+        util.log("user doth not exists")
         return 33
     conn.close()
 

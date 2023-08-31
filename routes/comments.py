@@ -167,7 +167,7 @@ def post_msg(thread: int):
     except sqlite3.Error as er:
         conn.rollback()
         conn.close()
-        return "There was an error! " + " ".join(er.args), 500
+        return f"There was an error! {' '.join(er.args)}", 500
 
     conn.commit()
     conn.close()
@@ -185,7 +185,7 @@ def get_comment(id: int):
             id=id,
         ).all()
 
-        if len(comment) == 0:
+        if not comment:
             return "Not found.", 404
 
         comment = comment[0]
@@ -238,7 +238,7 @@ def get_comment(id: int):
             id=id,
         ).all()
 
-        if len(comment) == 0:
+        if not comment:
             return "Not found.", 404
 
         comment = comment[0]

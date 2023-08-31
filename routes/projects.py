@@ -93,7 +93,7 @@ def parse_project(output: tuple, conn: Engine):
 
 @projects.route("/search", methods=["GET"])
 def search():
-    x = time.time()
+    x = time.perf_counter()
     query = request.args.get("query", "")
     page = int(request.args.get("page", 1))
     sort = request.args.get("sort", "updated")
@@ -133,7 +133,7 @@ def search():
 
     conn.close()
 
-    y = time.time()
+    y = time.perf_counter()
     return {
         "count": len(out),
         "time": y - x,
@@ -564,7 +564,7 @@ def publish(id):
         id=id,
     ).all()
 
-    if len(proj) == 0:
+    if not proj:
         return "Project not found.", 404
 
     proj = proj[0]
@@ -622,7 +622,7 @@ def draft(id):
         conn, "select author, status from projects where rowid = :id", id=id
     ).all()
 
-    if len(proj) == 0:
+    if not proj:
         return "Project not found.", 404
 
     proj = proj[0]
@@ -660,7 +660,7 @@ def report(id):
         conn, "select author from projects where rowid = :id", id=id
     ).all()
 
-    if len(proj) == 0:
+    if not proj:
         return "Project not found.", 404
 
     report_data = request.get_json(force=True)
@@ -700,7 +700,7 @@ def remove(id):
         conn, "select author, status from projects where rowid = :id", id=id
     ).all()
 
-    if len(proj) == 0:
+    if not proj:
         return "Project not found.", 404
 
     proj = proj[0]
@@ -732,7 +732,7 @@ def download(id):
         conn, "select downloads from projects where rowid = :id", id=id
     ).all()
 
-    if len(proj) == 0:
+    if not proj:
         return "Project not found.", 404
 
     util.exec_query(
@@ -770,7 +770,7 @@ def feature(id):
         conn, "select author, status, title, url from projects where rowid = :id", id=id
     ).all()
 
-    if len(proj) == 0:
+    if not proj:
         return "Project not found.", 404
 
     proj = proj[0]

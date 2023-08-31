@@ -1,3 +1,4 @@
+import logging
 import random
 import secrets
 from functools import lru_cache
@@ -19,6 +20,10 @@ def exec_query(conn: Connection, query: str, **params) -> CursorResult:
         q = q.bindparams(**params)
     return conn.execute(q)
 
+def log(msg: object, level=logging.INFO):
+    logging.basicConfig(level=level, format=config.PYTHON_LOGGING_CONF)
+    logging.log(level=level, msg=msg)
+
 
 def create_user_account(
     github_data: dict,
@@ -32,7 +37,7 @@ def create_user_account(
         "select username from users where username = :login;",
         login=github_data["login"],
     ).all()
-    if len(check) == 0:
+    if not check:
         username = github_data["login"]
     else:
         username = github_data["login"] + str(random.randint(1, 99999))
@@ -50,7 +55,7 @@ def create_user_account(
     conn.commit()
     conn.close()
 
-    print("CREATED USER: " + github_data["login"])
+    log("CREATED USER: " + github_data["login"])
 
     return token
 

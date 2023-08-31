@@ -91,7 +91,7 @@ def from_token(token: str):
     ).one_or_none()
 
     if u is None:
-        print("SillySilabearError: The user does not exist")
+        util.log("SillySilabearError: The user does not exist")
         return False
 
     conn.close()

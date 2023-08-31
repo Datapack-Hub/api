@@ -9,6 +9,8 @@ PROJ_LOGS = "https://discord.com/api/webhooks/1132308706202239056/MwfECKhw0-jvFe
 FILES_TOKEN = "torsoHowardzetta6"
 BACKUPS_TOKEN = "supersecrettoken69"
 
+PYTHON_LOGGING_CONF = "[%(levelname)s] %(asctime)s - %(message)s"
+
 
 class Discord:
     client_id = 1121129295868334220
