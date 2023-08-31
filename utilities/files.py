@@ -6,8 +6,10 @@ import base64
 import os
 import shutil
 from pathlib import Path
+import subprocess
 from urllib.parse import quote
 from zipfile import ZipFile
+from utilities import util
 
 import requests
 
@@ -28,7 +30,7 @@ def upload_zipfile(file: str, file_name: str, uploader: str, squash: bool = Fals
     if squash:
         with ZipFile(zip_path.absolute(), "r") as zip_ref:
             zip_ref.extractall(config.DATA + "Temporary")
-        os.system("packsquash '/var/www/html/api/squash.toml'")
+        subprocess.run(["packsquash", "'/var/www/html/api/squash.toml'"])
 
     put = requests.put(
         "https://files.datapackhub.net/" + file_name,
@@ -40,7 +42,7 @@ def upload_zipfile(file: str, file_name: str, uploader: str, squash: bool = Fals
     if put.ok:
         return "https://files.datapackhub.net/" + file_name
     else:
-        print(put.text)
+        util.log(put.text)
     return False
 
 

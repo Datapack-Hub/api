@@ -200,7 +200,7 @@ def console():
                 arg3=args[3],
             )
         except sqlalchemy.exc.SQLAlchemyError as er:
-            return "Error: " + " ".join(er.args), 400
+            return f"Error: {' '.join(er.args)}", 400
         conn.commit()
         conn.close()
         return "Notified the user!"
@@ -297,7 +297,7 @@ def user_data(id):
         conn, "SELECT * FROM banned_users WHERE id = :id", id=id
     ).all()
 
-    if len(ban_data) == 0:
+    if not ban_data:
         return {"banned": False, "banMessage": None, "banExpiry": None}
     else:
         return {
@@ -458,7 +458,7 @@ def change_status(proj: int):
         pid=proj,
     ).all()
 
-    if len(project) == 0:
+    if not project:
         return "Project not found", 404
 
     project = project[0]
@@ -482,7 +482,7 @@ def change_status(proj: int):
                 "select follower from follows where followed = :uid",
                 uid=author.id,
             ).all()
-            if len(followers) > 0:
+            if not followers:
                 for i in followers:
                     util.send_notif(
                         conn,
@@ -649,7 +649,7 @@ def remove_report(id: int):
     rep = util.exec_query(
         conn, "select rowid from reports where rowid = :id", id=id
     ).all()
-    if len(rep) == 0:
+    if not rep:
         return "Report not found", 404
 
     util.exec_query(conn, "delete from reports where rowid = :id", id=id)

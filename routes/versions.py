@@ -50,7 +50,7 @@ def project_from_str(id: str):
     p = util.exec_query(
         conn, "SELECT rowid FROM projects WHERE url = :url;", url=id
     ).all()
-    if len(p) == 0:
+    if not p:
         return "Project not found", 404
 
     # Select all versions where the project is this one
@@ -169,7 +169,7 @@ def new(project: int):
         data["primary_download"]
         data["filename"]
     except BadRequestKeyError as ex:
-        return "Error: " + " ".join(ex.args)
+        return f"Error:  {' '.join(ex.args)}"
     except:
         return (
             "Make sure you provide name, description, minecraft_versions, version_code, primary_download, filename and optionally resource_pack_download",

@@ -122,7 +122,7 @@ def callback_dc():
             "select username from users where username = :dis_uname;",
             dis_uname=discord["username"],
         ).all()
-        if len(check) == 0:
+        if not check:
             username = discord["username"]
         else:
             username = discord["username"] + str(random.randint(1, 99999))
