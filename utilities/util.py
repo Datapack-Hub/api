@@ -20,6 +20,7 @@ def exec_query(conn: Connection, query: str, **params) -> CursorResult:
         q = q.bindparams(**params)
     return conn.execute(q)
 
+
 def log(msg: object, level=logging.INFO):
     logging.basicConfig(level=level, format=config.PYTHON_LOGGING_CONF)
     logging.log(level=level, msg=msg)
