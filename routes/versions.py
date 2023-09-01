@@ -193,9 +193,9 @@ def new(project: int):
             usr.username,
             sq,
         )
-        
+
         sorted_versions = sorted(data["minecraft_versions"], key=util.custom_key_sort)
-        
+
         try:
             data["resource_pack_download"]
         except BadRequestKeyError:

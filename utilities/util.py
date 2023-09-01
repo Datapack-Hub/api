@@ -105,16 +105,17 @@ def send_notif(conn: Engine, title: str, msg: str, receiver: int):
         uid=receiver,
     )
 
+
 # Define a custom sorting key function
 def custom_sort_key(version):
     # Split the version string by '.' into a list of components
-    components = version.split('.')
-    
+    components = version.split(".")
+
     # Replace 'x' with a large number for sorting
     for i in range(len(components)):
-        if components[i] == 'x':
-            components[i] = '999999'
-    
+        if components[i] == "x":
+            components[i] = "999999"
+
     # Convert components to integers for sorting
     return [int(component) for component in components]
 
