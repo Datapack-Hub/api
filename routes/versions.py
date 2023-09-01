@@ -193,6 +193,9 @@ def new(project: int):
             usr.username,
             sq,
         )
+        
+        sorted_versions = sorted(data["minecraft_versions"], key=util.custom_key_sort)
+        
         try:
             data["resource_pack_download"]
         except BadRequestKeyError:
@@ -209,7 +212,7 @@ def new(project: int):
                 name=data["name"],
                 desc=data["description"],
                 path=dpath,
-                mcv=",".join(data["minecraft_versions"]),
+                mcv=",".join(sorted_versions),
                 vc=data["version_code"],
                 project=project,
             )
@@ -235,7 +238,7 @@ def new(project: int):
                     desc=data["description"],
                     dpath=dpath,
                     rpath=rpath,
-                    mcv=",".join(data["minecraft_versions"]),
+                    mcv=",".join(sorted_versions),
                     vc=data["version_code"],
                     project=project,
                 )
