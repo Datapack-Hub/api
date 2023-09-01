@@ -3,7 +3,6 @@ This code does some weird ass stuff which should probably upload files to the cl
 """
 
 import base64
-import os
 import shutil
 from pathlib import Path
 import subprocess
