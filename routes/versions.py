@@ -194,7 +194,7 @@ def new(project: int):
             sq,
         )
 
-        sorted_versions = sorted(data["minecraft_versions"], key=util.custom_key_sort)
+        sorted_versions = sorted(data["minecraft_versions"], key=util.custom_sort_key)
 
         try:
             data["resource_pack_download"]
