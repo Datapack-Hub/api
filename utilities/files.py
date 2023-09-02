@@ -5,8 +5,9 @@ This code does some weird ass stuff which should probably upload files to the cl
 import base64
 import shutil
 from pathlib import Path
+
 # yes bandit I consider the security implications of subprocess
-import subprocess #nosec
+import subprocess  # nosec
 from urllib.parse import quote
 from zipfile import ZipFile
 from utilities import util
@@ -31,7 +32,9 @@ def upload_zipfile(file: str, file_name: str, uploader: str, squash: bool = Fals
         with ZipFile(zip_path.absolute(), "r") as zip_ref:
             zip_ref.extractall(config.DATA + "Temporary")
         # its not like i'm passing user input, its constant
-        subprocess.Popen(["packsquash", "'/var/www/html/api/squash.toml'"]).wait() #nosec
+        subprocess.Popen(
+            ["packsquash", "'/var/www/html/api/squash.toml'"]
+        ).wait()  # nosec
 
     put = requests.put(
         "https://files.datapackhub.net/" + file_name,
