@@ -14,7 +14,7 @@ notifs = Blueprint("notifications", __name__, url_prefix="/notifs")
 
 
 @notifs.route("/")
-def all():
+def get_all_notifs():
     if not request.headers.get("Authorization"):
         return "Authorization required", 401
 
@@ -52,7 +52,7 @@ def all():
 
 
 @notifs.route("/unread")
-def unread():
+def get_unread_notifs():
     if not request.headers.get("Authorization"):
         return "Authorization required", 401
 
@@ -83,7 +83,7 @@ def unread():
 
 
 @notifs.route("/send/<int:target>", methods=["POST"])
-def send(target):
+def send_notif(target):
     if not request.headers.get("Authorization"):
         return "Authorization required", 401
 
@@ -124,7 +124,7 @@ def send(target):
 
 
 @notifs.route("/delete/<int:id>", methods=["DELETE"])
-def delete(id):
+def delete_notif(id):
     usr = utilities.auth_utils.authenticate(request.headers.get("Authorization"))
     if usr == 32:
         return "Please make sure authorization type = Basic", 400

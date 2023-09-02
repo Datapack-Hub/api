@@ -1,6 +1,10 @@
 """
 This code does some weird ass stuff which should probably upload files to the cloudflare... don't ask me
 """
+import config
+
+import pillow_avif
+from PIL import Image
 
 import base64
 import shutil
@@ -10,11 +14,9 @@ from pathlib import Path
 import subprocess  # nosec
 from urllib.parse import quote
 from zipfile import ZipFile
-from utilities import util
+import util
 
 import requests
-
-import config
 
 
 def upload_zipfile(file: str, file_name: str, uploader: str, squash: bool = False):
@@ -50,7 +52,7 @@ def upload_zipfile(file: str, file_name: str, uploader: str, squash: bool = Fals
     return False
 
 
-def upload_file(file: str, file_name: str, uploader: str):
+def upload_file(file: str, file_name: str, uploader: str, is_icon: bool = False):
     decoded = base64.b64decode(file.split(",")[1].encode("unicode_escape"))
     path = Path(config.DATA + "tempfile")
 
@@ -58,6 +60,9 @@ def upload_file(file: str, file_name: str, uploader: str):
         return "File too big."
 
     path.write_bytes(decoded)
+
+    if is_icon:
+        path = optimize_img(path)
 
     put = requests.put(
         "https://files.datapackhub.net/" + quote(file_name),
@@ -71,9 +76,13 @@ def upload_file(file: str, file_name: str, uploader: str):
     return "Error Uploading", 500
 
 
+def optimize_img(path: Path) -> Path:
+    new_path = path.with_suffix(".avif")
+    img = Image.open(path)
+    img.save(new_path)
+    util.log("Done!")
+    return new_path
+
+
 # if __name__ == "__main__":
-#     upload_zipfile(
-#         open("D:\Datapack Hub testing zips\Datapack.zip", "rb"),
-#         "Datapack.zip",
-#         "Silabear",
-#     )
+#     optimize_img(r"C:\dph_test_imgs\chris-curry.jpg")

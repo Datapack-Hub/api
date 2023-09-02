@@ -2,7 +2,7 @@ import datetime
 
 import disnake
 
-import config
+import config as config
 from utilities import get_user
 
 
