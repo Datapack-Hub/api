@@ -11,7 +11,7 @@ import flask
 import requests
 from flask import request
 
-import config
+import config as config
 import utilities.auth_utils
 import utilities.get_user
 from utilities import util

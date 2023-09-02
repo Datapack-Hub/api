@@ -10,11 +10,11 @@ from pathlib import Path
 
 from flask import Blueprint, request
 
-import config
+import config as config
 import utilities.auth_utils as auth_util
 import utilities.get_user
 import utilities.post
-from routes.moderation import auth
+from routes.moderation import is_perm_level
 from routes.projects import parse_project
 from utilities import util
 
@@ -27,13 +27,13 @@ user = Blueprint("user", __name__, url_prefix="/user")
 
 
 @user.route("/badges/<int:id>", methods=["PATCH", "GET"])
-def badges(id: int):
+def user_badges_by_id(id: int):
     conn = util.make_connection()
 
     if request.method == "GET":
         return {"badges": utilities.get_user.from_id(id).badges}
     if request.method == "PATCH":
-        if not auth(
+        if not is_perm_level(
             request.headers.get("Authorization"), ["moderator", "developer", "admin"]
         ):
             return "You can't do this!", 403
@@ -68,7 +68,7 @@ def badges(id: int):
 
 
 @user.route("/staff/<role>")
-def staff(role):
+def get_staff_role(role):
     conn = util.make_connection()
     if role not in ["admin", "moderator", "helper"]:
         return "Role has to be staff role", 400
@@ -91,12 +91,12 @@ def staff(role):
 
 
 @user.route("/staff/roles")
-def roles():
+def get_all_roles():
     return json.load(Path(config.DATA + "roles.json").open("r+"))
 
 
 @user.route("/<string:username>", methods=["GET"])
-def get_user(username):
+def get_by_username(username):
     # TODO: mods can see banned users
     u = utilities.get_user.from_username(username)
     if not u:
@@ -134,7 +134,7 @@ def get_user(username):
 
 
 @user.route("/id/<int:id>", methods=["GET", "PATCH"])
-def get_user_id(id):
+def user_by_id(id):
     # TODO: mods can see banned users
     if request.method == "GET":
         u = utilities.get_user.from_id(id)
@@ -229,7 +229,7 @@ def get_user_id(id):
 
 
 @user.route("/me")
-def me():
+def get_self():
     if not request.headers.get("Authorization"):
         return "Authorization required", 401
 
@@ -300,7 +300,7 @@ def log_out_self():
 
 
 @user.route("/<string:username>/projects")
-def user_projects(username):
+def get_user_projects(username):
     conn = util.make_connection()
 
     # Check if user is authenticated
@@ -385,7 +385,7 @@ def user_projects(username):
 
 
 @user.route("/id/<int:id>/follow", methods=["POST"])
-def follow(id):
+def follow_user(id):
     if not request.headers.get("Authorization"):
         return "Authorization required", 401
 

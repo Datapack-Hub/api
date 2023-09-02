@@ -14,7 +14,7 @@ from flask import Blueprint, request
 from flask_cors import CORS
 from sqlalchemy import Engine, text
 
-import config
+import config as config
 import utilities.auth_utils
 import utilities.post
 from utilities import files, get_user, util
@@ -92,7 +92,7 @@ def parse_project(output: tuple, conn: Engine):
 
 
 @projects.route("/search", methods=["GET"])
-def search():
+def search_projects():
     x = time.perf_counter()
     query = request.args.get("query", "")
     page = int(request.args.get("page", 1))
@@ -143,7 +143,7 @@ def search():
 
 
 @projects.route("/", methods=["GET"])
-def query():
+def all_projects():
     page = request.args.get("page", 1)
     page = int(page)
     sort = request.args.get("sort", "updated")
@@ -183,7 +183,7 @@ def query():
 
 
 @projects.route("/id/<int:id>")
-def get_proj(id):
+def get_project_by_id(id):
     conn = util.make_connection()
 
     this_user = utilities.auth_utils.authenticate(request.headers.get("Authorization"))
@@ -222,7 +222,7 @@ def get_proj(id):
 
 
 @projects.route("/get/<string:slug>")
-def get_project(slug: str):
+def get_project_by_slug(slug: str):
     # connect to the thingy
     conn = util.make_connection()
 
@@ -263,7 +263,7 @@ def get_project(slug: str):
 
 
 @projects.route("/random")
-def random():
+def random_project():
     count = request.args.get("count", 1)
 
     conn = util.make_connection()
@@ -296,7 +296,7 @@ def count():
 
 
 @projects.route("/create", methods=["POST"])
-def new_project():
+def create_new_project():
     # Check authentication
     tok = request.headers.get("Authorization")
 
@@ -350,8 +350,9 @@ def new_project():
     if "icon" in data and data["icon"]:
         icon = files.upload_file(
             data["icon"],
-            f"icons/{secrets.randbelow(999999)!s}.png",
+            f"icons/{secrets.randbelow(999999)!s}.avif",
             user.username,
+            True,
         )
 
     # Update database
@@ -438,7 +439,7 @@ def new_project():
 
 
 @projects.route("/edit/<int:id>", methods=["POST"])
-def edit(id: int):
+def edit_project(id: int):
     # Check authentication
     tok = request.headers.get("Authorization")
 
@@ -487,8 +488,9 @@ def edit(id: int):
     if "icon" in data and data["icon"]:
         icon = files.upload_file(
             data["icon"],
-            f"icons/{secrets.randbelow(999999)!s}.png",
+            f"icons/{secrets.randbelow(999999)!s}.avif",
             user.username,
+            True,
         )
 
     # Update database
