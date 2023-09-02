@@ -22,7 +22,7 @@ def upload_zipfile(file: str, file_name: str, uploader: str, squash: bool = Fals
 
     zip_path.write_bytes(decoded)
 
-    if folder_path.exists(config.DATA + "Temporary"):
+    if folder_path.exists():
         shutil.rmtree(config.DATA + "Temporary")
     folder_path.mkdir(parents=True, exist_ok=True)
 
