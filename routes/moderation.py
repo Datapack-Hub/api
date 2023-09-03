@@ -209,6 +209,8 @@ def console():
             conn.commit()
             conn.close()
             return "Notified the user!"
+        case _:
+            return "not found lol"
 
 
 @mod.route("/log_out/<int:id>", methods=["post"])
