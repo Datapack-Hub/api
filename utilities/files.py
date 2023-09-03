@@ -13,7 +13,7 @@ from pathlib import Path
 import subprocess  # nosec
 from urllib.parse import quote
 from zipfile import ZipFile
-import util
+import utilities.util as util
 
 import requests
 
