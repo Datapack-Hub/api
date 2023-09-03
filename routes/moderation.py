@@ -84,133 +84,126 @@ def console():
         f"Ran the console command: `{data['command']}`",
     )
 
-    match cmd:
-        case "sql":
-            # Check auth
-            if not is_perm_level(request.headers.get("Authorization"), ["admin"]):
-                return "You do not have permission to run this command!"
+    if cmd == "sql":
+        # Check auth
+        if not auth(request.headers.get("Authorization"), ["admin"]):
+            return "You do not have permission to run this command!"
 
-            sql_command = full[3:]
+        sql_command = full[3:]
 
-            # Run SQLITE command
-            try:
-                conn = util.make_connection()
-                conn.execute(text(sql_command))
-                conn.commit()
-                conn.close()
-            except sqlalchemy.exc.SQLAlchemyError as error:
-                return "SQL Error: " + (" ".join(error.args)), 400
-            else:
-                return "Processed SQL command!", 200
-
-        case "select":
-            if not is_perm_level(request.headers.get("Authorization"), ["admin"]):
-                return "You do not have permission to run this command!"
-
-            sql_command = "SELECT " + full[7:]
-
-            # Run SQLITE command
-            try:
-                conn = util.make_connection()
-                out = [tuple(row) for row in conn.execute(text(sql_command)).all()]
-                conn.commit()
-                conn.close()
-            except sqlalchemy.exc.NoResultFound:
-                return "No results found!", 400
-            except sqlalchemy.exc.OperationalError as error:
-                return (
-                    "SQL Syntax Error, check to make sure that you spelt your command correctly! (Error: "
-                    + " ".join(error.args)
-                    + ")",
-                    400,
-                )
-            except sqlalchemy.exc.SQLAlchemyError as error:
-                return "SQL error: " + (" ".join(error.args)), 400
-            else:
-                return (
-                    bleach.clean(
-                        json.dumps(out, indent=2).replace("\n", "<br>"), ["br"]
-                    ),
-                    200,
-                )
-        case "user":
-            if not is_perm_level(
-                request.headers.get("Authorization"), ["admin", "moderator"]
-            ):
-                return "You do not have permission to run this command!"
-
-            # Run SQLITE command
-            try:
-                conn = util.make_connection()
-                out = util.exec_query(
-                    conn,
-                    "select username, role, rowid from users where trim(username) like :uname",
-                    uname=args[0],
-                ).all()
-                conn.commit()
-                conn.close()
-            except sqlalchemy.exc.SQLAlchemyError as error:
-                return "SQL Error: " + (" ".join(error.args)), 400
-            else:
-                return_this = ""
-                for u in out:
-                    return_this += f"{u[0]} (ID {u[2]}) | Role: {u[1]}\n"
-                return bleach.clean(return_this)
-        case "hello":
-            return "Beep boop! Hi!"
-        case "reset":
-            if (
-                utilities.get_user.from_token(
-                    request.headers.get("Authorization")[6:]
-                ).username
-                != "Silabear"
-            ):
-                return "Only Silabear can run this command! :(", 403
-            gen_example_data.reset(args[0])
-            return "Reset the database."
-        case "backup":
-            id = random.randint(1, 1000)
-            if not is_perm_level(request.headers.get("Authorization"), ["admin"]):
-                return "You do not have permission to run this command!"
-            put = requests.put(
-                "https://backups.datapackhub.net/"
-                + date.today().strftime("custom-" + str(id)),
-                Path(config.DATA + "data.db").open("rb"),
-                headers={
-                    "Authorization": config.BACKUPS_TOKEN,
-                },
-                timeout=300,
-            )
-
-            if not put.ok:
-                return "It didn't work."
-
-            return "Backed up the database as " + str(id)
-        case "notify":
-            if not is_perm_level(
-                request.headers.get("Authorization"),
-                ["admin", "developer", "moderator", "helper"],
-            ):
-                return "You can't run this command!", 403
-            if len(args) < 3:
-                return "Missing values!", 400
+        # Run SQLITE command
+        try:
             conn = util.make_connection()
-            try:
-                util.exec_query(
-                    conn,
-                    "INSERT INTO notifs VALUES (:arg1, :arg2, False, :arg0, :arg3)",
-                    arg0=args[0],
-                    arg1=args[1],
-                    arg2=args[2],
-                    arg3=args[3],
-                )
-            except sqlalchemy.exc.SQLAlchemyError as er:
-                return f"Error: {' '.join(er.args)}", 400
+            conn.execute(text(sql_command))
             conn.commit()
             conn.close()
-            return "Notified the user!"
-        case _:
-            return "not found lol"
+        except sqlalchemy.exc.SQLAlchemyError as error:
+            return "SQL Error: " + (" ".join(error.args)), 400
+        else:
+            return "Processed SQL command!", 200
+
+    elif cmd == "select":
+        if not auth(request.headers.get("Authorization"), ["admin"]):
+            return "You do not have permission to run this command!"
+
+        sql_command = "SELECT " + full[7:]
+
+        # Run SQLITE command
+        try:
+            conn = util.make_connection()
+            out = [tuple(row) for row in conn.execute(text(sql_command)).all()]
+            conn.commit()
+            conn.close()
+        except sqlalchemy.exc.NoResultFound:
+            return "No results found!", 400
+        except sqlalchemy.exc.OperationalError as error:
+            return (
+                "SQL Syntax Error, check to make sure that you spelt your command correctly! (Error: "
+                + " ".join(error.args)
+                + ")",
+                400,
+            )
+        except sqlalchemy.exc.SQLAlchemyError as error:
+            return "SQL error: " + (" ".join(error.args)), 400
+        else:
+            return (
+                bleach.clean(json.dumps(out, indent=2).replace("\n", "<br>"), ["br"]),
+                200,
+            )
+    elif cmd == "user":
+        if not auth(request.headers.get("Authorization"), ["admin", "moderator"]):
+            return "You do not have permission to run this command!"
+
+        # Run SQLITE command
+        try:
+            conn = util.make_connection()
+            out = util.exec_query(
+                conn,
+                "select username, role, rowid from users where trim(username) like :uname",
+                uname=args[0],
+            ).all()
+            conn.commit()
+            conn.close()
+        except sqlalchemy.exc.SQLAlchemyError as error:
+            return "SQL Error: " + (" ".join(error.args)), 400
+        else:
+            return_this = ""
+            for u in out:
+                return_this += f"{u[0]} (ID {u[2]}) | Role: {u[1]}\n"
+            return bleach.clean(return_this)
+    elif cmd == "hello":
+        return "Beep boop! Hi!"
+    elif cmd == "reset":
+        if (
+            utilities.get_user.from_token(
+                request.headers.get("Authorization")[6:]
+            ).username
+            != "Silabear"
+        ):
+            return "Only Silabear can run this command! :(", 403
+        gen_example_data.reset(args[0])
+        return "Reset the database."
+    elif cmd == "backup":
+        id = random.randint(1, 1000)
+        if not auth(request.headers.get("Authorization"), ["admin"]):
+            return "You do not have permission to run this command!"
+        put = requests.put(
+            "https://backups.datapackhub.net/"
+            + date.today().strftime("custom-" + str(id)),
+            Path(config.DATA + "data.db").open("rb"),
+            headers={
+                "Authorization": config.BACKUPS_TOKEN,
+            },
+            timeout=300,
+        )
+
+        if not put.ok:
+            return "It didn't work."
+
+        return "Backed up the database as " + str(id)
+    elif cmd == "notify":
+        if not auth(
+            request.headers.get("Authorization"),
+            ["admin", "developer", "moderator", "helper"],
+        ):
+            return "You can't run this command!", 403
+        if len(args) < 3:
+            return "Missing values!", 400
+        conn = util.make_connection()
+        try:
+            util.exec_query(
+                conn,
+                "INSERT INTO notifs VALUES (:arg1, :arg2, False, :arg0, :arg3)",
+                arg0=args[0],
+                arg1=args[1],
+                arg2=args[2],
+                arg3=args[3],
+            )
+        except sqlalchemy.exc.SQLAlchemyError as er:
+            return f"Error: {' '.join(er.args)}", 400
+        conn.commit()
+        conn.close()
+        return "Notified the user!"
 
 
 @mod.route("/log_out/<int:id>", methods=["post"])
