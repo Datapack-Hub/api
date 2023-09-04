@@ -131,7 +131,9 @@ def console():
                 200,
             )
     elif cmd == "user":
-        if not is_perm_level(request.headers.get("Authorization"), ["admin", "moderator"]):
+        if not is_perm_level(
+            request.headers.get("Authorization"), ["admin", "moderator"]
+        ):
             return "You do not have permission to run this command!"
 
         # Run SQLITE command
