@@ -86,7 +86,7 @@ def console():
 
     if cmd == "sql":
         # Check auth
-        if not auth(request.headers.get("Authorization"), ["admin"]):
+        if not is_perm_level(request.headers.get("Authorization"), ["admin"]):
             return "You do not have permission to run this command!"
 
         sql_command = full[3:]
@@ -103,7 +103,7 @@ def console():
             return "Processed SQL command!", 200
 
     elif cmd == "select":
-        if not auth(request.headers.get("Authorization"), ["admin"]):
+        if not is_perm_level(request.headers.get("Authorization"), ["admin"]):
             return "You do not have permission to run this command!"
 
         sql_command = "SELECT " + full[7:]
@@ -131,7 +131,7 @@ def console():
                 200,
             )
     elif cmd == "user":
-        if not auth(request.headers.get("Authorization"), ["admin", "moderator"]):
+        if not is_perm_level(request.headers.get("Authorization"), ["admin", "moderator"]):
             return "You do not have permission to run this command!"
 
         # Run SQLITE command
@@ -165,7 +165,7 @@ def console():
         return "Reset the database."
     elif cmd == "backup":
         id = random.randint(1, 1000)
-        if not auth(request.headers.get("Authorization"), ["admin"]):
+        if not is_perm_level(request.headers.get("Authorization"), ["admin"]):
             return "You do not have permission to run this command!"
         put = requests.put(
             "https://backups.datapackhub.net/"
@@ -182,7 +182,7 @@ def console():
 
         return "Backed up the database as " + str(id)
     elif cmd == "notify":
-        if not auth(
+        if not is_perm_level(
             request.headers.get("Authorization"),
             ["admin", "developer", "moderator", "helper"],
         ):
