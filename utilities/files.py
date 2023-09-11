@@ -4,7 +4,6 @@ This code does some weird ass stuff which should probably upload files to the cl
 import config
 
 from PIL import Image
-import pillow_avif
 
 import base64
 import shutil
