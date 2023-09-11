@@ -4,6 +4,8 @@ This code does some weird ass stuff which should probably upload files to the cl
 import config
 
 from PIL import Image
+# ignore because pillow is weird
+import pillow_avif # noqa: F401
 
 import base64
 import shutil
