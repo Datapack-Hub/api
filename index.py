@@ -47,5 +47,5 @@ if not Path(config.DATA + "data.db").exists():
 
 # Run the app
 if __name__ == "__main__":
-    debug_enabled = PROD == 1
+    debug_enabled = PROD == 0
     app.run(debug=debug_enabled)
