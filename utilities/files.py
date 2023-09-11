@@ -4,6 +4,7 @@ This code does some weird ass stuff which should probably upload files to the cl
 import config
 
 from PIL import Image
+import pillow_avif
 
 import base64
 import shutil
@@ -54,6 +55,8 @@ def upload_zipfile(file: str, file_name: str, uploader: str, squash: bool = Fals
 def upload_file(file: str, file_name: str, uploader: str, is_icon: bool = False):
     decoded = base64.b64decode(file.split(",")[1].encode("unicode_escape"))
     path = Path(config.DATA + "tempfile")
+
+    path.touch()
 
     if path.stat().st_size > 255999:
         return "File too big."
