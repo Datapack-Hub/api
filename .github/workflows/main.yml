@@ -15,9 +15,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3.5.2
-      - name: Bonus Pull
-        run: |
-          git pull
       - name: Setup Python
         uses: actions/setup-python@v4.6.0
         with:
@@ -39,9 +36,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3.5.2
-      - name: Bonus Pull
-        run: |
-          git pull
       - name: Setup Python
         uses: actions/setup-python@v4.6.0
         with:

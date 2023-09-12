@@ -16,7 +16,7 @@ from pathlib import Path
 import subprocess  # nosec
 from urllib.parse import quote
 from zipfile import ZipFile
-import utilities.util as util
+from utilities import util
 
 import requests
 

@@ -5,7 +5,7 @@ from functools import lru_cache
 
 from sqlalchemy import Connection, CursorResult, Engine, create_engine, text
 
-import config as config
+import config
 from utilities import post
 
 

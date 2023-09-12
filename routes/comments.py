@@ -90,8 +90,7 @@ def post_msg(thread: int):
     try:
         mentions = regex.findall("@(\w+)", cmt_data["message"])
         for user in mentions:
-            user = utilities.get_user.from_username(user)
-            if user:
+            if utilities.get_user.from_username(user):
                 auth = util.exec_query(
                     conn,
                     "select author, title, url from projects where rowid = :thread",

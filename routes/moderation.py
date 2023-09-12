@@ -16,7 +16,7 @@ from flask import Blueprint, request
 from flask_cors import CORS
 from sqlalchemy import text
 
-import config as config
+import config
 import gen_example_data
 import utilities.auth_utils
 import utilities.post

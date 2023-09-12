@@ -14,7 +14,7 @@ from flask import Blueprint, request
 from flask_cors import CORS
 from sqlalchemy import Engine, text
 
-import config as config
+import config
 import utilities.auth_utils
 import utilities.post
 from utilities import files, get_user, util
@@ -26,11 +26,11 @@ CORS(projects)
 
 
 @projects.after_request
-def after(resp):
-    header = resp.headers
+def after(response):
+    header = response.headers
     header["Access-Control-Allow-Credentials"] = "true"
     # Other headers can be added here if needed
-    return resp
+    return response
 
 
 def parse_project(output: tuple, conn: Engine):
@@ -105,13 +105,13 @@ def search_projects():
 
     conn = util.make_connection()
     if sort == "updated":
-        r = util.exec_query(
+        rows = util.exec_query(
             conn,
             "select rowid, * from projects where status = 'live' and trim(title) LIKE :q ORDER BY updated DESC",
             q=f"%{query}%",
         ).all()
     elif sort == "downloads":
-        r = util.exec_query(
+        rows = util.exec_query(
             conn,
             "select rowid, * from projects where status = 'live' and trim(title) LIKE :q ORDER BY downloads DESC",
             q=f"%{query}%",
@@ -121,7 +121,7 @@ def search_projects():
 
     out = []
 
-    for item in r[(page - 1) * 20 : page * 20 - 1]:
+    for item in rows[(page - 1) * 25 : page * 25]:
         try:
             temp = parse_project(item, conn)
         except:
@@ -138,7 +138,7 @@ def search_projects():
         "count": len(out),
         "time": y - x,
         "result": out,
-        "pages": str(math.ceil(len(r) / 20)),
+        "pages": str(math.ceil(len(rows) / 20)),
     }
 
 

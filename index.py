@@ -28,9 +28,9 @@ def main():
 
 
 @app.after_request
-def after(resp):
-    resp.headers["X-Robots-Tag"] = "noindex"
-    return resp
+def after(response):
+    response.headers["X-Robots-Tag"] = "noindex"
+    return response
 
 
 app.register_blueprint(user)
