@@ -10,7 +10,7 @@ from pathlib import Path
 
 from flask import Blueprint, request
 
-import config as config
+import config
 import utilities.auth_utils as auth_util
 import utilities.get_user
 import utilities.post
