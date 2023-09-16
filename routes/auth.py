@@ -64,20 +64,19 @@ def callback_gh():
         )
 
         return response
-    else:
-        t = utilities.auth_utils.get_user_token(github["id"])
+    t = utilities.auth_utils.get_user_token(github["id"])
 
-        if not t:
-            return (
-                "Something went wrong, but I can't actually be bothered to figure out why this error would ever be needed, because we already check if the user exists. For that reason, just assume that you broke something and it can never be fixed.",
-                500,
-            )
-
-        response = flask.make_response(
-            flask.redirect(f"https://datapackhub.net?login=1&token={t}")
+    if not t:
+        return (
+            "Something went wrong, but I can't actually be bothered to figure out why this error would ever be needed, because we already check if the user exists. For that reason, just assume that you broke something and it can never be fixed.",
+            500,
         )
 
-        return response
+    response = flask.make_response(
+        flask.redirect(f"https://datapackhub.net?login=1&token={t}")
+    )
+
+    return response
 
 
 @auth.route("/callback/discord")
@@ -144,20 +143,19 @@ def callback_dc():
         conn.close()
 
         return response
-    else:
-        t = utilities.auth_utils.get_user_token_from_discord_id(discord["id"])
+    t = utilities.auth_utils.get_user_token_from_discord_id(discord["id"])
 
-        if not t:
-            return (
-                "Something went wrong, but I can't actually be bothered to figure out why this error would ever be needed, because we already check if the user exists. For that reason, just assume that you broke something and it can never be fixed.",
-                500,
-            )
-
-        response = flask.make_response(
-            flask.redirect(f"https://datapackhub.net?login=1&token={t}")
+    if not t:
+        return (
+            "Something went wrong, but I can't actually be bothered to figure out why this error would ever be needed, because we already check if the user exists. For that reason, just assume that you broke something and it can never be fixed.",
+            500,
         )
 
-        return response
+    response = flask.make_response(
+        flask.redirect(f"https://datapackhub.net?login=1&token={t}")
+    )
+
+    return response
 
 
 @auth.route("/link/discord", methods=["put"])
@@ -212,10 +210,9 @@ def link_discord():
         conn.rollback()
         conn.close()
         return "Something went wrong!", 500
-    else:
-        conn.commit()
-        conn.close()
-        return "Discord linked!", 200
+    conn.commit()
+    conn.close()
+    return "Discord linked!", 200
 
 
 @auth.route("/link/github", methods=["put"])
@@ -262,7 +259,6 @@ def link_github():
         conn.rollback()
         conn.close()
         return "Something went wrong!", 500
-    else:
-        conn.commit()
-        conn.close()
-        return "Discord linked!", 200
+    conn.commit()
+    conn.close()
+    return "Discord linked!", 200

@@ -121,7 +121,7 @@ def search_projects():
 
     out = []
 
-    for item in rows[(page - 1) * 25 : page * 25]:
+    for item in rows[(page - 1) * 20 : page * 20]:
         try:
             temp = parse_project(item, conn)
         except:
