@@ -69,8 +69,7 @@ def console():
                 f"Error: Command {bleach.clean(cmd)} not found. Did you mean {bleach.clean(closest[0])}?",
                 400,
             )
-        else:
-            return f"Error: Command {bleach.clean(cmd)} not found.", 400
+        return f"Error: Command {bleach.clean(cmd)} not found.", 400
 
     # Check user authentication status
     if not utilities.get_user.from_token(request.headers.get("Authorization")[6:]):
