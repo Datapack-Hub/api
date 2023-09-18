@@ -100,7 +100,7 @@ def search_projects():
 
     if len(query) > 75:
         return
-    
+
     if page < 1:
         return {
             "count": 0,
