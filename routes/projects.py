@@ -101,27 +101,29 @@ def search_projects():
     if len(query) > 75:
         return
 
-    page = request.args.get("page", 1)
-
     conn = util.make_connection()
     if sort == "updated":
         rows = util.exec_query(
             conn,
-            "select rowid, * from projects where status = 'live' and trim(title) LIKE :q ORDER BY updated DESC",
+            "select rowid, * from projects where status = 'live' and trim(title) LIKE :q ORDER BY updated DESC LIMIT :offset, :limit",
             q=f"%{query}%",
+            offset=page - 1 * 20,
+            limit=page * 20
         ).all()
     elif sort == "downloads":
         rows = util.exec_query(
             conn,
-            "select rowid, * from projects where status = 'live' and trim(title) LIKE :q ORDER BY downloads DESC",
+            "select rowid, * from projects where status = 'live' and trim(title) LIKE :q ORDER BY downloads DESC LIMIT :offset, :limit",
             q=f"%{query}%",
+            offset=page - 1 * 20,
+            limit=page * 20
         ).all()
     else:
         return "Unknown sorting method.", 400
 
     out = []
 
-    for item in rows[(page - 1) * 20 : page * 20]:
+    for item in rows:
         try:
             temp = parse_project(item, conn)
         except:
