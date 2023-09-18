@@ -108,7 +108,7 @@ def search_projects():
             "select rowid, * from projects where status = 'live' and trim(title) LIKE :q ORDER BY updated DESC LIMIT :offset, :limit",
             q=f"%{query}%",
             offset=page - 1 * 20,
-            limit=page * 20
+            limit=page * 20,
         ).all()
     elif sort == "downloads":
         rows = util.exec_query(
@@ -116,7 +116,7 @@ def search_projects():
             "select rowid, * from projects where status = 'live' and trim(title) LIKE :q ORDER BY downloads DESC LIMIT :offset, :limit",
             q=f"%{query}%",
             offset=page - 1 * 20,
-            limit=page * 20
+            limit=page * 20,
         ).all()
     else:
         return "Unknown sorting method.", 400
