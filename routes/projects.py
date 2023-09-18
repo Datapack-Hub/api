@@ -100,6 +100,14 @@ def search_projects():
 
     if len(query) > 75:
         return
+    
+    if page < 1:
+        return {
+            "count": 0,
+            "time": 0,
+            "result": [],
+            "pages": 0,
+        }
 
     conn = util.make_connection()
     if sort == "updated":
