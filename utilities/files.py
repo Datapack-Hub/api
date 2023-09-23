@@ -38,6 +38,10 @@ def upload_zipfile(file: str, file_name: str, uploader: str, squash: bool = Fals
         with ZipFile(zip_path.absolute(), "r") as zipf:
             filenames = zipf.namelist()
             
+            for zipped in zipf.filelist:
+                if zipped.file_size > 4 * 1024 * 1024:
+                    return False
+            
             extensions = [Path(filename).suffix for filename in filenames]
             
             util.log("bad extensions detected!")
