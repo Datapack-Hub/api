@@ -93,7 +93,7 @@ def console():
         # Run SQLITE command
         try:
             conn = util.make_connection()
-            conn.execute(text(sql_command)) # nosec
+            conn.execute(text(sql_command))  # nosec
             conn.commit()
             conn.close()
         except sqlalchemy.exc.SQLAlchemyError as error:
@@ -110,7 +110,7 @@ def console():
         # Run SQLITE command
         try:
             conn = util.make_connection()
-            out = [tuple(row) for row in conn.execute(text(sql_command)).all()] # nosec
+            out = [tuple(row) for row in conn.execute(text(sql_command)).all()]  # nosec
             conn.commit()
             conn.close()
         except sqlalchemy.exc.NoResultFound:

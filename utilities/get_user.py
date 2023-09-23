@@ -20,7 +20,9 @@ def from_username(self: str):
     conn.close()
 
     badges = json.loads(u[5]) if u[5] else None
-    return User(u[1], u[0], u[2], u[3], profile_icon=u[4], badges=badges, join_date=u[6])
+    return User(
+        u[1], u[0], u[2], u[3], profile_icon=u[4], badges=badges, join_date=u[6]
+    )
 
 
 def from_id(self: int):
@@ -39,7 +41,9 @@ def from_id(self: int):
     conn.close()
 
     badges = json.loads(u[5]) if u[5] else None
-    return User(u[1], u[0], u[2], u[3], profile_icon=u[4], badges=badges, join_date=u[6])
+    return User(
+        u[1], u[0], u[2], u[3], profile_icon=u[4], badges=badges, join_date=u[6]
+    )
 
 
 def from_github_id(self: int):
@@ -58,7 +62,9 @@ def from_github_id(self: int):
     conn.close()
 
     badges = json.loads(u[5]) if u[5] else None
-    return User(u[1], u[0], u[2], u[3], profile_icon=u[4], badges=badges, join_date=u[6])
+    return User(
+        u[1], u[0], u[2], u[3], profile_icon=u[4], badges=badges, join_date=u[6]
+    )
 
 
 def from_discord_id(self: int):
@@ -77,7 +83,9 @@ def from_discord_id(self: int):
     conn.close()
 
     badges = json.loads(u[5]) if u[5] else None
-    return User(u[1], u[0], u[2], u[3], profile_icon=u[4], badges=badges, join_date=u[6])
+    return User(
+        u[1], u[0], u[2], u[3], profile_icon=u[4], badges=badges, join_date=u[6]
+    )
 
 
 def from_token(token: str):
@@ -97,4 +105,6 @@ def from_token(token: str):
     conn.close()
 
     badges = json.loads(u[5]) if u[5] else None
-    return User(u[1], u[0], u[2], u[3], profile_icon=u[4], badges=badges, join_date=u[6])
+    return User(
+        u[1], u[0], u[2], u[3], profile_icon=u[4], badges=badges, join_date=u[6]
+    )
