@@ -33,8 +33,19 @@ def upload_zipfile(file: str, file_name: str, uploader: str, squash: bool = Fals
     folder_path.mkdir(parents=True, exist_ok=True)
 
     if squash:
-        with ZipFile(zip_path.absolute(), "r") as zip_ref:
-            zip_ref.extractall(config.DATA + "Temporary")
+        bad_exts = [".zip", ".gz", ".7z", ".rar", ".br", ".zx", ".apk", ".car", ".dmg"]
+        
+        with ZipFile(zip_path.absolute(), "r") as zipf:
+            filenames = zipf.namelist()
+            
+            extensions = [Path(filename).suffix for filename in filenames]
+            
+            util.log("bad extensions detected!")
+            for ext in bad_exts:
+                if ext in extensions:
+                    return False
+            
+            zipf.extractall(config.DATA + "Temporary")
         # its not like i'm passing user input, its constant
         subprocess.Popen(
             ["packsquash", "'/var/www/html/api/squash.toml'"]
