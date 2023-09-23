@@ -5,6 +5,7 @@
 import random
 import secrets
 import sqlite3
+import time
 from urllib.parse import quote
 
 import flask
@@ -128,11 +129,12 @@ def callback_dc():
 
         util.exec_query(
             conn,
-            'INSERT INTO users (username, role, bio, discord_id, token, profile_icon) VALUES (:username, "default", "A new Datapack Hub user!", :d_id, :token, :avatar)',
+            'INSERT INTO users (username, role, bio, discord_id, token, profile_icon, join_date) VALUES (:username, "default", "A new Datapack Hub user!", :d_id, :token, :avatar, :join)',
             username=username,
             d_id=discord["id"],
             token=token,
             avatar=f"https://cdn.discordapp.com/avatars/{discord['id']}/{discord['avatar']}.png",
+            join=time.time()
         )
 
         response = flask.make_response(
