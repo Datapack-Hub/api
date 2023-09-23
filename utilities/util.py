@@ -2,6 +2,7 @@ import logging
 import random
 import secrets
 from functools import lru_cache
+import time
 
 from sqlalchemy import Connection, CursorResult, Engine, create_engine, text
 
@@ -46,11 +47,12 @@ def create_user_account(
     # Create user entry in database
     exec_query(
         conn,
-        'INSERT INTO users (username, role, bio, github_id, token, profile_icon) VALUES (:g_login, "default", "A new Datapack Hub user!", :id, :token, :avatar)',
+        'INSERT INTO users (username, role, bio, github_id, token, profile_icon, join_date) VALUES (:g_login, "default", "A new Datapack Hub user!", :id, :token, :avatar, :join)',
         g_login=username,
         id=github_data["id"],
         token=token,
         avatar=github_data["avatar_url"],
+        join=time.time()
     )
 
     conn.commit()

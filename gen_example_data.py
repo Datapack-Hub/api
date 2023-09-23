@@ -64,6 +64,7 @@ def reset(table: str):
         discord_id int UNIQUE,
         badges TEXT,
         profile_icon TEXT NOT NULL
+        join_date INTEGER NOT NULL
     )""",
     )
 
