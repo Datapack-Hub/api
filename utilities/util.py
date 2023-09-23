@@ -52,7 +52,7 @@ def create_user_account(
         id=github_data["id"],
         token=token,
         avatar=github_data["avatar_url"],
-        join=time.time()
+        join=time.time(),
     )
 
     conn.commit()

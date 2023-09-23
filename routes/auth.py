@@ -134,7 +134,7 @@ def callback_dc():
             d_id=discord["id"],
             token=token,
             avatar=f"https://cdn.discordapp.com/avatars/{discord['id']}/{discord['avatar']}.png",
-            join=time.time()
+            join=time.time(),
         )
 
         response = flask.make_response(
