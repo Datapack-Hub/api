@@ -63,7 +63,7 @@ def reset(table: str):
         github_id int UNIQUE,
         discord_id int UNIQUE,
         badges TEXT,
-        profile_icon TEXT NOT NULL
+        profile_icon TEXT NOT NULL,
         join_date INTEGER NOT NULL
     )""",
     )
