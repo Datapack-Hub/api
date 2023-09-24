@@ -11,7 +11,7 @@ class User:
     badges: list[str]
     token: str = None
     github_id: int = None
-    join_date: int
+    join_date: int = 0
 
 
 @dataclass
