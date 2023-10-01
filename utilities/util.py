@@ -1,8 +1,8 @@
 import logging
 import random
 import secrets
-from functools import lru_cache
 import time
+from functools import lru_cache
 
 from sqlalchemy import Connection, CursorResult, Engine, create_engine, text
 

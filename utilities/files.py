@@ -1,24 +1,21 @@
 """
 This code does some weird ass stuff which should probably upload files to the cloudflare... don't ask me
 """
-import config
-
-from PIL import Image
+import base64
+import shutil
+# yes bandit I consider the security implications of subprocess
+import subprocess  # nosec
+from pathlib import Path
+from urllib.parse import quote
+from zipfile import ZipFile
 
 # ignore because pillow is weird
 import pillow_avif  # noqa: F401
-
-import base64
-import shutil
-from pathlib import Path
-
-# yes bandit I consider the security implications of subprocess
-import subprocess  # nosec
-from urllib.parse import quote
-from zipfile import ZipFile
-from utilities import util
-
 import requests
+from PIL import Image
+
+import config
+from utilities import util
 
 
 def upload_zipfile(file: str, file_name: str, uploader: str, squash: bool = False):
