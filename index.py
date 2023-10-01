@@ -7,7 +7,6 @@ from flask_cors import CORS
 import config
 import gen_example_data
 from prod import PROD
-
 # Register blueprints
 from routes.auth import auth
 from routes.comments import comments
