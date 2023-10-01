@@ -50,14 +50,14 @@ def upload_zipfile(file: str, file_name: str, uploader: str, squash: bool = Fals
                     return False
 
             zipf.extractall(config.DATA + "Temporary")
-        
+
         temp_path = Path(config.DATA + "Temporary")
         mac_folder = temp_path / "__MACOSX"
         shutil.rmtree(str(mac_folder))
         dirs = list(temp_path.iterdir())
-        if '.DS_Store' in dirs:
-            dirs.remove('.DS_Store')
-        
+        if ".DS_Store" in dirs:
+            dirs.remove(".DS_Store")
+
         # its not like i'm passing user input, its constant
         subprocess.Popen(
             ["packsquash", "'/var/www/html/api/squash.toml'"]
