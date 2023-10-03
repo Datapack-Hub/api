@@ -366,13 +366,10 @@ def create_new_project():
         )
 
     # Update database
-    conn = util.make_connection()
-
     cat_str = ",".join(data["category"])
 
     if "icon" in data and data["icon"]:
-        util.exec_query(
-            conn,
+        util.commit_query(
             """insert into projects(
                     type, 
                     author, 
@@ -408,8 +405,7 @@ def create_new_project():
             icon=icon,
         )
     else:
-        util.exec_query(
-            conn,
+        util.commit_query(
             """insert into projects(
                     type, 
                     author, 
@@ -441,9 +437,6 @@ def create_new_project():
             uploaded=str(int(time.time())),
             updated=str(int(time.time())),
         )
-
-    conn.commit()
-    conn.close()
 
     return "done", 200
 
@@ -574,14 +567,16 @@ def publish(id):
         conn,
         "select author, status, title, description, icon, url from projects where rowid = :id",
         id=id,
-    ).all()
+    ).one_or_none()
 
     if not proj:
+        conn.close()
         return "Project not found.", 404
 
     proj = proj[0]
 
     if proj[0] != user.id:
+        conn.close()
         return "Not your project.", 403
 
     # now onto the fun stuff >:)
@@ -632,7 +627,7 @@ def draft(id):
     conn = util.make_connection()
     proj = util.exec_query(
         conn, "select author, status from projects where rowid = :id", id=id
-    ).all()
+    ).one_or_none()
 
     if not proj:
         return "Project not found.", 404
@@ -742,7 +737,7 @@ def download(id):
     conn = util.make_connection()
     proj = util.exec_query(
         conn, "select downloads from projects where rowid = :id", id=id
-    ).all()
+    ).one_or_none()
 
     if not proj:
         return "Project not found.", 404
