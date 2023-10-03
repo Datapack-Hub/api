@@ -198,9 +198,7 @@ def new(project: int):
         try:
             data["resource_pack_download"]
         except BadRequestKeyError:
-            conn = util.make_connection()
-            util.exec_query(
-                conn,
+            util.commit_query(
                 """INSERT INTO versions(
                         name,
                         description,
@@ -216,8 +214,6 @@ def new(project: int):
                 vc=data["version_code"],
                 project=project,
             )
-            conn.commit()
-            conn.close()
         else:
             if data["resource_pack_download"] != "":
                 rpath = files.upload_zipfile(
@@ -225,9 +221,7 @@ def new(project: int):
                     f"project/{project}/{quote(data['version_code'])}/resourcepack-{quote(data['filename'])}",
                     usr.username,
                 )
-                conn = util.make_connection()
-                util.exec_query(
-                    conn,
+                util.commit_query(
                     """INSERT INTO versions(
                             name,
                             description,
@@ -245,12 +239,8 @@ def new(project: int):
                     vc=data["version_code"],
                     project=project,
                 )
-                conn.commit()
-                conn.close()
             else:
-                conn = util.make_connection()
-                util.exec_query(
-                    conn,
+                util.commit_query(
                     """INSERT INTO versions(
                             name,
                             description,
@@ -266,9 +256,8 @@ def new(project: int):
                     vc=data["version_code"],
                     project=project,
                 )
-                conn.commit()
-                conn.close()
 
+    conn = util.make_connection()
     v = util.exec_query(
         conn, "SELECT * FROM versions WHERE version_code = :vc", vc=data["version_code"]
     ).one()
@@ -284,7 +273,6 @@ def new(project: int):
     if v[3] is not None:
         o["resource_pack_download"] = v[3]
 
-    conn = util.make_connection()
     util.exec_query(
         conn,
         "update projects set updated = :updated where rowid = :id;",

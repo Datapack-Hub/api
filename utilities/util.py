@@ -21,6 +21,17 @@ def exec_query(conn: Connection, query: str, **params) -> CursorResult:
         q = q.bindparams(**params)
     return conn.execute(q)
 
+def commit_query(command: str, **params) -> CursorResult:
+    conn = make_connection()
+    q = text(command)
+
+    if params:
+        q = q.bindparams(**params)
+    result = conn.execute(q)
+    conn.commit()
+    conn.close()
+    return result
+
 
 def log(msg: object, level=logging.INFO):
     logging.basicConfig(level=level, format=config.PYTHON_LOGGING_CONF)

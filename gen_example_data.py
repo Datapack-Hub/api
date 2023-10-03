@@ -133,16 +133,6 @@ def reset(table: str):
 if __name__ == "__main__":
     reset("no-drop")
 
-    conn = util.make_connection()
-
-    util.exec_query(
-        conn,
+    util.commit_query(
         """INSERT INTO users (username, token, role, bio, github_id, profile_icon) VALUES ("HoodieRocks", "LOREMIPSUM", "admin", "rock", 123897432978, "https://example.com/")""",
     )
-
-    # text(
-
-    # print(util.exec_query(conn, """SELECT * FROM users WHERE rowid = 1""").one())
-
-    conn.commit()
-    conn.close()
