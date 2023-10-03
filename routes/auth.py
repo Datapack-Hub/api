@@ -113,10 +113,10 @@ def callback_dc():
 
     if not u:
         # Make account
-        conn = util.make_connection()
 
         token = secrets.token_urlsafe()
 
+        conn = util.make_connection()
         check = util.exec_query(
             conn,
             "select username from users where username = :dis_uname;",

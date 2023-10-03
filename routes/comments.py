@@ -80,13 +80,13 @@ def post_msg(thread: int):
     if usr == 33:
         return "Token Expired", 401
 
-    conn = util.make_connection()
     cmt_data = request.get_json(force=True)
     try:
         cmt_data["message"]
     except KeyError:
         return "You need to provide a message field!", 400
 
+    conn = util.make_connection()
     try:
         mentions = regex.findall("@(\w+)", cmt_data["message"])
         for user in mentions:

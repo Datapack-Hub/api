@@ -92,10 +92,7 @@ def console():
 
         # Run SQLITE command
         try:
-            conn = util.make_connection()
-            conn.execute(text(sql_command))  # nosec
-            conn.commit()
-            conn.close()
+            util.commit_query(sql_command)  # nosec
         except sqlalchemy.exc.SQLAlchemyError as error:
             return "SQL Error: " + (" ".join(error.args)), 400
         else:
@@ -109,10 +106,7 @@ def console():
 
         # Run SQLITE command
         try:
-            conn = util.make_connection()
-            out = [tuple(row) for row in conn.execute(text(sql_command)).all()]  # nosec
-            conn.commit()
-            conn.close()
+            out = [tuple(row) for row in util.commit_query(sql_command).all()]  # nosec
         except sqlalchemy.exc.NoResultFound:
             return "No results found!", 400
         except sqlalchemy.exc.OperationalError as error:
@@ -137,14 +131,10 @@ def console():
 
         # Run SQLITE command
         try:
-            conn = util.make_connection()
-            out = util.exec_query(
-                conn,
+            out = util.commit_query(
                 "select username, role, rowid from users where trim(username) like :uname",
                 uname=args[0],
             ).all()
-            conn.commit()
-            conn.close()
         except sqlalchemy.exc.SQLAlchemyError as error:
             return "SQL Error: " + (" ".join(error.args)), 400
         else:
@@ -201,6 +191,8 @@ def console():
                 arg3=args[3],
             )
         except sqlalchemy.exc.SQLAlchemyError as er:
+            conn.rollback()
+            conn.close()
             return f"Error: {' '.join(er.args)}", 400
         conn.commit()
         conn.close()
