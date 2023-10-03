@@ -104,6 +104,8 @@ def send_notif(target):
             target=target,
         )
     except sqlite3.Error as er:
+        conn.rollback()
+        conn.close()
         return "There was a problem: ".join(er.args), 500
 
     conn.commit()
@@ -139,6 +141,8 @@ def delete_notif(id):
         util.exec_query(conn, "DELETE FROM notifs WHERE rowid = :id", id=id)
         conn.commit()
     except sqlite3.Error:
+        conn.rollback()
+        conn.close()
         return "Something bad happened", 500
     else:
         conn.close()

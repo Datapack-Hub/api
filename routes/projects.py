@@ -536,6 +536,7 @@ def edit_project(id: int):
             )
     except sqlite3.Error:
         conn.rollback()
+        conn.close()
         utilities.post.error("Error updating project", traceback.format_exc())
         return "Something went wrong.", 500
 

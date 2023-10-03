@@ -98,6 +98,8 @@ def code(id: int, code: str):
                     id=id,
                 )
             except sqlite3.Error:
+                conn.rollback()
+                conn.close()
                 return "There was an error deleting that version!", 500
             else:
                 conn.commit()

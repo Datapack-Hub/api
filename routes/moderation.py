@@ -244,6 +244,8 @@ def ban_user(user: int):
                 msg=dat["message"],
             )
         except sqlite3.Error as er:
+            conn.rollback()
+            conn.close()
             return " ".join(er.args)
         else:
             conn.commit()
@@ -264,6 +266,8 @@ def ban_user(user: int):
                 conn, "delete from banned_users where self = :user", user=user
             )
         except sqlite3.Error as er:
+            conn.rollback()
+            conn.close()
             return " ".join(er.args)
         else:
             conn.commit()
