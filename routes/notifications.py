@@ -64,9 +64,7 @@ def get_unread_notifs():
     if usr == 33:
         return "Token Expired", 401
 
-    conn = util.make_connection()
-    notifs = util.exec_query(
-        conn,
+    notifs = util.commit_query(
         "select rowid, message, description, read, type from notifs where user = :id and read = 0 order by rowid desc",
         id=usr.id,
     ).all()
@@ -75,9 +73,6 @@ def get_unread_notifs():
         {"id": i[0], "message": i[1], "description": i[2], "read": i[3], "type": i[4]}
         for i in notifs
     ]
-
-    conn.commit()
-    conn.close()
 
     return {"count": len(res), "result": res}
 
@@ -138,6 +133,7 @@ def delete_notif(id):
     ).one()
 
     if usr.id != notif[0]:
+        conn.close()
         return "Not your notif!", 403
     try:
         util.exec_query(conn, "DELETE FROM notifs WHERE rowid = :id", id=id)
