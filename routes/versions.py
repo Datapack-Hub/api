@@ -159,7 +159,6 @@ def new(project: int):
 
     # now do the stuff
     data = request.get_json(force=True)
-    conn = util.make_connection()
 
     try:
         data["name"]
@@ -199,6 +198,7 @@ def new(project: int):
         try:
             data["resource_pack_download"]
         except BadRequestKeyError:
+            conn = util.make_connection()
             util.exec_query(
                 conn,
                 """INSERT INTO versions(
@@ -216,6 +216,8 @@ def new(project: int):
                 vc=data["version_code"],
                 project=project,
             )
+            conn.commit()
+            conn.close()
         else:
             if data["resource_pack_download"] != "":
                 rpath = files.upload_zipfile(
@@ -223,6 +225,7 @@ def new(project: int):
                     f"project/{project}/{quote(data['version_code'])}/resourcepack-{quote(data['filename'])}",
                     usr.username,
                 )
+                conn = util.make_connection()
                 util.exec_query(
                     conn,
                     """INSERT INTO versions(
@@ -242,7 +245,10 @@ def new(project: int):
                     vc=data["version_code"],
                     project=project,
                 )
+                conn.commit()
+                conn.close()
             else:
+                conn = util.make_connection()
                 util.exec_query(
                     conn,
                     """INSERT INTO versions(
@@ -260,6 +266,8 @@ def new(project: int):
                     vc=data["version_code"],
                     project=project,
                 )
+                conn.commit()
+                conn.close()
 
     v = util.exec_query(
         conn, "SELECT * FROM versions WHERE version_code = :vc", vc=data["version_code"]
@@ -276,13 +284,13 @@ def new(project: int):
     if v[3] is not None:
         o["resource_pack_download"] = v[3]
 
+    conn = util.make_connection()
     util.exec_query(
         conn,
         "update projects set updated = :updated where rowid = :id;",
         updated=str(int(time.time())),
         id=project,
     )
-
     conn.commit()
     conn.close()
 
