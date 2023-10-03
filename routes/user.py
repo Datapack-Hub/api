@@ -57,7 +57,7 @@ def user_badges_by_id(id: int):
                 id=id,
             )
         except sqlite3.Error:
-            util.log(traceback.print_exc())
+            util.post.error("Whoopsie!", traceback.print_exc())
             conn.rollback()
             conn.close()
             return "Database Error", 500
@@ -224,6 +224,8 @@ def user_by_id(id):
                     f"Edited user data of {dat['username']}",
                 )
         except sqlite3.Error:
+            conn.rollback()
+            conn.close()
             return "Something went a little bit wrong"
         conn.commit()
         conn.close()

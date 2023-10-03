@@ -81,6 +81,8 @@ def log_user_out(id: int):
             id=id,
         )
     except sqlite3.Error as err:
+        conn.rollback()
+        conn.close()
         return err
 
     conn.commit()
