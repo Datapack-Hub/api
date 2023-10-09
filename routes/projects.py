@@ -570,7 +570,7 @@ def publish(id):
         id=id,
     ).one_or_none()
 
-    if proj == None:
+    if proj is None:
         conn.close()
         return "Project not found.", 404
 
