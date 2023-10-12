@@ -46,7 +46,7 @@ def get_all_notifs():
             )
 
     conn.commit()
-    conn.close()
+    
 
     return {"count": len(res), "result": res}
 
@@ -105,11 +105,11 @@ def send_notif(target):
         )
     except sqlite3.Error as er:
         conn.rollback()
-        conn.close()
+        
         return "There was a problem: ".join(er.args), 500
 
     conn.commit()
-    conn.close()
+    
 
     utilities.post.site_log(
         usr.username,
@@ -135,15 +135,15 @@ def delete_notif(id):
     ).one()
 
     if usr.id != notif[0]:
-        conn.close()
+        
         return "Not your notif!", 403
     try:
         util.exec_query(conn, "DELETE FROM notifs WHERE rowid = :id", id=id)
         conn.commit()
     except sqlite3.Error:
         conn.rollback()
-        conn.close()
+        
         return "Something bad happened", 500
     else:
-        conn.close()
+        
         return "worked fine"

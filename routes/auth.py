@@ -142,7 +142,7 @@ def callback_dc():
         )
 
         conn.commit()
-        conn.close()
+        
 
         return response
     t = utilities.auth_utils.get_user_token_from_discord_id(discord["id"])
@@ -210,10 +210,10 @@ def link_discord():
         )
     except sqlite3.Error:
         conn.rollback()
-        conn.close()
+        
         return "Something went wrong!", 500
     conn.commit()
-    conn.close()
+    
     return "Discord linked!", 200
 
 
@@ -259,8 +259,8 @@ def link_github():
         )
     except sqlite3.Error:
         conn.rollback()
-        conn.close()
+        
         return "Something went wrong!", 500
     conn.commit()
-    conn.close()
+    
     return "Discord linked!", 200

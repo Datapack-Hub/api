@@ -192,10 +192,10 @@ def console():
             )
         except sqlalchemy.exc.SQLAlchemyError as er:
             conn.rollback()
-            conn.close()
+            
             return f"Error: {' '.join(er.args)}", 400
         conn.commit()
-        conn.close()
+        
         return "Notified the user!"
 
 
@@ -245,11 +245,11 @@ def ban_user(user: int):
             )
         except sqlite3.Error as er:
             conn.rollback()
-            conn.close()
+            
             return " ".join(er.args)
         else:
             conn.commit()
-            conn.close()
+            
             utilities.post.site_log(
                 utilities.get_user.from_token(
                     request.headers.get("Authorization")[6:]
@@ -267,11 +267,11 @@ def ban_user(user: int):
             )
         except sqlite3.Error as er:
             conn.rollback()
-            conn.close()
+            
             return " ".join(er.args)
         else:
             conn.commit()
-            conn.close()
+            
             utilities.post.site_log(
                 utilities.get_user.from_token(
                     request.headers.get("Authorization")[6:]
@@ -345,7 +345,7 @@ def get_queue(type: str):
                 }
             )
 
-        conn.close()
+        
         return {"count": len(out), "projects": out}
     elif type == "review":
         r = conn.execute(
@@ -378,7 +378,7 @@ def get_queue(type: str):
                 }
             )
 
-        conn.close()
+        
         return {"count": len(out), "projects": out}
     elif type == "report":
         r = conn.execute(text("select *, rowid from reports")).all()
@@ -427,7 +427,7 @@ def get_queue(type: str):
                 }
             )
 
-        conn.close()
+        
         return {"count": len(out), "reports": out}
 
 
@@ -488,7 +488,7 @@ def change_project_status(proj: int):
                         i,
                     )
             conn.commit()
-            conn.close()
+            
             utilities.post.approval(
                 user.username,
                 project[1],
@@ -521,7 +521,7 @@ def change_project_status(proj: int):
             project[5],
         )
         conn.commit()
-        conn.close()
+        
         return "deleted project"
     elif data["action"] == "restore":
         util.exec_query(
@@ -535,7 +535,7 @@ def change_project_status(proj: int):
             id=project[2],
         )
         conn.commit()
-        conn.close()
+        
         return "restored project"
     elif data["action"] == "disable":
         try:
@@ -557,7 +557,7 @@ def change_project_status(proj: int):
                 id=project[2],
             )
             conn.commit()
-            conn.close()
+            
             utilities.post.disabled(
                 user.username,
                 project[1],
@@ -588,7 +588,7 @@ def change_project_status(proj: int):
                 id=project[2],
             )
             conn.commit()
-            conn.close()
+            
             return "Added message", 200
     else:
         return "non existent action lmao xd xd", 400
@@ -613,7 +613,7 @@ def dismiss_mod_message(proj: int):
 
     # Check existence of project.
     if project is None:
-        conn.close()
+        
         return "Project not found", 404
 
     # Check if user owns project.
@@ -629,7 +629,7 @@ def dismiss_mod_message(proj: int):
         conn, "update projects set mod_message = null where rowid = :id", id=proj
     )
     conn.commit()
-    conn.close()
+    
     return "did it", 200
 
 
@@ -651,6 +651,6 @@ def remove_report(id: int):
 
     util.exec_query(conn, "delete from reports where rowid = :id", id=id)
     conn.commit()
-    conn.close()
+    
 
     return "report removed", 200

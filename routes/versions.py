@@ -99,11 +99,11 @@ def code(id: int, code: str):
                 )
             except sqlite3.Error:
                 conn.rollback()
-                conn.close()
+                
                 return "There was an error deleting that version!", 500
             else:
                 conn.commit()
-                conn.close()
+                
                 return "didded", 200
         else:
             return "Not your version! :P", 403
@@ -282,6 +282,6 @@ def new(project: int):
         id=project,
     )
     conn.commit()
-    conn.close()
+    
 
     return o

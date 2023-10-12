@@ -59,11 +59,11 @@ def user_badges_by_id(id: int):
         except sqlite3.Error:
             util.post.error("Whoopsie!", traceback.print_exc())
             conn.rollback()
-            conn.close()
+            
             return "Database Error", 500
         else:
             conn.commit()
-            conn.close()
+            
             return "Success!"
 
 
@@ -225,10 +225,10 @@ def user_by_id(id):
                 )
         except sqlite3.Error:
             conn.rollback()
-            conn.close()
+            
             return "Something went a little bit wrong"
         conn.commit()
-        conn.close()
+        
         return "done!"
 
 
@@ -282,7 +282,7 @@ def get_self():
             uname=usr.username,
         )
         conn.commit()
-    conn.close()
+    
     return user_data
 
 
@@ -333,12 +333,12 @@ def get_user_projects(username):
                     temp = parse_project(item, conn)
                 except:
                     conn.rollback()
-                    conn.close()
+                    
                     return "Something bad happened", 500
 
                 out.append(temp)
 
-            conn.close()
+            
 
             return {"count": len(out), "result": out}
         else:
@@ -356,12 +356,12 @@ def get_user_projects(username):
                     temp = parse_project(item, conn)
                 except:
                     conn.rollback()
-                    conn.close()
+                    
                     return "Something bad happened", 500
 
                 out.append(temp)
 
-            conn.close()
+            
 
             return {"count": len(out), "result": out}
     else:
@@ -379,12 +379,12 @@ def get_user_projects(username):
                 temp = parse_project(item, conn)
             except:
                 conn.rollback()
-                conn.close()
+                
                 return "Something bad happened", 500
 
             out.append(temp)
 
-        conn.close()
+        
 
         return {"count": len(out), "result": out}
 
@@ -423,7 +423,7 @@ def follow_user(id):
             )
         except:
             conn.rollback()
-            conn.close()
+            
             return "Something went wrong.", 500
         else:
             util.exec_query(
@@ -434,7 +434,7 @@ def follow_user(id):
                 fid=followed.id,
             )
             conn.commit()
-            conn.close()
+            
             return "Followed user!", 200
     else:
         try:
@@ -446,9 +446,9 @@ def follow_user(id):
             )
         except:
             conn.rollback()
-            conn.close()
+            
             return "Something went wrong.", 500
         else:
             conn.commit()
-            conn.close()
+            
             return "Unfollowed user!", 200
