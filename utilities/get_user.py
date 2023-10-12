@@ -17,7 +17,7 @@ def from_username(self: str):
     if u is None:
         return None
 
-    conn.close()
+    
 
     badges = json.loads(u[5]) if u[5] else None
     return User(
@@ -38,7 +38,7 @@ def from_id(self: int):
     if u is None:
         return None
 
-    conn.close()
+    
 
     badges = json.loads(u[5]) if u[5] else None
     return User(
@@ -59,7 +59,7 @@ def from_github_id(self: int):
     if u is None:
         return None
 
-    conn.close()
+    
 
     badges = json.loads(u[5]) if u[5] else None
     return User(
@@ -80,7 +80,7 @@ def from_discord_id(self: int):
     if u is None:
         return None
 
-    conn.close()
+    
 
     badges = json.loads(u[5]) if u[5] else None
     return User(
@@ -102,7 +102,7 @@ def from_token(token: str):
         util.log("SillySilabearError: The user does not exist")
         return False
 
-    conn.close()
+    
 
     badges = json.loads(u[5]) if u[5] else None
     return User(

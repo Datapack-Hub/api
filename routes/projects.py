@@ -136,12 +136,12 @@ def search_projects():
             temp = parse_project(item, conn)
         except:
             conn.rollback()
-            conn.close()
+            
             return "Something bad happened", 500
 
         out.append(temp)
 
-    conn.close()
+    
 
     y = time.perf_counter()
     return {
@@ -182,12 +182,12 @@ def all_projects():
             temp = parse_project(item, conn)
         except:
             conn.rollback()
-            conn.close()
+            
             return "Something bad happened", 500
 
         out.append(temp)
 
-    conn.close()
+    
 
     return {"count": len(out), "result": out, "pages": str(math.ceil(len(r) / 20))}
 
@@ -223,10 +223,10 @@ def get_project_by_id(id):
         temp = parse_project(proj, conn)
     except:
         conn.rollback()
-        conn.close()
+        
         return "Something bad happened", 500
 
-    conn.close()
+    
 
     return temp
 
@@ -265,10 +265,10 @@ def get_project_by_slug(slug: str):
         temp = parse_project(proj, conn)
     except:
         conn.rollback()
-        conn.close()
+        
         return "Something bad happened", 500
 
-    conn.close()
+    
     return temp
 
 
@@ -289,7 +289,7 @@ def random_project():
 
         out.append(temp)
 
-    conn.close()
+    
     return {"count": count, "result": out}
 
 
@@ -301,7 +301,7 @@ def count():
         .all()
         .__len__()
     )
-    conn.close()
+    
     return {"count": x}
 
 
@@ -536,12 +536,12 @@ def edit_project(id: int):
             )
     except sqlite3.Error:
         conn.rollback()
-        conn.close()
+        
         utilities.post.error("Error updating project", traceback.format_exc())
         return "Something went wrong.", 500
 
     conn.commit()
-    conn.close()
+    
 
     if user.role in ["admin", "moderator"]:
         utilities.post.site_log(
@@ -571,11 +571,11 @@ def publish(id):
     ).one_or_none()
 
     if proj is None:
-        conn.close()
+        
         return "Project not found.", 404
 
     if proj[0] != user.id:
-        conn.close()
+        
         return "Not your project.", 403
 
     # now onto the fun stuff >:)
@@ -587,7 +587,7 @@ def publish(id):
         )
 
         conn.commit()
-        conn.close()
+        
         utilities.post.in_queue(proj[2], proj[3], proj[4], proj[0], proj[5])
         return "The project is now in the publish queue.", 200
     elif proj[1] == "draft": # why this?
@@ -596,7 +596,7 @@ def publish(id):
         )
 
         conn.commit()
-        conn.close()
+        
         return "The project is now live.", 200
     elif proj[1] == "disabled":
         util.exec_query(
@@ -604,11 +604,11 @@ def publish(id):
         )
 
         conn.commit()
-        conn.close()
+        
         utilities.post.in_queue(proj[2], proj[3], proj[4], proj[0], proj[5])
         return "The project is now in the review queue.", 200
     else:
-        conn.close()
+        
         return "This project is not in a valid state to be published!", 400
 
 
@@ -644,7 +644,7 @@ def draft(id):
         )
 
         conn.commit()
-        conn.close()
+        
         return "The project is now drafted.", 200
     else:
         return "This project is not in a valid state to be drafted!", 400
@@ -686,7 +686,7 @@ def report(id):
             pid=id,
         )
         conn.commit()
-        conn.close()
+        
         return "didded", 200
 
 
@@ -722,7 +722,7 @@ def remove(id):
         )
 
         conn.commit()
-        conn.close()
+        
         return "The project is now deleted.", 200
     else:
         return "This project is not in a valid state to be deleted!", 400
@@ -747,7 +747,7 @@ def download(id):
     )
 
     conn.commit()
-    conn.close()
+    
     return "Incremented download counter.", 200
 
 
@@ -798,7 +798,7 @@ def feature(id):
         )
     except sqlite3.Error:
         conn.rollback()
-        conn.close()
+        
         return "There was an error."
     else:
         util.exec_query(
@@ -809,7 +809,7 @@ def feature(id):
             id=proj[0],
         )
         conn.commit()
-        conn.close()
+        
         return "Featured project!"
 
 
@@ -836,10 +836,10 @@ def featured():
                 temp = parse_project(i, conn)
             except:
                 conn.rollback()
-                conn.close()
+                
                 return "Something bad happened", 500
 
             out.append(temp)
 
-    conn.close()
+    
     return {"result": out, "count": proj.__len__()}
