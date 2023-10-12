@@ -590,7 +590,7 @@ def publish(id):
         conn.close()
         utilities.post.in_queue(proj[2], proj[3], proj[4], proj[0], proj[5])
         return "The project is now in the publish queue.", 200
-    elif proj[1] == "draft": # why this?
+    elif proj[1] == "draft":  # why this?
         util.exec_query(
             conn, "update projects set status = 'live' where rowid = :id", id=id
         )
