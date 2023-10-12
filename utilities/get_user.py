@@ -17,8 +17,6 @@ def from_username(self: str):
     if u is None:
         return None
 
-    
-
     badges = json.loads(u[5]) if u[5] else None
     return User(
         u[1], u[0], u[2], u[3], profile_icon=u[4], badges=badges, join_date=u[6]
@@ -37,8 +35,6 @@ def from_id(self: int):
 
     if u is None:
         return None
-
-    
 
     badges = json.loads(u[5]) if u[5] else None
     return User(
@@ -59,8 +55,6 @@ def from_github_id(self: int):
     if u is None:
         return None
 
-    
-
     badges = json.loads(u[5]) if u[5] else None
     return User(
         u[1], u[0], u[2], u[3], profile_icon=u[4], badges=badges, join_date=u[6]
@@ -79,8 +73,6 @@ def from_discord_id(self: int):
 
     if u is None:
         return None
-
-    
 
     badges = json.loads(u[5]) if u[5] else None
     return User(
@@ -101,8 +93,6 @@ def from_token(token: str):
     if u is None:
         util.log("SillySilabearError: The user does not exist")
         return False
-
-    
 
     badges = json.loads(u[5]) if u[5] else None
     return User(

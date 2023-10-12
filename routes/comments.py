@@ -165,11 +165,10 @@ def post_msg(thread: int):
                 )
     except sqlite3.Error as er:
         conn.rollback()
-        
+
         return f"There was an error! {' '.join(er.args)}", 500
 
     conn.commit()
-    
 
     return "Posted comment!", 200
 
@@ -243,23 +242,19 @@ def get_comment(id: int):
         comment = comment[0]
 
         if not request.headers.get("Authorization"):
-            
             return "Authorization required", 400
         usr = utilities.auth_utils.authenticate(request.headers.get("Authorization"))
         if usr == 32:
-            
             return "Please make sure authorization type = Basic", 400
         if usr == 33:
-            
             return "Token Expired", 401
 
         if not (usr.id == comment[2] or usr.role in ["admin", "moderator"]):
-            
             return "This isn't your comment.", 403
 
         util.exec_query(conn, "delete from comments where rowid = :id", id=id)
         util.exec_query(conn, "delete from comments where parent_id = :id", id=id)
 
         conn.commit()
-        
+
         return "Deleted comment."
