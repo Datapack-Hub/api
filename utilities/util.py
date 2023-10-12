@@ -12,6 +12,7 @@ from utilities import post
 
 connection = create_engine("sqlite:///" + config.DATA + "data.db").connect()
 
+
 def make_connection() -> Connection:
     return connection
 
@@ -32,7 +33,7 @@ def commit_query(command: str, **params) -> CursorResult:
         q = q.bindparams(**params)
     result = conn.execute(q)
     conn.commit()
-    
+
     return result
 
 
@@ -70,7 +71,6 @@ def create_user_account(
     )
 
     conn.commit()
-    
 
     log("CREATED USER: " + github_data["login"])
 
@@ -87,8 +87,6 @@ def get_user_ban_data(id: int):
         id=id,
     ).one_or_none()
 
-    
-
     if banned_user is None:
         return None
 
@@ -104,7 +102,7 @@ def user_owns_project(project: int, author: int):
         project=project,
         author=author,
     ).all()
-    
+
     return len(proj) == 1
 
 

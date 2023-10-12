@@ -29,7 +29,6 @@ def authenticate(auth: str):
     if u is None:
         util.log("user doth not exists")
         return 33
-    
 
     badges = json.loads(u[5]) if u[5] else None
     return User(u[1], u[0], u[2], u[3], profile_icon=u[4], badges=badges)
@@ -42,8 +41,6 @@ def get_user_token(github_id: int):
     u = util.exec_query(
         conn, "select token from users where github_id = :g_id", g_id=github_id
     ).one_or_none()
-
-    
 
     if u is None:
         return None
@@ -58,8 +55,6 @@ def get_user_token_from_discord_id(discord: int):
     u = util.exec_query(
         conn, "select token from users where discord_id = :discord", discord=discord
     ).one_or_none()
-
-    
 
     if u is None:
         return None
@@ -82,10 +77,9 @@ def log_user_out(id: int):
         )
     except sqlite3.Error as err:
         conn.rollback()
-        
+
         return err
 
     conn.commit()
-    
 
     return "Success!"
