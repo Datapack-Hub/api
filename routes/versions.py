@@ -161,7 +161,7 @@ def new(project: int):
 
     # now do the stuff
     data = request.form
-    
+
     try:
         data["name"]
         data["description"]
