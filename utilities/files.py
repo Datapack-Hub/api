@@ -104,6 +104,7 @@ def upload_file(file: str, file_name: str, uploader: str, is_icon: bool = False)
 def optimize_img(path: Path) -> Path:
     new_path = path.with_suffix(".avif")
     img = Image.open(path)
+    img.resize((128, 128))
     img.save(new_path)
     util.log("Done!")
     return new_path
