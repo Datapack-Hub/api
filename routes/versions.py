@@ -160,8 +160,8 @@ def new(project: int):
         return "You don't have permission to create a version on this project", 403
 
     # now do the stuff
-    data = request.get_json(force=True)
-
+    data = request.form
+    
     try:
         data["name"]
         data["description"]
