@@ -13,7 +13,7 @@ from flask import Blueprint, request
 import config
 import utilities.auth_utils as auth_util
 import utilities.get_user
-import utilities.post
+import utilities.weblogs
 from routes.moderation import is_perm_level
 from routes.projects import parse_project
 from utilities import util
@@ -57,7 +57,7 @@ def user_badges_by_id(id: int):
                 id=id,
             )
         except sqlite3.Error:
-            util.post.error("Whoopsie!", traceback.print_exc())
+            util.weblogs.error("Whoopsie!", traceback.print_exc())
             conn.rollback()
 
             return "Database Error", 500
@@ -218,7 +218,7 @@ def user_by_id(id):
                     role=dat["role"],
                     id=id,
                 )
-                utilities.post.site_log(
+                utilities.weblogs.site_log(
                     usr.username,
                     "Edited user",
                     f"Edited user data of {dat['username']}",

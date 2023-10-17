@@ -19,7 +19,7 @@ from sqlalchemy import text
 import config
 import gen_example_data
 import utilities.auth_utils
-import utilities.post
+import utilities.weblogs
 from utilities import get_user, util
 
 console_commands = [
@@ -75,7 +75,7 @@ def console():
     if not utilities.get_user.from_token(request.headers.get("Authorization")[6:]):
         return "hey u! sign in again plz (i am not hax)", 401
 
-    utilities.post.site_log(
+    utilities.weblogs.site_log(
         utilities.get_user.from_token(
             request.headers.get("Authorization")[6:]
         ).username,
@@ -212,7 +212,7 @@ def force_log_out_user(id: int):
     except:
         return "Failed", 500
     else:
-        utilities.post.site_log(
+        utilities.weblogs.site_log(
             utilities.get_user.from_token(
                 request.headers.get("Authorization")[6:]
             ).username,
@@ -250,7 +250,7 @@ def ban_user(user: int):
         else:
             conn.commit()
 
-            utilities.post.site_log(
+            utilities.weblogs.site_log(
                 utilities.get_user.from_token(
                     request.headers.get("Authorization")[6:]
                 ).username,
@@ -272,7 +272,7 @@ def ban_user(user: int):
         else:
             conn.commit()
 
-            utilities.post.site_log(
+            utilities.weblogs.site_log(
                 utilities.get_user.from_token(
                     request.headers.get("Authorization")[6:]
                 ).username,
@@ -486,7 +486,7 @@ def change_project_status(proj: int):
                     )
             conn.commit()
 
-            utilities.post.approval(
+            utilities.weblogs.approval(
                 user.username,
                 project[1],
                 project[3],
@@ -508,7 +508,7 @@ def change_project_status(proj: int):
                 title=f"Project {project[1]} deleted', msg=f'Your project was deleted for the following reason: {data['message']}",
                 author=project[2],
             )
-        utilities.post.deletion(
+        utilities.weblogs.deletion(
             user.username,
             project[1],
             project[3],
@@ -555,7 +555,7 @@ def change_project_status(proj: int):
             )
             conn.commit()
 
-            utilities.post.disabled(
+            utilities.weblogs.disabled(
                 user.username,
                 project[1],
                 project[3],

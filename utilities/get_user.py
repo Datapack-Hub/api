@@ -4,7 +4,7 @@ from utilities import util
 from utilities.commons import User
 
 
-def from_username(self: str):
+def from_username(self: str) -> User | None:
     conn = util.make_connection()
 
     # Select
@@ -23,7 +23,7 @@ def from_username(self: str):
     )
 
 
-def from_id(self: int):
+def from_id(self: int) -> User | None:
     conn = util.make_connection()
 
     # Select
@@ -42,7 +42,7 @@ def from_id(self: int):
     )
 
 
-def from_github_id(self: int):
+def from_github_id(self: int) -> User | None:
     conn = util.make_connection()
 
     # Select
@@ -61,7 +61,7 @@ def from_github_id(self: int):
     )
 
 
-def from_discord_id(self: int):
+def from_discord_id(self: int) -> User | None:
     conn = util.make_connection()
 
     # Select
@@ -80,7 +80,7 @@ def from_discord_id(self: int):
     )
 
 
-def from_token(token: str):
+def from_token(token: str) -> User | None:
     conn = util.make_connection()
 
     # Select

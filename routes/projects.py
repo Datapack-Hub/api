@@ -16,7 +16,7 @@ from sqlalchemy import Engine, text
 
 import config
 import utilities.auth_utils
-import utilities.post
+import utilities.weblogs
 from utilities import files, get_user, util
 from utilities.commons import User
 
@@ -175,7 +175,7 @@ def all_projects():
 
     out = []
 
-    for item in r[(page - 1) * 20 : page * 20 - 1]:
+    for item in r[(page - 1) * 20: page * 20 - 1]:
         try:
             temp = parse_project(item, conn)
         except:
@@ -349,7 +349,7 @@ def create_new_project():
     if not re.match(r'^[\w!@$()`.+,"\-\']{3,64}$', data["url"]):
         return "URL is invalid!", 400
 
-    if "icon" in data and data["icon"]:
+    if data.get("icon"):
         icon = files.upload_file(
             data["icon"],
             f"icons/{secrets.randbelow(999999)!s}.avif",
@@ -360,7 +360,7 @@ def create_new_project():
     # Update database
     cat_str = ",".join(data["category"])
 
-    if "icon" in data and data["icon"]:
+    if data.get("icon"):
         util.commit_query(
             """insert into projects(
                     type, 
@@ -480,7 +480,7 @@ def edit_project(id: int):
     if len(data["category"]) > 3:
         return "Categories exceed 3", 400
 
-    if "icon" in data and data["icon"]:
+    if data.get("icon"):
         icon = files.upload_file(
             data["icon"],
             f"icons/{secrets.randbelow(999999)!s}.avif",
@@ -494,7 +494,7 @@ def edit_project(id: int):
     cat_str = ",".join(data["category"])
 
     try:
-        if "icon" in data and data["icon"]:
+        if data.get("icon"):
             util.exec_query(
                 conn,
                 """update projects set
@@ -529,13 +529,13 @@ def edit_project(id: int):
     except sqlite3.Error:
         conn.rollback()
 
-        utilities.post.error("Error updating project", traceback.format_exc())
+        utilities.weblogs.error("Error updating project", traceback.format_exc())
         return "Something went wrong.", 500
 
     conn.commit()
 
     if user.role in ["admin", "moderator"]:
-        utilities.post.site_log(
+        utilities.weblogs.site_log(
             user.username, "Edited project", f"Edited the project {data['title']}"
         )
 
@@ -577,7 +577,7 @@ def publish(id):
 
         conn.commit()
 
-        utilities.post.in_queue(proj[2], proj[3], proj[4], proj[0], proj[5])
+        utilities.weblogs.in_queue(proj[2], proj[3], proj[4], proj[0], proj[5])
         return "The project is now in the publish queue.", 200
     elif proj[1] == "draft":  # why this?
         util.exec_query(
@@ -594,7 +594,7 @@ def publish(id):
 
         conn.commit()
 
-        utilities.post.in_queue(proj[2], proj[3], proj[4], proj[0], proj[5])
+        utilities.weblogs.in_queue(proj[2], proj[3], proj[4], proj[0], proj[5])
         return "The project is now in the review queue.", 200
     else:
         return "This project is not in a valid state to be published!", 400
