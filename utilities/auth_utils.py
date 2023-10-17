@@ -34,7 +34,7 @@ def authenticate(auth: str):
     return User(u[1], u[0], u[2], u[3], profile_icon=u[4], badges=badges)
 
 
-def get_user_token(github_id: int):
+def get_user_token(github_id: int) -> str | None:
     conn = util.make_connection()
 
     # Select
@@ -48,7 +48,7 @@ def get_user_token(github_id: int):
     return u[0]
 
 
-def get_user_token_from_discord_id(discord: int):
+def get_user_token_from_discord_id(discord: int) -> str | None:
     conn = util.make_connection()
 
     # Select

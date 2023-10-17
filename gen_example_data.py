@@ -127,7 +127,6 @@ def reset(table: str):
 
     # save and exit
     connection.commit()
-    connection.close()
 
 
 if __name__ == "__main__":

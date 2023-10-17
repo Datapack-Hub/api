@@ -108,7 +108,3 @@ def optimize_img(path: Path) -> Path:
     img.save(new_path)
     util.log("Done!")
     return new_path
-
-
-# if __name__ == "__main__":
-#     optimize_img(r"C:\dph_test_imgs\chris-curry.jpg")

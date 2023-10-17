@@ -7,7 +7,7 @@ import sqlite3
 from flask import Blueprint, request
 
 import utilities.auth_utils
-import utilities.post
+import utilities.weblogs
 from utilities import util
 
 notifs = Blueprint("notifications", __name__, url_prefix="/notifs")
@@ -109,7 +109,7 @@ def send_notif(target):
 
     conn.commit()
 
-    utilities.post.site_log(
+    utilities.weblogs.site_log(
         usr.username,
         "Sent a notification",
         f"Sent a `{notif_data['type']}` notification to `{target}`",

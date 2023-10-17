@@ -1,13 +1,12 @@
+import functools
 import logging
 import random
 import secrets
 import time
-from functools import lru_cache
-
 from sqlalchemy import Connection, CursorResult, Engine, create_engine, text
 
 import config
-from utilities import post
+from utilities import weblogs
 
 
 connection = create_engine("sqlite:///" + config.DATA + "data.db").connect()
@@ -27,13 +26,8 @@ def exec_query(conn: Connection, query: str, **params) -> CursorResult:
 
 def commit_query(command: str, **params) -> CursorResult:
     conn = make_connection()
-    q = text(command)
-
-    if params:
-        q = q.bindparams(**params)
-    result = conn.execute(q)
+    result = exec_query(conn, command, **params)
     conn.commit()
-
     return result
 
 
@@ -44,7 +38,7 @@ def log(msg: object, level=logging.INFO):
 
 def create_user_account(
     github_data: dict,
-):
+) -> str:
     conn = make_connection()
 
     token = secrets.token_urlsafe()
@@ -77,7 +71,6 @@ def create_user_account(
     return token
 
 
-@lru_cache
 def get_user_ban_data(id: int):
     conn = make_connection()
 
@@ -93,7 +86,7 @@ def get_user_ban_data(id: int):
     return {"reason": banned_user[0], "expires": banned_user[1]}
 
 
-@lru_cache
+@functools.lru_cache
 def user_owns_project(project: int, author: int):
     conn = make_connection()
     proj = exec_query(
@@ -135,7 +128,7 @@ def custom_sort_key(version):
 
 
 if __name__ == "__main__":
-    post.approval(
+    weblogs.approval(
         "Silabear",
         "Hexenwerk",
         "Magic datapack which adds wands, spells, etc. and will soon even be well polished!",
