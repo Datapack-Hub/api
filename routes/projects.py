@@ -175,7 +175,7 @@ def all_projects():
 
     out = []
 
-    for item in r[(page - 1) * 20: page * 20 - 1]:
+    for item in r[(page - 1) * 20 : page * 20 - 1]:
         try:
             temp = parse_project(item, conn)
         except:
