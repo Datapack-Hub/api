@@ -1,11 +1,13 @@
 bleach==6.1.0
 disnake==2.9.0
+fastapi==0.104.0
 Flask==3.0.0
-Flask_Compress==1.14
 Flask_Cors==4.0.0
 Pillow==10.1.0
 pillow_avif_plugin==1.4.1
+pydantic==2.4.2
 regex==2023.10.3
 Requests==2.31.0
 SQLAlchemy==2.0.22
+uvicorn==0.23.2
 Werkzeug==3.0.0

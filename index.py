@@ -48,8 +48,8 @@ def after(response):
 
 
 app.include_router(user)
-# app.register_blueprint(auth)
-# app.register_blueprint(projects)
+app.include_router(auth)
+app.include_router(projects)
 # app.register_blueprint(versions)
 # app.register_blueprint(mod)
 # app.register_blueprint(notifs)
@@ -62,5 +62,5 @@ if not Path(config.DATA + "data.db").exists():
 # Run the app
 if __name__ == "__main__":
     debug_enabled = PROD == 0
-    uvicorn.run("index:app", reload=True)
+    uvicorn.run("index:app", reload=debug_enabled)
     # app.run(debug=debug_enabled)

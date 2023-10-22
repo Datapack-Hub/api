@@ -7,37 +7,32 @@ import secrets
 import sqlite3
 import time
 from urllib.parse import quote
+from fastapi import APIRouter, HTTPException, Request
+from fastapi.responses import RedirectResponse
 
-import flask
 import requests
-from flask import request
 
 import config
 import utilities.auth_utils
 import utilities.get_user
 from utilities import util
 
-auth = flask.Blueprint("auth", __name__, url_prefix="/auth")
+auth = APIRouter(prefix="/auth", tags=["auth"])
 
 
-@auth.route("/login/github")
+@auth.get("/login/github", response_class=RedirectResponse)
 def login_gh():
-    return flask.redirect(
-        f"https://github.com/login/oauth/authorize?client_id={config.GitHub.client_id}&redirect_uri=https%3A%2F%2Fapi.datapackhub.net%2Fauth%2Fcallback%2Fgithub"
-    )
+    return f"https://github.com/login/oauth/authorize?client_id={config.GitHub.client_id}&redirect_uri=https%3A%2F%2Fapi.datapackhub.net%2Fauth%2Fcallback%2Fgithub"
 
 
-@auth.route("/login/discord")
+@auth.get("/login/discord", response_class=RedirectResponse)
 def login_dc():
-    return flask.redirect(
-        "https://discord.com/api/oauth2/authorize?client_id=1121129295868334220&redirect_uri=https%3A%2F%2Fapi.datapackhub.net%2Fauth%2Fcallback%2Fdiscord&response_type=code&scope=identify"
-    )
+    return "https://discord.com/api/oauth2/authorize?client_id=1121129295868334220&redirect_uri=https%3A%2F%2Fapi.datapackhub.net%2Fauth%2Fcallback%2Fdiscord&response_type=code&scope=identify"
 
 
-@auth.route("/callback/github")
-def callback_gh():
+@auth.get("/callback/github", response_class=RedirectResponse)
+def callback_gh(code: str):
     # Get an access token
-    code = request.args.get("code")
     access_token = requests.post(
         f"https://github.com/login/oauth/access_token?client_id={config.GitHub.client_id}&client_secret={config.GitHub.client_secret}&code={quote(code)}",
         headers={"Accept": "application/json"},
@@ -60,31 +55,19 @@ def callback_gh():
         # Make account
         t = util.create_user_account(github)
 
-        response = flask.make_response(
-            flask.redirect(f"https://datapackhub.net?login=1&token={t}")
-        )
-
-        return response
+        return f"https://datapackhub.net?login=1&token={t}"
     t = utilities.auth_utils.get_user_token(github["id"])
 
     if not t:
-        return (
+        raise HTTPException(500,
             "Something went wrong, but I can't actually be bothered to figure out why this error would ever be needed, because we already check if the user exists. For that reason, just assume that you broke something and it can never be fixed.",
-            500,
         )
 
-    response = flask.make_response(
-        flask.redirect(f"https://datapackhub.net?login=1&token={t}")
-    )
-
-    return response
+    return f"https://datapackhub.net?login=1&token={t}"
 
 
-@auth.route("/callback/discord")
-def callback_dc():
-    # Get an access token
-    code = request.args.get("code")
-
+@auth.route("/callback/discord", response_class=RedirectResponse)
+def callback_dc(code: str):
     data = {
         "client_id": config.Discord.client_id,
         "client_secret": config.Discord.client_secret,
@@ -137,43 +120,33 @@ def callback_dc():
             join=time.time(),
         )
 
-        response = flask.make_response(
-            flask.redirect(f"https://datapackhub.net?login=1&token={token}")
-        )
-
         conn.commit()
 
-        return response
+        return f"https://datapackhub.net?login=1&token={token}"
     t = utilities.auth_utils.get_user_token_from_discord_id(discord["id"])
 
     if not t:
-        return (
+        raise HTTPException(500,
             "Something went wrong, but I can't actually be bothered to figure out why this error would ever be needed, because we already check if the user exists. For that reason, just assume that you broke something and it can never be fixed.",
-            500,
         )
 
-    response = flask.make_response(
-        flask.redirect(f"https://datapackhub.net?login=1&token={t}")
-    )
-
-    return response
+    return f"https://datapackhub.net?login=1&token={token}"
 
 
 @auth.route("/link/discord", methods=["put"])
-def link_discord():
-    code = request.args.get("code")
+def link_discord(code: str, request: Request):
     if not code:
-        return "Code required", 400
+        raise HTTPException(400, "Code required!")
 
     # Get signed-in user
     if not request.headers.get("Authorization"):
-        return "Authorization required", 400
+        raise HTTPException(400, "Token required!")
 
     usr = utilities.auth_utils.authenticate(request.headers.get("Authorization"))
     if usr == 32:
-        return "Please make sure authorization type = Basic", 400
+        raise HTTPException(400, "Make sure auth is set to basic!")
     if usr == 33:
-        return "Token Expired", 401
+        raise HTTPException(401, "Token expired!")
 
     # Get discord user info
     data = {
@@ -207,20 +180,17 @@ def link_discord():
             id=discord_id,
             user=usr.id,
         )
-    except sqlite3.Error:
+    except sqlite3.Error as err:
         conn.rollback()
 
-        return "Something went wrong!", 500
+        raise HTTPException(500, "Something went wrong!") from err
     conn.commit()
 
-    return "Discord linked!", 200
+    return "Discord linked!"
 
 
 @auth.route("/link/github", methods=["put"])
-def link_github():
-    # Get an access token
-    code = request.args.get("code")
-
+def link_github(code: str, request: Request):
     access_token = requests.post(
         quote(
             f"https://github.com/login/oauth/access_token?client_id={config.GitHub.client_id}&client_secret={config.GitHub.client_secret}&code={code}"
@@ -256,10 +226,10 @@ def link_github():
             g_id=github["id"],
             id=usr.id,
         )
-    except sqlite3.Error:
+    except sqlite3.Error as err:
         conn.rollback()
 
-        return "Something went wrong!", 500
+        raise HTTPException(500, "Something went wrong!") from err
     conn.commit()
 
-    return "Discord linked!", 200
+    return "Discord linked!"
