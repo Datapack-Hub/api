@@ -8,9 +8,10 @@ import time
 import traceback
 from pathlib import Path
 
-from flask import Blueprint, request
+from fastapi import APIRouter, HTTPException, Request
 
 import config
+from utilities.request_types import BadgesJsonBody, UserEditBody
 import utilities.auth_utils as auth_util
 import utilities.get_user
 import utilities.weblogs
@@ -19,59 +20,47 @@ from routes.projects import parse_project
 from utilities import util
 
 ADMINS = ["Silabear", "Flynecraft", "HoodieRocks"]
-user = Blueprint("user", __name__, url_prefix="/user")
+user = APIRouter(prefix="/user", tags=["users"])
 
+@user.get("/badges/{id}")
+def get_badge_by_id(id: int):
+    return {"badges": utilities.get_user.from_id(id).badges}
 
-# @user.after_request
-# def after(resp):
-
-
-@user.route("/badges/<int:id>", methods=["PATCH", "GET"])
-def user_badges_by_id(id: int):
+@user.patch("/badges/{id}")
+async def patch_user_badges(body: BadgesJsonBody, id: int, request: Request):
     conn = util.make_connection()
 
-    if request.method == "GET":
-        return {"badges": utilities.get_user.from_id(id).badges}
-    if request.method == "PATCH":
-        if not is_perm_level(
-            request.headers.get("Authorization"), ["moderator", "developer", "admin"]
-        ):
-            return "You can't do this!", 403
+    if not is_perm_level(
+        request.headers.get("Authorization"), ["moderator", "developer", "admin"]
+    ):
+        raise HTTPException(403, "You can't do this!")
 
-        try:
-            body = request.get_json(force=True)
-        except KeyError:
-            return "Malformed request", 400
+    badge_str = str(body.badges).replace("'", '"')
 
-        try:
-            badge_str = str(body["badges"]).replace("'", '"')
+    util.log(badge_str)
 
-            util.log(badge_str)
-
-            util.exec_query(
-                conn,
-                """UPDATE users 
-                    SET badges = :badges
-                    WHERE rowid = :id""",
-                badges=badge_str,
-                id=id,
-            )
-        except sqlite3.Error:
-            util.weblogs.error("Whoopsie!", traceback.print_exc())
-            conn.rollback()
-
-            return "Database Error", 500
-        else:
-            conn.commit()
-
-            return "Success!"
+    try:
+        util.exec_query(
+            conn,
+            """UPDATE users 
+                SET badges = :badges
+                WHERE rowid = :id""",
+            badges=badge_str,
+            id=id,
+        )
+    except sqlite3.Error as err:
+        util.weblogs.error("Whoopsie!", traceback.print_exc())
+        conn.rollback()
+        raise HTTPException(500, "Database Error") from err
+    conn.commit()
+    return "Success!"
 
 
-@user.route("/staff/<role>")
-def get_staff_role(role):
+@user.get("/staff/{role}")
+def get_staff_role(role: str):
     conn = util.make_connection()
     if role not in ["admin", "moderator", "helper"]:
-        return "Role has to be staff role", 400
+        raise HTTPException(400, "Role has to be staff role")
     list = util.exec_query(
         conn,
         "select username, rowid, bio, profile_icon from users where role = :role",
@@ -90,15 +79,52 @@ def get_staff_role(role):
     return {"count": len(finale), "values": finale}
 
 
-@user.route("/staff/roles")
+@user.get("/staff/roles")
 def get_all_roles():
     return json.load(Path(config.DATA + "roles.json").open("r+"))
 
 
-@user.route("/<string:username>", methods=["GET"])
-def get_by_username(username):
+@user.get("/{username}")
+def get_by_username(username: str, request: Request):
     # TODO: mods can see banned users
     u = utilities.get_user.from_username(username)
+    if not u:
+        raise HTTPException(404, "User does not exist")
+
+    return_data = {
+        "username": u.username,
+        "id": u.id,
+        "role": u.role,
+        "bio": u.bio,
+        "profile_icon": u.profile_icon,
+        "badges": u.badges,
+        "join_date": u.join_date,
+    }
+
+    if request.headers.get("Authorization"):
+        usr = auth_util.authenticate(request.headers.get("Authorization"))
+        if usr == 32:
+            raise HTTPException(400, "Please make sure authorization type = Basic")
+        if usr == 33:
+            raise HTTPException(401, "Token Expired")
+
+        conn = util.make_connection()
+        followed = util.exec_query(
+            conn,
+            "select * from follows where follower = :fid and followed = :uid;",
+            fid=u.id,
+            uid=usr.id,
+        ).all()
+        if not followed:
+            return_data["followed"] = False
+        else:
+            return_data["followed"] = True
+
+    return return_data
+
+@user.get("/id/{id}")
+def get_user_by_id(id: int, request: Request):
+    u = utilities.get_user.from_id(id)
     if not u:
         return "User does not exist", 404
 
@@ -115,9 +141,9 @@ def get_by_username(username):
     if request.headers.get("Authorization"):
         usr = auth_util.authenticate(request.headers.get("Authorization"))
         if usr == 32:
-            return "Please make sure authorization type = Basic", 400
+            raise HTTPException(400, "Please make sure authorization type = Basic")
         if usr == 33:
-            return "Token Expired", 401
+            raise HTTPException(401, "Token Expired")
 
         conn = util.make_connection()
         followed = util.exec_query(
@@ -134,114 +160,72 @@ def get_by_username(username):
     return return_data
 
 
-@user.route("/id/<int:id>", methods=["GET", "PATCH"])
-def user_by_id(id):
+
+@user.patch("/id/{id}")
+def patch_user_by_id(id: int, request: Request, data: UserEditBody):
     # TODO: mods can see banned users
-    if request.method == "GET":
-        u = utilities.get_user.from_id(id)
-        if not u:
-            return "User does not exist", 404
+    usr = auth_util.authenticate(request.headers.get("Authorization"))
+    if usr == 32:
+        raise HTTPException(400, "Please make sure authorization type = Basic")
+    if usr == 33:
+        raise HTTPException(401, "Token Expired")
 
-        return_data = {
-            "username": u.username,
-            "id": u.id,
-            "role": u.role,
-            "bio": u.bio,
-            "profile_icon": u.profile_icon,
-            "badges": u.badges,
-            "join_date": u.join_date,
-        }
+    banned = util.get_user_ban_data(usr.id)
+    if banned is not None:
+        raise HTTPException(403, {
+            "banned": True,
+            "reason": banned["reason"],
+            "expires": banned["expires"],
+        })
 
-        if request.headers.get("Authorization"):
-            usr = auth_util.authenticate(request.headers.get("Authorization"))
-            if usr == 32:
-                return "Please make sure authorization type = Basic", 400
-            if usr == 33:
-                return "Token Expired", 401
+    if not (usr.id == id or usr.role in ["moderator", "admin"]):
+        return "You aren't allowed to edit this user!", 403
 
-            conn = util.make_connection()
-            followed = util.exec_query(
-                conn,
-                "select * from follows where follower = :fid and followed = :uid;",
-                fid=u.id,
-                uid=usr.id,
-            ).all()
-            if not followed:
-                return_data["followed"] = False
-            else:
-                return_data["followed"] = True
+    if len(data.username) > 32:
+        return "Username too long", 400
+    if len(data.bio) > 500:
+        return "Bio too long", 400
 
-        return return_data
-    elif request.method == "PATCH":
-        dat = request.get_json(force=True)
-
-        usr = auth_util.authenticate(request.headers.get("Authorization"))
-        if usr == 32:
-            return "Please make sure authorization type = Basic", 400
-        if usr == 33:
-            return "Token Expired", 401
-
-        banned = util.get_user_ban_data(usr.id)
-        if banned is not None:
-            return {
-                "banned": True,
-                "reason": banned["reason"],
-                "expires": banned["expires"],
-            }, 403
-
-        if not (usr.id == id or usr.role in ["moderator", "admin"]):
-            return "You aren't allowed to edit this user!", 403
-
-        if len(dat["username"]) > 32:
-            return "Username too long", 400
-        if len(dat["bio"]) > 500:
-            return "Bio too long", 400
-
-        conn = util.make_connection()
-        try:
+    conn = util.make_connection()
+    try:
+        util.exec_query(
+            conn,
+            "UPDATE users SET username = :name, bio = :bio where rowid = :id",
+            name=data.username,
+            bio=data.bio,
+            id=id,
+        )
+        if usr.role == "admin":
             util.exec_query(
                 conn,
-                "UPDATE users SET username = :name where rowid = :id",
-                name=dat["username"],
+                "UPDATE users SET role = :role where rowid = :id",
+                role=data.role,
                 id=id,
             )
-            util.exec_query(
-                conn,
-                "UPDATE users SET bio = :bio where rowid = :id",
-                bio=dat["bio"],
-                id=id,
+            utilities.weblogs.site_log(
+                usr.username,
+                "Edited user",
+                f"Edited user data of {data['username']}",
             )
-            if usr.role == "admin":
-                util.exec_query(
-                    conn,
-                    "UPDATE users SET role = :role where rowid = :id",
-                    role=dat["role"],
-                    id=id,
-                )
-                utilities.weblogs.site_log(
-                    usr.username,
-                    "Edited user",
-                    f"Edited user data of {dat['username']}",
-                )
-        except sqlite3.Error:
-            conn.rollback()
+    except sqlite3.Error:
+        conn.rollback()
 
-            return "Something went a little bit wrong"
-        conn.commit()
+        return "Something went a little bit wrong"
+    conn.commit()
 
-        return "done!"
+    return "done!"
 
 
-@user.route("/me")
-def get_self():
+@user.get("/me")
+def get_self(request: Request):
     if not request.headers.get("Authorization"):
-        return "Authorization required", 401
+        raise HTTPException(401, "Authentication Required")
 
     usr = auth_util.authenticate(request.headers.get("Authorization"))
     if usr == 32:
-        return "Please make sure authorization type = Basic", 400
+        raise HTTPException(400, "Please make sure authorization type = Basic")
     if usr == 33:
-        return "Token Expired", 401
+        raise HTTPException(401, "Token Expired")
 
     # User Data
     user_data = {
@@ -286,26 +270,23 @@ def get_self():
     return user_data
 
 
-@user.route("/me/log_out")
-def log_out_self():
+@user.get("/me/log_out")
+def log_out_self(request: Request):
     if not request.headers.get("Authorization"):
         return "You can't log yourself out if you're not logged in", 400
 
     usr = auth_util.authenticate(request.headers.get("Authorization"))
     if usr == 32:
-        return "Please make sure authorization type = Basic", 400
+        raise HTTPException(400, "Please make sure authorization type = Basic")
     if usr == 33:
-        return (
-            "Your token expired or you're already logged out, we don't know at this point",
-            401,
-        )
-
+        raise HTTPException(401, "Token Expired, or already logged out?")
+    
     auth_util.log_user_out(usr.id)
     return "Successfully signed out!"
 
 
-@user.route("/<string:username>/projects")
-def get_user_projects(username):
+@user.get("/{username}/projects")
+def get_user_projects(username: str, request: Request):
     conn = util.make_connection()
 
     # Check if user is authenticated
@@ -313,9 +294,9 @@ def get_user_projects(username):
     user = utilities.get_user.from_username(username)
     authed = auth_util.authenticate(t)
     if authed == 32:
-        return "Make sure authorization is basic!", 400
-    elif authed == 33:
-        return "Token expired!", 401
+        raise HTTPException(400, "Please make sure authorization type = Basic")
+    if authed == 33:
+        raise HTTPException(401, "Token Expired")
 
     if t:
         if authed.id == user.id:
@@ -334,7 +315,7 @@ def get_user_projects(username):
                 except:
                     conn.rollback()
 
-                    return "Something bad happened", 500
+                    raise HTTPException(500, "Something bad happened!") from None
 
                 out.append(temp)
 
@@ -355,7 +336,7 @@ def get_user_projects(username):
                 except:
                     conn.rollback()
 
-                    return "Something bad happened", 500
+                    raise HTTPException(500, "Something bad happened") from None
 
                 out.append(temp)
 
@@ -376,15 +357,15 @@ def get_user_projects(username):
             except:
                 conn.rollback()
 
-                return "Something bad happened", 500
+                raise HTTPException(500, "Something bad happened") from None
 
             out.append(temp)
 
         return {"count": len(out), "result": out}
 
 
-@user.route("/id/<int:id>/follow", methods=["POST"])
-def follow_user(id):
+@user.post("/id/{id}/follow")
+def follow_user(id: int, request: Request):
     if not request.headers.get("Authorization"):
         return "Authorization required", 401
 

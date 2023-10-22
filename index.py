@@ -1,8 +1,9 @@
 from pathlib import Path
 
-import flask
-from flask_compress import Compress
-from flask_cors import CORS
+import fastapi
+import uvicorn
+
+from fastapi.middleware import cors
 
 import config
 import gen_example_data
@@ -17,29 +18,42 @@ from routes.projects import projects
 from routes.user import user
 from routes.versions import versions
 
-app = flask.Flask(__name__)
-CORS(app)
-Compress(app)
+app = fastapi.FastAPI()
+
+origins = [
+    "http://datapackhub.net",
+    "https://files.datapackhub.net",
+    "https://raw.files.datapackhub.net",
+    "http://localhost",
+    "http://localhost:8080",
+]
+
+app.add_middleware(
+    cors.CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
-@app.route("/")
-def main():
+@app.get("/")
+async def main():
     return "I see you discovered our API 👀 why hello there"
 
 
-@app.after_request
 def after(response):
     response.headers["X-Robots-Tag"] = "noindex"
     return response
 
 
-app.register_blueprint(user)
-app.register_blueprint(auth)
-app.register_blueprint(projects)
-app.register_blueprint(versions)
-app.register_blueprint(mod)
-app.register_blueprint(notifs)
-app.register_blueprint(comments)
+app.include_router(user)
+# app.register_blueprint(auth)
+# app.register_blueprint(projects)
+# app.register_blueprint(versions)
+# app.register_blueprint(mod)
+# app.register_blueprint(notifs)
+# app.register_blueprint(comments)
 
 # Database things
 if not Path(config.DATA + "data.db").exists():
@@ -48,4 +62,5 @@ if not Path(config.DATA + "data.db").exists():
 # Run the app
 if __name__ == "__main__":
     debug_enabled = PROD == 0
-    app.run(debug=debug_enabled)
+    uvicorn.run("index:app", reload=True)
+    # app.run(debug=debug_enabled)

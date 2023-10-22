@@ -1,5 +1,7 @@
 from dataclasses import dataclass
 
+from pydantic import BaseModel
+
 
 @dataclass
 class User:
@@ -58,3 +60,9 @@ class Comment:
     author: int
     content: str
     replies: int
+
+class ReportData(BaseModel):
+    message: str
+    
+class FeaturedData(BaseModel):
+    expires: int

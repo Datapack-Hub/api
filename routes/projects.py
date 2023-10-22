@@ -9,31 +9,21 @@ import time
 import traceback
 
 import bleach
+from fastapi import APIRouter, HTTPException, Request
 import regex as re
-from flask import Blueprint, request
-from flask_cors import CORS
 from sqlalchemy import Engine, text
 
 import config
 import utilities.auth_utils
+from utilities.request_types import EditProjectBody, PostNewProjectBody
 import utilities.weblogs
 from utilities import files, get_user, util
-from utilities.commons import User
+from utilities.commons import FeaturedData, ReportData, User
 
-projects = Blueprint("projects", __name__, url_prefix="/projects")
-
-CORS(projects)
+projects = APIRouter(prefix="/projects", tags=["projects"])
 
 
-@projects.after_request
-def after(response):
-    header = response.headers
-    header["Access-Control-Allow-Credentials"] = "true"
-    # Other headers can be added here if needed
-    return response
-
-
-def parse_project(output: tuple, conn: Engine):
+def parse_project(output: tuple, conn: Engine, request: Request):
     this_user = utilities.auth_utils.authenticate(request.headers.get("Authorization"))
 
     latest_version = util.exec_query(
@@ -91,12 +81,9 @@ def parse_project(output: tuple, conn: Engine):
     return temp
 
 
-@projects.route("/search", methods=["GET"])
-def search_projects():
+@projects.get("/search")
+def search_projects(request: Request, query: str, page: int = 1, sort: str = "updated"):
     x = time.perf_counter()
-    query = request.args.get("query", "")
-    page = int(request.args.get("page", 1))
-    sort = request.args.get("sort", "updated")
 
     if len(query) > 75:
         return
@@ -127,7 +114,7 @@ def search_projects():
             limit=page * 20,
         ).all()
     else:
-        return "Unknown sorting method.", 400
+        raise HTTPException(400, "Invalid sort type")
 
     out = []
 
@@ -137,7 +124,7 @@ def search_projects():
         except:
             conn.rollback()
 
-            return "Something bad happened", 500
+            raise HTTPException(500, "Something bad happened") from None
 
         out.append(temp)
 
@@ -150,11 +137,8 @@ def search_projects():
     }
 
 
-@projects.route("/", methods=["GET"])
-def all_projects():
-    page = request.args.get("page", 1)
-    page = int(page)
-    sort = request.args.get("sort", "updated")
+@projects.get("/")
+def all_projects(page: int = 1, sort: str = "updated"):
 
     # SQL stuff
     conn = util.make_connection()
@@ -171,7 +155,7 @@ def all_projects():
             )
         ).all()
     else:
-        return "Unknown sorting method.", 400
+        raise HTTPException(400, "Invalid sort type")
 
     out = []
 
@@ -181,52 +165,52 @@ def all_projects():
         except:
             conn.rollback()
 
-            return "Something bad happened", 500
+            raise HTTPException(500, "Something Bad Happened") from None
 
         out.append(temp)
 
     return {"count": len(out), "result": out, "pages": str(math.ceil(len(r) / 20))}
 
 
-@projects.route("/id/<int:id>")
-def get_project_by_id(id):
+@projects.get("/id/{id}")
+def get_project_by_id(id: int, request: Request):
     conn = util.make_connection()
 
     this_user = utilities.auth_utils.authenticate(request.headers.get("Authorization"))
     if this_user == 32:
-        return "Make sure authorization is basic!", 400
-    elif this_user == 33:
-        return "Token expired!", 401
+        raise HTTPException(400, "Please make sure authorization type = Basic")
+    if this_user == 33:
+        raise HTTPException(401, "Token Expired")
 
     proj = util.exec_query(
         conn, "select rowid, * from projects where rowid = :id", id=id
     ).one_or_none()
 
     if proj is None:
-        return "Not found", 404
+        raise HTTPException(404, "Not found")
 
     if proj[8] in ["disabled", "draft", "unpublished", "review_queue", "publish_queue"]:
         if not this_user:
-            return "Not found", 404
+            raise HTTPException(404, "Not found")
         if (
             this_user == 31
             or proj[3] != this_user.id
             and this_user.role not in ["admin", "moderator"]
         ):
-            return "Not found", 404
+            raise HTTPException(404, "Not found")
 
     try:
         temp = parse_project(proj, conn)
     except:
         conn.rollback()
 
-        return "Something bad happened", 500
+        raise HTTPException(500, "Something Bad Happened!") from None
 
     return temp
 
 
-@projects.route("/get/<string:slug>")
-def get_project_by_slug(slug: str):
+@projects.get("/get/{slug}")
+def get_project_by_slug(slug: str, request: Request):
     # connect to the thingy
     conn = util.make_connection()
 
@@ -236,9 +220,9 @@ def get_project_by_slug(slug: str):
     # auth:
     this_user = utilities.auth_utils.authenticate(request.headers.get("Authorization"))
     if this_user == 32:
-        return "Make sure authorization is basic!", 400
-    elif this_user == 33:
-        return "Token expired!", 401
+        raise HTTPException(400, "Please make sure authorization type = Basic")
+    if this_user == 33:
+        raise HTTPException(401, "Token Expired")
 
     # gimme dat project and gtfo
     proj = util.exec_query(
@@ -247,27 +231,26 @@ def get_project_by_slug(slug: str):
 
     # hey u didn't give me a project, hate u
     if proj is None:
-        return "Not found", 404
+        raise HTTPException(404, "Not found")
 
     if proj[8] in ["disabled", "draft", "unpublished", "review_queue", "publish_queue"]:
         if not this_user or this_user == 31:
-            return "Not found", 404
+            raise HTTPException(404, "Not found")
         if proj[2] != this_user.id and this_user.role not in ["admin", "moderator"]:
-            return "Not found", 404
+            raise HTTPException(404, "Not found")
 
     try:
         temp = parse_project(proj, conn)
     except:
         conn.rollback()
 
-        return "Something bad happened", 500
+        raise HTTPException(500, "Something bad happened") from None
 
     return temp
 
 
-@projects.route("/random")
-def random_project():
-    count = request.args.get("count", 1)
+@projects.get("/random")
+def random_project(count: int = 1):
 
     conn = util.make_connection()
     proj = util.exec_query(
@@ -297,19 +280,19 @@ def count():
     return {"count": x}
 
 
-@projects.route("/create", methods=["POST"])
-def create_new_project():
+@projects.post("/create")
+def create_new_project(request: Request, data: PostNewProjectBody):
     # Check authentication
     tok = request.headers.get("Authorization")
 
     if not tok:
-        return "Not authenticated! You gotta log in first :P", 401
+        raise HTTPException(401, "Not Authed")
 
     user = utilities.auth_utils.authenticate(tok)
     if user == 32:
-        return "Make sure authorization is basic!", 400
-    elif user == 33:
-        return "Token expired!", 401
+        raise HTTPException(400, "Please make sure authorization type = Basic")
+    if user == 33:
+        raise HTTPException(401, "Token Expired")
 
     banned = util.get_user_ban_data(user.id)
     if banned is not None:
@@ -319,39 +302,27 @@ def create_new_project():
             "expires": banned["expires"],
         }, 403
 
-    data = request.get_json(force=True)
-
-    try:
-        data["type"]
-        data["url"]
-        data["title"]
-        data["description"]
-        data["body"]
-        data["category"]
-    except KeyError:
-        return "Missing field", 400
-
-    if data["type"] not in config.valid_types:
+    if data.type not in config.valid_types:
         return f"Type {bleach.clean(data['type'])} is not a valid type! Acceptable content types: {config.valid_types}"
 
-    if len(data["title"]) > 50:
-        return "Title exceeds max length!", 400
+    if len(data.title) > 50:
+        raise HTTPException(400, "Title too long")
 
-    if len(data["description"]) > 200:
-        return "Description exceeds max length", 400
+    if len(data.description) > 200:
+        raise HTTPException(400, "Description too long")
 
-    if len(data["category"]) > 3:
-        return "Categories exceed 3", 400
+    if len(data.category) > 3:
+        raise HTTPException(400, "Categories too long")
 
-    if len(data["url"]) > 50 and not re.match(r"^[a-z0-9]+(?:-[a-z0-9]+)*$"):
-        return "Slug is invalid!", 400
+    if len(data.url) > 50 and not re.match(r"^[a-z0-9]+(?:-[a-z0-9]+)*$"):
+        raise HTTPException(400, "Slug invalid")
 
-    if not re.match(r'^[\w!@$()`.+,"\-\']{3,64}$', data["url"]):
-        return "URL is invalid!", 400
+    if not re.match(r'^[\w!@$()`.+,"\-\']{3,64}$', data.url):
+        raise HTTPException(400, "URL invalid")
 
     if data.get("icon"):
         icon = files.upload_file(
-            data["icon"],
+            data.icon,
             f"icons/{secrets.randbelow(999999)!s}.avif",
             user.username,
             True,
@@ -385,13 +356,13 @@ def create_new_project():
                         :uploaded,
                         :updated,
                         :icon)""",
-            type=data["type"],
+            type=data.type,
             id=user.id,
-            title=data["title"],
-            desc=data["description"],
-            body=data["body"],
+            title=data.title,
+            desc=data.description,
+            body=data.body,
             categories=cat_str,
-            url=data["url"],
+            url=data.url,
             uploaded=str(int(time.time())),
             updated=str(int(time.time())),
             icon=icon,
@@ -419,13 +390,13 @@ def create_new_project():
                         'unpublished',
                         :uploaded,
                         :updated)""",
-            type=data["type"],
+            type=data.type,
             id=user.id,
-            title=data["title"],
-            desc=data["description"],
-            body=data["body"],
+            title=data.title,
+            desc=data.description,
+            body=data.body,
             categories=cat_str,
-            url=data["url"],
+            url=data.url,
             uploaded=str(int(time.time())),
             updated=str(int(time.time())),
         )
@@ -433,19 +404,19 @@ def create_new_project():
     return "done", 200
 
 
-@projects.route("/edit/<int:id>", methods=["POST"])
-def edit_project(id: int):
+@projects.post("/edit/{id}")
+def edit_project(id: int, request: Request, data: EditProjectBody):
     # Check authentication
     tok = request.headers.get("Authorization")
 
     if not tok:
-        return "Not authenticated! You gotta log in first :P", 401
+        raise HTTPException(401, "Not authed")
 
     user = utilities.auth_utils.authenticate(tok)
     if user == 32:
-        return "Make sure authorization is basic!", 400
-    elif user == 33:
-        return "Token expired!", 401
+        raise HTTPException(400, "Please make sure authorization type = Basic")
+    if user == 33:
+        raise HTTPException(401, "Token Expired")
 
     banned = util.get_user_ban_data(user.id)
     if banned is not None:
@@ -459,33 +430,23 @@ def edit_project(id: int):
         util.user_owns_project(project=id, author=user.id)
         or user.role in ["admin", "moderator"]
     ):
-        return "You don't have permission to edit this project. ", 403
+        raise HTTPException(403, "You don't have permission to edit this project. ")
 
-    data = request.get_json(force=True)
+    if len(data.title) > 50:
+        raise HTTPException(400, "Title too long")
 
-    try:
-        data["title"]
-        data["description"]
-        data["body"]
-        data["category"]
-    except KeyError:
-        return "Missing field", 400
+    if len(data.description) > 200:
+        raise HTTPException(400, "Description too long")
 
-    if len(data["title"]) > 50:
-        return "Title exceeds max length!", 400
-
-    if len(data["description"]) > 200:
-        return "Description exceeds max length", 400
-
-    if len(data["category"]) > 3:
-        return "Categories exceed 3", 400
+    if len(data.category) > 3:
+        raise HTTPException(400, "Categories too long")
 
     if data.get("icon"):
         icon = files.upload_file(
-            data["icon"],
+            data.icon,
             f"icons/{secrets.randbelow(999999)!s}.avif",
             user.username,
-            True,
+            is_icon=True,
         )
 
     # Update database
@@ -504,9 +465,9 @@ def edit_project(id: int):
                 category = :cat,
                 icon = :icon 
                 where rowid = :id""",
-                title=data["title"],
-                desc=data["description"],
-                body=data["body"],
+                title=data.title,
+                desc=data.description,
+                body=data.body,
                 cat=cat_str,
                 icon=icon,
                 id=id,
@@ -520,17 +481,17 @@ def edit_project(id: int):
                 body = :body,
                 category = :cat
                 where rowid = :id""",
-                title=data["title"],
-                desc=data["description"],
-                body=data["body"],
+                title=data.title,
+                desc=data.description,
+                body=data.body,
                 cat=cat_str,
                 id=id,
             )
-    except sqlite3.Error:
+    except sqlite3.Error as err:
         conn.rollback()
 
         utilities.weblogs.error("Error updating project", traceback.format_exc())
-        return "Something went wrong.", 500
+        raise HTTPException(500, "Something went wrong.") from err
 
     conn.commit()
 
@@ -539,20 +500,20 @@ def edit_project(id: int):
             user.username, "Edited project", f"Edited the project {data['title']}"
         )
 
-    return "done", 200
+    return "done"
 
 
-@projects.route("/id/<int:id>/publish", methods=["POST"])
-def publish(id):
+@projects.post("/id/{id}/publish")
+def publish(id: int, request: Request):
     tok = request.headers.get("Authorization")
     if not tok:
-        return "Not authenticated! You gotta log in first :P", 401
+        raise HTTPException(401, "Not Authed")
 
     user = utilities.auth_utils.authenticate(tok)
     if user == 32:
-        return "Make sure authorization is basic!", 400
+        raise HTTPException(400, "Please make sure authorization type = Basic")
     elif user == 33:
-        return "Token expired!", 401
+        raise HTTPException(401, "Token Expired")
 
     conn = util.make_connection()
     proj = util.exec_query(
@@ -562,10 +523,10 @@ def publish(id):
     ).one_or_none()
 
     if proj is None:
-        return "Project not found.", 404
+        raise HTTPException(404, "Project not found")
 
     if proj[0] != user.id:
-        return "Not your project.", 403
+        raise HTTPException(403, "Not your project")
 
     # now onto the fun stuff >:)
     if proj[1] == "unpublished":
@@ -578,7 +539,7 @@ def publish(id):
         conn.commit()
 
         utilities.weblogs.in_queue(proj[2], proj[3], proj[4], proj[0], proj[5])
-        return "The project is now in the publish queue.", 200
+        return "The project is now in the publish queue."
     elif proj[1] == "draft":  # why this?
         util.exec_query(
             conn, "update projects set status = 'live' where rowid = :id", id=id
@@ -586,7 +547,7 @@ def publish(id):
 
         conn.commit()
 
-        return "The project is now live.", 200
+        return "The project is now live."
     elif proj[1] == "disabled":
         util.exec_query(
             conn, "update projects set status = 'review_queue' where rowid = :id", id=id
@@ -595,35 +556,35 @@ def publish(id):
         conn.commit()
 
         utilities.weblogs.in_queue(proj[2], proj[3], proj[4], proj[0], proj[5])
-        return "The project is now in the review queue.", 200
+        return "The project is now in the review queue."
     else:
-        return "This project is not in a valid state to be published!", 400
+        raise HTTPException(400, "Not in a valid state to be published")
 
 
-@projects.route("/id/<int:id>/draft", methods=["POST"])
-def draft(id):
+@projects.post("/id/{id}/draft")
+def draft(id: int, request: Request):
     tok = request.headers.get("Authorization")
     if not tok:
-        return "Not authenticated! You gotta log in first :P", 401
+        raise HTTPException(401, "Not Authed")
 
     user = utilities.auth_utils.authenticate(tok)
     if user == 32:
-        return "Make sure authorization is basic!", 400
+        raise HTTPException(400, "Please make sure authorization type = Basic")
     elif user == 33:
-        return "Token expired!", 401
+        raise HTTPException(401, "Token Expired")
 
     conn = util.make_connection()
     proj = util.exec_query(
-        conn, "select author, status from projects where rowid = :id", id=id
+        conn,
+        "select author, status from projects where rowid = :id",
+        id=id,
     ).one_or_none()
 
-    if not proj:
-        return "Project not found.", 404
-
-    proj = proj[0]
+    if proj is None:
+        raise HTTPException(404, "Project not found")
 
     if proj[0] != user.id:
-        return "Not your project.", 403
+        raise HTTPException(403, "Not your project")
 
     # now onto the fun stuff >:)
     if proj[1] == "live":
@@ -633,22 +594,22 @@ def draft(id):
 
         conn.commit()
 
-        return "The project is now drafted.", 200
+        return "The project is now drafted."
     else:
-        return "This project is not in a valid state to be drafted!", 400
+        raise HTTPException(400, "Not in a valid draft state")
 
 
-@projects.route("/id/<int:id>/report", methods=["POST"])
-def report(id):
+@projects.post("/id/{id}/report")
+def report(id: int, request: Request, report_data: ReportData):
     tok = request.headers.get("Authorization")
     if not tok:
-        return "Not authenticated! You gotta log in first :P", 401
+        raise HTTPException(401, "Not Authed")
 
     user = utilities.auth_utils.authenticate(tok)
     if user == 32:
-        return "Make sure authorization is basic!", 400
+        raise HTTPException(400, "Please make sure authorization type = Basic")
     elif user == 33:
-        return "Token expired!", 401
+        raise HTTPException(401, "Token Expired")
 
     conn = util.make_connection()
     proj = util.exec_query(
@@ -656,39 +617,32 @@ def report(id):
     ).all()
 
     if not proj:
-        return "Project not found.", 404
-
-    report_data = request.get_json(force=True)
+        raise HTTPException(404, "Project not found")
 
     # now onto the fun stuff >:)
-    try:
-        report_data["message"]
-    except KeyError:
-        return "Please provide a `message` field."
-    else:
-        util.exec_query(
-            conn,
-            "insert into reports values (:msg, :uid, :pid)",
-            msg=report_data["message"],
-            uid=user.id,
-            pid=id,
-        )
-        conn.commit()
+    util.exec_query(
+        conn,
+        "insert into reports values (:msg, :uid, :pid)",
+        msg=report_data["message"],
+        uid=user.id,
+        pid=id,
+    )
+    conn.commit()
 
-        return "didded", 200
+    return "didded"
 
 
-@projects.route("/id/<int:id>/remove", methods=["POST"])
-def remove(id):
+@projects.post("/id/{id}/remove")
+def remove(id: int, request: Request):
     tok = request.headers.get("Authorization")
     if not tok:
-        return "Not authenticated! You gotta log in first :P", 401
+        raise HTTPException(401, "Not Authed")
 
     user = utilities.auth_utils.authenticate(tok)
     if user == 32:
-        return "Make sure authorization is basic!", 400
+        raise HTTPException(400, "Please make sure authorization type = Basic")
     elif user == 33:
-        return "Token expired!", 401
+        raise HTTPException(401, "Token Expired")
 
     conn = util.make_connection()
     proj = util.exec_query(
@@ -696,12 +650,12 @@ def remove(id):
     ).all()
 
     if not proj:
-        return "Project not found.", 404
+        raise HTTPException(404, "Project not found")
 
     proj = proj[0]
 
     if proj[0] != user.id and user.role not in ["admin", "moderator"]:
-        return "Not your project.", 403
+        raise HTTPException(403, "Not your project")
 
     # now onto the fun stuff >:)
     if proj[1] != "deleted":
@@ -711,16 +665,16 @@ def remove(id):
 
         conn.commit()
 
-        return "The project is now deleted.", 200
+        return "The project is now deleted."
     else:
-        return "This project is not in a valid state to be deleted!", 400
+        raise HTTPException(400, "Project is not in a valid state to be deleted")
 
 
-@projects.route("/id/<int:id>/download", methods=["POST"])
-def download(id):
+@projects.post("/id/{id}/download")
+def download(id: int, request: Request):
     tok = request.headers.get("Authorization")
     if tok != "ThisIsVeryLegitComeFromCDNNotSpoofedBroTrustMe12":
-        return "This is a private route!", 403
+        raise HTTPException(403, "This route is private")
 
     conn = util.make_connection()
     proj = util.exec_query(
@@ -728,7 +682,7 @@ def download(id):
     ).one_or_none()
 
     if not proj:
-        return "Project not found.", 404
+        raise HTTPException(404, "Project not found")
 
     util.exec_query(
         conn, "update projects set downloads = downloads + 1 where rowid = :id", id=id
@@ -736,28 +690,24 @@ def download(id):
 
     conn.commit()
 
-    return "Incremented download counter.", 200
+    return "Incremented download counter."
 
 
-@projects.route("/id/<int:id>/feature", methods=["POST"])
-def feature(id):
+@projects.post("/id/{id}/feature")
+def feature(id: int, request: Request, dat: FeaturedData):
     # Authenticate
     tok = request.headers.get("Authorization")
     if not tok:
-        return "Not authenticated! You gotta log in first :P", 401
+        raise HTTPException(401, "Not Authed")
+
     user = utilities.auth_utils.authenticate(tok)
     if user == 32:
-        return "Make sure authorization is basic!", 400
+        raise HTTPException(400, "Please make sure authorization type = Basic")
     elif user == 33:
-        return "Token expired!", 401
+        raise HTTPException(401, "Token Expired")
+    
     if user.role not in ["admin", "moderator"]:
-        return "You don't have permission to do this", 403
-
-    dat = request.get_json(force=True)
-    try:
-        dat["expires"]
-    except KeyError:
-        return "Expiry parameter missing", 400
+        raise HTTPException(403, "No permission!")
 
     # Validate project
     conn = util.make_connection()
@@ -766,13 +716,13 @@ def feature(id):
     ).all()
 
     if not proj:
-        return "Project not found.", 404
+        raise HTTPException(404, "Project not found!")
 
     proj = proj[0]
 
     # now onto the fun stuff >:)
     if proj[1] != "live":
-        return "This project is not in a valid state to be featured!", 400
+        raise HTTPException(400, "Not in a valid state ot be featured")
 
     current = time.time()
     expiry = current + (86400 * dat["expires"])
@@ -784,10 +734,10 @@ def feature(id):
             expiry=expiry,
             id=id,
         )
-    except sqlite3.Error:
+    except sqlite3.Error as err:
         conn.rollback()
 
-        return "There was an error."
+        raise HTTPException(500, "There was an error") from err
     else:
         util.exec_query(
             conn,
@@ -825,8 +775,8 @@ def featured():
             except:
                 conn.rollback()
 
-                return "Something bad happened", 500
+                raise HTTPException(500, "Something bad happened") from None
 
             out.append(temp)
 
-    return {"result": out, "count": proj.__len__()}
+    return {"result": out, "count": len(proj)}
