@@ -27,3 +27,8 @@ class EditProjectBody(BaseModel):
     body: str
     category: List[str]
     icon: str = None
+
+class SendNotifBody(BaseModel):
+    message: str
+    description: str
+    type: str

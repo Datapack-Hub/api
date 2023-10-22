@@ -4,27 +4,28 @@
 
 import sqlite3
 
-from flask import Blueprint, request
+from fastapi import APIRouter, HTTPException, Request
 
 import utilities.auth_utils
+from utilities.request_types import SendNotifBody
 import utilities.weblogs
 from utilities import util
 
-notifs = Blueprint("notifications", __name__, url_prefix="/notifs")
+notifs = APIRouter("notifications", __name__, url_prefix="/notifs")
 
 
-@notifs.route("/")
-def get_all_notifs():
+@notifs.get("/")
+def get_all_notifs(request: Request):
     if not request.headers.get("Authorization"):
-        return "Authorization required", 401
+        raise HTTPException(401, "Token required!")
 
     usr = utilities.auth_utils.authenticate(request.headers.get("Authorization"))
 
     if usr == 32:
-        return "Please make sure authorization type = Basic", 400
+        raise HTTPException(400, "Please make sure authorization type = Basic")
 
     if usr == 33:
-        return "Token Expired", 401
+        raise HTTPException(401, "Token Expired")
 
     conn = util.make_connection()
     notifs = util.exec_query(
@@ -50,18 +51,18 @@ def get_all_notifs():
     return {"count": len(res), "result": res}
 
 
-@notifs.route("/unread")
-def get_unread_notifs():
+@notifs.get("/unread")
+def get_unread_notifs(request: Request):
     if not request.headers.get("Authorization"):
-        return "Authorization required", 401
+        raise HTTPException(401, "Authorization required")
 
     usr = utilities.auth_utils.authenticate(request.headers.get("Authorization"))
 
     if usr == 32:
-        return "Please make sure authorization type = Basic", 400
+        raise HTTPException(400, "Please make sure authorization type = Basic")
 
     if usr == 33:
-        return "Token Expired", 401
+        raise HTTPException(401, "Token Expired")
 
     notifs = util.commit_query(
         "select rowid, message, description, read, type from notifs where user = :id and read = 0 order by rowid desc",
@@ -76,56 +77,60 @@ def get_unread_notifs():
     return {"count": len(res), "result": res}
 
 
-@notifs.route("/send/<int:target>", methods=["POST"])
-def send_notif(target):
+@notifs.post("/send/{target}")
+def send_notif(target: int, request: Request, notif_data: SendNotifBody):
     if not request.headers.get("Authorization"):
-        return "Authorization required", 401
+        raise HTTPException(401, "Authorization required")
 
     usr = utilities.auth_utils.authenticate(request.headers.get("Authorization"))
+
     if usr == 32:
-        return "Please make sure authorization type = Basic", 400
+        raise HTTPException(400, "Please make sure authorization type = Basic")
+
     if usr == 33:
-        return "Token Expired", 401
+        raise HTTPException(401, "Token Expired")
 
     if usr.role not in ["admin", "developer", "moderator", "helper"]:
-        return "You are not allowed to do this!", 403
-
-    notif_data = request.get_json(force=True)
-
+        raise HTTPException(403, "No permission")
+    
     conn = util.make_connection()
     try:
         util.exec_query(
             conn,
             "INSERT INTO notifs VALUES (:title, :msg, False, :type, :target)",
-            title=notif_data["message"],
-            msg=notif_data["description"],
-            type=notif_data["type"],
+            title=notif_data.message,
+            msg=notif_data.description,
+            type=notif_data.type,
             target=target,
         )
     except sqlite3.Error as er:
         conn.rollback()
 
-        return "There was a problem: ".join(er.args), 500
+        raise HTTPException(500, "There was a problem: ".join(er.args)) from er
 
     conn.commit()
 
     utilities.weblogs.site_log(
         usr.username,
         "Sent a notification",
-        f"Sent a `{notif_data['type']}` notification to `{target}`",
+        f"Sent a `{notif_data.type}` notification to `{target}`",
     )
 
-    return "Successfully warned user!", 200
+    return "Successfully warned user!"
 
 
-@notifs.route("/delete/<int:id>", methods=["DELETE"])
-def delete_notif(id):
+@notifs.route("/delete/{id}", methods=["DELETE"])
+def delete_notif(id: int, request: Request):
+    if not request.headers.get("Authorization"):
+        raise HTTPException(401, "Authorization required")
+
     usr = utilities.auth_utils.authenticate(request.headers.get("Authorization"))
+
     if usr == 32:
-        return "Please make sure authorization type = Basic", 400
+        raise HTTPException(400, "Please make sure authorization type = Basic")
 
     if usr == 33:
-        return "Token Expired", 401
+        raise HTTPException(401, "Token Expired")
 
     conn = util.make_connection()
     notif = util.exec_query(
@@ -133,13 +138,13 @@ def delete_notif(id):
     ).one()
 
     if usr.id != notif[0]:
-        return "Not your notif!", 403
+        raise HTTPException(403, "Not your notif")
     try:
         util.exec_query(conn, "DELETE FROM notifs WHERE rowid = :id", id=id)
         conn.commit()
-    except sqlite3.Error:
+    except sqlite3.Error as err:
         conn.rollback()
 
-        return "Something bad happened", 500
+        raise HTTPException(500, "Something bad happened") from err
     else:
         return "worked fine"
