@@ -61,8 +61,10 @@ class Comment:
     content: str
     replies: int
 
+
 class ReportData(BaseModel):
     message: str
-    
+
+
 class FeaturedData(BaseModel):
     expires: int

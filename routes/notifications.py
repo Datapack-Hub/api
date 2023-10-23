@@ -92,7 +92,7 @@ def send_notif(target: int, request: Request, notif_data: SendNotifBody):
 
     if usr.role not in ["admin", "developer", "moderator", "helper"]:
         raise HTTPException(403, "No permission")
-    
+
     conn = util.make_connection()
     try:
         util.exec_query(

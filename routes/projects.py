@@ -139,7 +139,6 @@ def search_projects(request: Request, query: str, page: int = 1, sort: str = "up
 
 @projects.get("/")
 def all_projects(page: int = 1, sort: str = "updated"):
-
     # SQL stuff
     conn = util.make_connection()
     if sort == "updated":
@@ -251,7 +250,6 @@ def get_project_by_slug(slug: str, request: Request):
 
 @projects.get("/random")
 def random_project(count: int = 1):
-
     conn = util.make_connection()
     proj = util.exec_query(
         conn,
@@ -705,7 +703,7 @@ def feature(id: int, request: Request, dat: FeaturedData):
         raise HTTPException(400, "Please make sure authorization type = Basic")
     elif user == 33:
         raise HTTPException(401, "Token Expired")
-    
+
     if user.role not in ["admin", "moderator"]:
         raise HTTPException(403, "No permission!")
 

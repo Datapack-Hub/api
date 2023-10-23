@@ -22,9 +22,11 @@ from utilities import util
 ADMINS = ["Silabear", "Flynecraft", "HoodieRocks"]
 user = APIRouter(prefix="/user", tags=["users"])
 
+
 @user.get("/badges/{id}")
 def get_badge_by_id(id: int):
     return {"badges": utilities.get_user.from_id(id).badges}
+
 
 @user.patch("/badges/{id}")
 async def patch_user_badges(body: BadgesJsonBody, id: int, request: Request):
@@ -122,6 +124,7 @@ def get_by_username(username: str, request: Request):
 
     return return_data
 
+
 @user.get("/id/{id}")
 def get_user_by_id(id: int, request: Request):
     u = utilities.get_user.from_id(id)
@@ -160,7 +163,6 @@ def get_user_by_id(id: int, request: Request):
     return return_data
 
 
-
 @user.patch("/id/{id}")
 def patch_user_by_id(id: int, request: Request, data: UserEditBody):
     # TODO: mods can see banned users
@@ -172,11 +174,14 @@ def patch_user_by_id(id: int, request: Request, data: UserEditBody):
 
     banned = util.get_user_ban_data(usr.id)
     if banned is not None:
-        raise HTTPException(403, {
-            "banned": True,
-            "reason": banned["reason"],
-            "expires": banned["expires"],
-        })
+        raise HTTPException(
+            403,
+            {
+                "banned": True,
+                "reason": banned["reason"],
+                "expires": banned["expires"],
+            },
+        )
 
     if not (usr.id == id or usr.role in ["moderator", "admin"]):
         return "You aren't allowed to edit this user!", 403
@@ -280,7 +285,7 @@ def log_out_self(request: Request):
         raise HTTPException(400, "Please make sure authorization type = Basic")
     if usr == 33:
         raise HTTPException(401, "Token Expired, or already logged out?")
-    
+
     auth_util.log_user_out(usr.id)
     return "Successfully signed out!"
 

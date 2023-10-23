@@ -7,11 +7,13 @@ from typing import List
 class BadgesJsonBody(BaseModel):
     badges: List[str]
 
+
 class UserEditBody(BaseModel):
     username: str
     bio: str
     role: str = None
-    
+
+
 class PostNewProjectBody(BaseModel):
     type: str
     url: str
@@ -21,6 +23,7 @@ class PostNewProjectBody(BaseModel):
     category: List[str]
     icon: str = None
 
+
 class EditProjectBody(BaseModel):
     title: str
     description: str
@@ -28,10 +31,12 @@ class EditProjectBody(BaseModel):
     category: List[str]
     icon: str = None
 
+
 class SendNotifBody(BaseModel):
     message: str
     description: str
     type: str
+
 
 class ConsoleBody(BaseModel):
     command: str

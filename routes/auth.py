@@ -59,7 +59,8 @@ def callback_gh(code: str):
     t = utilities.auth_utils.get_user_token(github["id"])
 
     if not t:
-        raise HTTPException(500,
+        raise HTTPException(
+            500,
             "Something went wrong, but I can't actually be bothered to figure out why this error would ever be needed, because we already check if the user exists. For that reason, just assume that you broke something and it can never be fixed.",
         )
 
@@ -126,7 +127,8 @@ def callback_dc(code: str):
     t = utilities.auth_utils.get_user_token_from_discord_id(discord["id"])
 
     if not t:
-        raise HTTPException(500,
+        raise HTTPException(
+            500,
             "Something went wrong, but I can't actually be bothered to figure out why this error would ever be needed, because we already check if the user exists. For that reason, just assume that you broke something and it can never be fixed.",
         )
 
