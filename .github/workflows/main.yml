@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - master
+      - fastapi-refactor
   workflow_dispatch:
 permissions:
   contents: write
