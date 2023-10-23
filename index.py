@@ -3,6 +3,7 @@ from pathlib import Path
 import flask
 from flask_compress import Compress
 from flask_cors import CORS
+import waitress
 
 import config
 import gen_example_data
@@ -48,4 +49,4 @@ if not Path(config.DATA + "data.db").exists():
 # Run the app
 if __name__ == "__main__":
     debug_enabled = PROD == 0
-    app.run(debug=debug_enabled)
+    waitress.create_server(app).run()
