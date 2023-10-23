@@ -10,15 +10,15 @@ from datetime import date
 from pathlib import Path
 
 import bleach
+from fastapi import APIRouter, Request
 import requests
 import sqlalchemy.exc
-from flask import Blueprint, request
-from flask_cors import CORS
 from sqlalchemy import text
 
 import config
 import gen_example_data
 import utilities.auth_utils
+from utilities.request_types import ConsoleBody
 import utilities.weblogs
 from utilities import get_user, util
 
@@ -48,16 +48,13 @@ def is_perm_level(token: str, perm_levels: list[str]):
     return user
 
 
-mod = Blueprint("mod", __name__, url_prefix="/moderation")
-
-CORS(mod, supports_credentials=True)
+mod = APIRouter(prefix="/moderation", tags=["mod"])
 
 
-@mod.route("/console", methods=["POST"])
-def console():
-    data = json.loads(request.data)
-    full = data["command"]
-    args = shlex.split(data["command"])
+@mod.post("/console")
+def console(data: ConsoleBody, request: Request):
+    full = data.command
+    args = shlex.split(full)
     cmd = args[0]
 
     del args[0]

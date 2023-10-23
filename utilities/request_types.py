@@ -32,3 +32,6 @@ class SendNotifBody(BaseModel):
     message: str
     description: str
     type: str
+
+class ConsoleBody(BaseModel):
+    command: str
