@@ -9,4 +9,4 @@ regex==2023.10.3
 Requests==2.31.0
 SQLAlchemy==2.0.22
 waitress==2.1.2
-Werkzeug==3.0.0
+Werkzeug==3.0.1
