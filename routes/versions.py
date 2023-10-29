@@ -2,6 +2,8 @@
 **Versions API endpoints**
 """
 
+import ast
+from distutils.version import StrictVersion
 import sqlite3
 import time
 from urllib.parse import quote
@@ -161,19 +163,18 @@ def new(project: int):
 
     # now do the stuff
     data = request.form
+    file_data = request.files
 
     try:
         data["name"]
         data["description"]
         data["minecraft_versions"]
         data["version_code"]
-        data["primary_download"]
+        file_data["primary_download"]
         data["filename"]
-    except BadRequestKeyError as ex:
-        return f"Error:  {' '.join(ex.args)}"
-    except:
+    except KeyError as ex:
         return (
-            "Make sure you provide name, description, minecraft_versions, version_code, primary_download, filename and optionally resource_pack_download",
+            f"Make sure you provide {', '.join(ex.args)}",
             400,
         )
     else:
@@ -189,16 +190,17 @@ def new(project: int):
         sq = bool("squash" in data and data["squash"] is True)
 
         dpath = files.upload_zipfile(
-            data["primary_download"],
+            file_data["primary_download"],
             f"project/{project}/{quote(data['version_code'])}/{quote(data['filename'])}",
             usr.username,
             sq,
         )
 
-        sorted_versions = sorted(data["minecraft_versions"], key=util.custom_sort_key)
+        parsed_versions: list = ast.literal_eval(data["minecraft_versions"])
+        parsed_versions.sort(key=StrictVersion)
 
         try:
-            data["resource_pack_download"]
+            data["v_rp"]
         except BadRequestKeyError:
             util.commit_query(
                 """INSERT INTO versions(
@@ -212,14 +214,14 @@ def new(project: int):
                 name=data["name"],
                 desc=data["description"],
                 path=dpath,
-                mcv=",".join(sorted_versions),
+                mcv=",".join(parsed_versions),
                 vc=data["version_code"],
                 project=project,
             )
         else:
-            if data["resource_pack_download"] != "":
+            if data["v_rp"] != "":
                 rpath = files.upload_zipfile(
-                    data["resource_pack_download"],
+                    file_data["v_rp"],
                     f"project/{project}/{quote(data['version_code'])}/resourcepack-{quote(data['filename'])}",
                     usr.username,
                 )
@@ -237,7 +239,7 @@ def new(project: int):
                     desc=data["description"],
                     dpath=dpath,
                     rpath=rpath,
-                    mcv=",".join(sorted_versions),
+                    mcv=",".join(parsed_versions),
                     vc=data["version_code"],
                     project=project,
                 )
@@ -254,7 +256,7 @@ def new(project: int):
                     name=data["name"],
                     desc=data["description"],
                     path=dpath,
-                    mcv=",".join(data["minecraft_versions"]),
+                    mcv=",".join(parsed_versions),
                     vc=data["version_code"],
                     project=project,
                 )

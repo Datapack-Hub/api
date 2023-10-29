@@ -49,4 +49,7 @@ if not Path(config.DATA + "data.db").exists():
 # Run the app
 if __name__ == "__main__":
     debug_enabled = PROD == 0
-    waitress.create_server(app).run()
+    if debug_enabled:
+        app.run()
+    else:
+        waitress.serve(app)

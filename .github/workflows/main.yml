@@ -24,10 +24,10 @@ jobs:
           check-latest: true
       - name: Install black
         run: |
-          pip install black 
+          pip install ruff 
       - name: Run black
         run: |
-          black --fast -t py311 . 
+          ruff format . --targetversion py39 
       - uses: stefanzweifel/git-auto-commit-action@v4.16.0
         with:
           commit_message: "Apply formatting"

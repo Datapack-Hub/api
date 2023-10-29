@@ -10,6 +10,9 @@ from pathlib import Path
 from urllib.parse import quote
 from zipfile import ZipFile
 
+from werkzeug.datastructures import FileStorage
+from werkzeug.utils import secure_filename
+
 # ignore because pillow is weird
 import pillow_avif  # noqa: F401
 import requests
@@ -19,15 +22,16 @@ import config
 from utilities import util
 
 
-def upload_zipfile(file: str, file_name: str, uploader: str, squash: bool = False):
+def upload_zipfile(unsafe_file: FileStorage, file_name: str, uploader: str, squash: bool = False):
     # decoded = base64.b64decode(file.split(",")[1].encode("unicode_escape"))
-    zip_path = Path(config.DATA + "Temporary.zip")
-    folder_path = Path(config.DATA + "Temporary")
-
-    zip_path.write_bytes(file)
+    file = secure_filename(unsafe_file.filename).split(".")[0]
+    zip_path = Path(config.DATA + f"{file}-Temporary.zip")
+    folder_path = Path(config.DATA + f"{file}-Temporary")
+    
+    unsafe_file.save(zip_path)
 
     if folder_path.exists():
-        shutil.rmtree(config.DATA + "Temporary")
+        shutil.rmtree(folder_path)
     folder_path.mkdir(parents=True, exist_ok=True)
 
     if squash:
