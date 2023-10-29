@@ -20,11 +20,11 @@ from utilities import util
 
 
 def upload_zipfile(file: str, file_name: str, uploader: str, squash: bool = False):
-    decoded = base64.b64decode(file.split(",")[1].encode("unicode_escape"))
+    # decoded = base64.b64decode(file.split(",")[1].encode("unicode_escape"))
     zip_path = Path(config.DATA + "Temporary.zip")
     folder_path = Path(config.DATA + "Temporary")
 
-    zip_path.write_bytes(decoded)
+    zip_path.write_bytes(file)
 
     if folder_path.exists():
         shutil.rmtree(config.DATA + "Temporary")
