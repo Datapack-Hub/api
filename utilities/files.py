@@ -22,12 +22,14 @@ import config
 from utilities import util
 
 
-def upload_zipfile(unsafe_file: FileStorage, file_name: str, uploader: str, squash: bool = False):
+def upload_zipfile(
+    unsafe_file: FileStorage, file_name: str, uploader: str, squash: bool = False
+):
     # decoded = base64.b64decode(file.split(",")[1].encode("unicode_escape"))
     file = secure_filename(unsafe_file.filename).split(".")[0]
     zip_path = Path(config.DATA + f"{file}-Temporary.zip")
     folder_path = Path(config.DATA + f"{file}-Temporary")
-    
+
     unsafe_file.save(zip_path)
 
     if folder_path.exists():
@@ -61,9 +63,7 @@ def upload_zipfile(unsafe_file: FileStorage, file_name: str, uploader: str, squa
             dirs.remove(".DS_Store")
 
         # its not like i'm passing user input, its constant
-        subprocess.Popen(
-            ["packsquash", "'/var/www/html/api/squash.toml'"]
-        ).wait()  # nosec
+        subprocess.Popen(["packsquash", "'/var/www/html/api/squash.toml'"]).wait()  # nosec
 
     put = requests.put(
         "https://files.datapackhub.net/" + file_name,
