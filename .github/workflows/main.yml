@@ -27,7 +27,7 @@ jobs:
           pip install ruff 
       - name: Run black
         run: |
-          ruff format . --targetversion py39 
+          ruff format . --target-version py39 
       - uses: stefanzweifel/git-auto-commit-action@v4.16.0
         with:
           commit_message: "Apply formatting"
