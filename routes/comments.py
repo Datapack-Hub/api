@@ -67,7 +67,7 @@ def messages_from_thread(thread: int):
                 "replies": reps,
             }
         )
-    return {"count": out.__len__(), "result": out}
+    return {"count": len(out), "result": out}
 
 
 @comments.route("/thread/<int:thread>/post", methods=["POST"])

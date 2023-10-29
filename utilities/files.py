@@ -57,9 +57,7 @@ def upload_zipfile(file: str, file_name: str, uploader: str, squash: bool = Fals
             dirs.remove(".DS_Store")
 
         # its not like i'm passing user input, its constant
-        subprocess.Popen(
-            ["packsquash", "'/var/www/html/api/squash.toml'"]
-        ).wait()  # nosec
+        subprocess.Popen(["packsquash", "'/var/www/html/api/squash.toml'"]).wait()  # nosec
 
     put = requests.put(
         "https://files.datapackhub.net/" + file_name,

@@ -52,7 +52,7 @@ app.include_router(auth)
 app.include_router(projects)
 # app.register_blueprint(versions)
 # app.register_blueprint(mod)
-# app.register_blueprint(notifs)
+app.register_blueprint(notifs)
 # app.register_blueprint(comments)
 
 # Database things
