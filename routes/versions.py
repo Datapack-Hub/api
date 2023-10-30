@@ -10,7 +10,6 @@ from urllib.parse import quote
 
 from flask import Blueprint, request
 from flask_cors import CORS
-from werkzeug.exceptions import BadRequestKeyError
 
 import utilities.auth_utils
 from utilities import files, util
