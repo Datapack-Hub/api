@@ -199,7 +199,7 @@ def new(project: int):
         parsed_versions.sort(key=StrictVersion)
 
         try:
-            data["v_rp"]
+            file_data["v_rp"]
         except KeyError:
             util.commit_query(
                 """INSERT INTO versions(
