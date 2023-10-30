@@ -201,7 +201,7 @@ def new(project: int):
 
         try:
             data["v_rp"]
-        except BadRequestKeyError:
+        except KeyError:
             util.commit_query(
                 """INSERT INTO versions(
                         name,
