@@ -218,7 +218,7 @@ def new(project: int):
                 project=project,
             )
         else:
-            if data["v_rp"] != "":
+            if file_data["v_rp"] is not None:
                 rpath = files.upload_zipfile(
                     file_data["v_rp"],
                     f"project/{project}/{quote(data['version_code'])}/resourcepack-{quote(data['filename'])}",
