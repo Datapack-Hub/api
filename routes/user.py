@@ -109,7 +109,7 @@ def get_by_username(username):
         "bio": u.bio,
         "profile_icon": u.profile_icon,
         "badges": u.badges,
-        "join_date": u.join_date,
+        "join_date": u.join_date * 1000,
     }
 
     if request.headers.get("Authorization"):
@@ -149,7 +149,7 @@ def user_by_id(id):
             "bio": u.bio,
             "profile_icon": u.profile_icon,
             "badges": u.badges,
-            "join_date": u.join_date,
+            "join_date": u.join_date * 1000,
         }
 
         if request.headers.get("Authorization"):
@@ -250,7 +250,7 @@ def get_self():
         "role": usr.role,
         "bio": usr.bio,
         "profile_icon": usr.profile_icon,
-        "join_date": usr.join_date,
+        "join_date": usr.join_date * 1000,
     }
 
     # banned?
