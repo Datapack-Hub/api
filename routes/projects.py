@@ -124,7 +124,7 @@ def search_projects():
         else:
             rows = util.exec_query(
                 conn,
-                "select rowid, * from projects where status = 'live' and (LOWER(TRIM(title)) LIKE :q OR LOWER(TRIM(category)) LIKE :c) ORDER BY updated DESC LIMIT :offset, :limit",
+                "select rowid, * from projects where status = 'live' and (LOWER(TRIM(title)) LIKE :q AND LOWER(TRIM(category)) LIKE :c) ORDER BY updated DESC LIMIT :offset, :limit",
                 q=f"%{query}%",
                 offset=page - 1 * 20,
                 limit=page * 20,
@@ -142,7 +142,7 @@ def search_projects():
         else:
             rows = util.exec_query(
                 conn,
-                "select rowid, * from projects where status = 'live' and (LOWER(TRIM(title)) LIKE :q OR LOWER(TRIM(category)) LIKE :c) ORDER BY downloads DESC LIMIT :offset, :limit",
+                "select rowid, * from projects where status = 'live' and (LOWER(TRIM(title)) LIKE :q AND LOWER(TRIM(category)) LIKE :c) ORDER BY downloads DESC LIMIT :offset, :limit",
                 q=f"%{query}%",
                 offset=page - 1 * 20,
                 limit=page * 20,
