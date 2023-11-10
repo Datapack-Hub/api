@@ -7,5 +7,14 @@
         "rowid",
         "Silabear",
         "sqlalchemy"
-    ]
+    ],
+    "[python]": {
+        "diffEditor.ignoreTrimWhitespace": false,
+        "gitlens.codeLens.symbolScopes": [
+            "!Module"
+        ],
+        "editor.formatOnType": true,
+        "editor.wordBasedSuggestions": false,
+        "editor.defaultFormatter": "charliermarsh.ruff"
+    }
 }
