@@ -16,9 +16,7 @@ def generate_fake_project():
     return Project(
         type="datapack",
         id=random.randint(0, 9e9),
-        author=fake.random_int(
-            min=1, max=100
-        ),  # Adjust max based on your actual author IDs
+        author=1,
         title=fake.sentence(),
         description=fake.paragraph(),
         body=fake.text(),
