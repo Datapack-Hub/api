@@ -18,6 +18,7 @@ def make_connection() -> Connection:
 
 def exec_query(conn: Connection, query: str, **params) -> CursorResult:
     q = text(query)
+    
 
     if params:
         q = q.bindparams(**params)

@@ -1,4 +1,5 @@
 from utilities import util
+from utilities import test_utils
 
 
 def reset(table: str):
@@ -133,5 +134,7 @@ if __name__ == "__main__":
     reset("no-drop")
 
     util.commit_query(
-        """INSERT INTO users (username, token, role, bio, github_id, profile_icon) VALUES ("HoodieRocks", "LOREMIPSUM", "admin", "rock", 123897432978, "https://example.com/")""",
+        """INSERT INTO users (username, token, role, bio, github_id, profile_icon, join_date) VALUES ("HoodieRocks", "LOREMIPSUM", "admin", "rock", 123897432978, "https://example.com/", 0)""",
     )
+
+    test_utils.commit_fake_project(10)

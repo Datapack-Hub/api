@@ -12,7 +12,8 @@ import bleach
 import regex as re
 from flask import Blueprint, request
 from flask_cors import CORS
-from sqlalchemy import Engine, text
+from sqlalchemy import Engine, Row, text
+import sqlalchemy.exc
 
 import config
 import utilities.auth_utils
@@ -33,7 +34,7 @@ def after(response):
     return response
 
 
-def parse_project(output: tuple, conn: Engine):
+def parse_project(output: Row, conn: Engine):
     this_user = utilities.auth_utils.authenticate(request.headers.get("Authorization"))
 
     latest_version = util.exec_query(
@@ -97,6 +98,7 @@ def search_projects():
     query = request.args.get("query", "")
     page = int(request.args.get("page", 1))
     sort = request.args.get("sort", "updated")
+    tags = request.args.get("category", "")
 
     if len(query) > 75:
         return
@@ -111,21 +113,41 @@ def search_projects():
 
     conn = util.make_connection()
     if sort == "updated":
-        rows = util.exec_query(
-            conn,
-            "select rowid, * from projects where status = 'live' and trim(title) LIKE :q ORDER BY updated DESC LIMIT :offset, :limit",
-            q=f"%{query}%",
-            offset=page - 1 * 20,
-            limit=page * 20,
-        ).all()
+        if tags == "":
+            rows = util.exec_query(
+                conn,
+                "select rowid, * from projects where status = 'live' and lower(trim(title)) LIKE :q ORDER BY updated DESC LIMIT :offset, :limit",
+                q=f"%{query}%",
+                offset=page - 1 * 20,
+                limit=page * 20,
+            ).all()
+        else:
+            rows = util.exec_query(
+                conn,
+                "select rowid, * from projects where status = 'live' and (LOWER(TRIM(title)) LIKE :q OR LOWER(TRIM(category)) LIKE :c) ORDER BY updated DESC LIMIT :offset, :limit",
+                q=f"%{query}%",
+                offset=page - 1 * 20,
+                limit=page * 20,
+                c=f"%{tags}%",
+            ).all()
     elif sort == "downloads":
-        rows = util.exec_query(
-            conn,
-            "select rowid, * from projects where status = 'live' and trim(title) LIKE :q ORDER BY downloads DESC LIMIT :offset, :limit",
-            q=f"%{query}%",
-            offset=page - 1 * 20,
-            limit=page * 20,
-        ).all()
+        if tags == "":
+            rows = util.exec_query(
+                conn,
+                "select rowid, * from projects where status = 'live' and lower(trim(title)) LIKE :q ORDER BY downloads DESC LIMIT :offset, :limit",
+                q=f"%{query}%",
+                offset=page - 1 * 20,
+                limit=page * 20,
+            ).all()
+        else:
+            rows = util.exec_query(
+                conn,
+                "select rowid, * from projects where status = 'live' and (LOWER(TRIM(title)) LIKE :q OR LOWER(TRIM(category)) LIKE :c) ORDER BY downloads DESC LIMIT :offset, :limit",
+                q=f"%{query}%",
+                offset=page - 1 * 20,
+                limit=page * 20,
+                c=f"%{tags}%",
+            ).all()
     else:
         return "Unknown sorting method.", 400
 
@@ -134,7 +156,7 @@ def search_projects():
     for item in rows:
         try:
             temp = parse_project(item, conn)
-        except:
+        except sqlalchemy.exc.SQLAlchemyError:
             conn.rollback()
 
             return "Something bad happened", 500

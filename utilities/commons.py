@@ -34,10 +34,15 @@ class Project:
     icon_url: str
     slug: str
     status: str
-    category: str
+    category: list[str]
     uploaded: int
     updated: int
     type: str = "datapack"
+    mod_message: str = None
+    downloads: int = 0
+    dependencies: str = None  # unimplemented
+    licence: str = None  # unimplemented
+    featured_until: int = 0
 
 
 @dataclass
