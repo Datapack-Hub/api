@@ -73,5 +73,5 @@ def commit_fake_project(count: int = 50):
             uploaded=project.uploaded,
             updated=project.updated,
             icon=project.icon_url,
-            status=project.status
+            status=project.status,
         )
