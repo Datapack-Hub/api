@@ -177,21 +177,28 @@ def all_projects():
     page = request.args.get("page", 1)
     page = int(page)
     sort = request.args.get("sort", "updated")
+    tags = request.args.get("category", "")
 
     # SQL stuff
     conn = util.make_connection()
     if sort == "updated":
-        r = conn.execute(
-            text(
+        if tags == "":
+            r = util.exec_query(conn,
                 "select rowid, * from projects where status = 'live' ORDER BY updated DESC"
-            )
-        ).all()
+            ).all()
+        else:
+            r = util.exec_query(conn,
+                    "select rowid, * from projects where status = 'live' and category like :q ORDER BY updated DESC", q=f"%{tags}%"
+            ).all()
     elif sort == "downloads":
-        r = conn.execute(
-            text(
+        if tags == "":
+            r = util.exec_query(conn,
                 "select rowid, * from projects where status = 'live' ORDER BY downloads DESC"
-            )
-        ).all()
+            ).all()
+        else:
+            r = util.exec_query(conn,
+                    "select rowid, * from projects where status = 'live' and category like :q ORDER BY downloads DESC", q=f"%{tags}%"
+            ).all()
     else:
         return "Unknown sorting method.", 400
 
