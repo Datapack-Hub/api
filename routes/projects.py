@@ -183,21 +183,27 @@ def all_projects():
     conn = util.make_connection()
     if sort == "updated":
         if tags == "":
-            r = util.exec_query(conn,
-                "select rowid, * from projects where status = 'live' ORDER BY updated DESC"
+            r = util.exec_query(
+                conn,
+                "select rowid, * from projects where status = 'live' ORDER BY updated DESC",
             ).all()
         else:
-            r = util.exec_query(conn,
-                    "select rowid, * from projects where status = 'live' and category like :q ORDER BY updated DESC", q=f"%{tags}%"
+            r = util.exec_query(
+                conn,
+                "select rowid, * from projects where status = 'live' and category like :q ORDER BY updated DESC",
+                q=f"%{tags}%",
             ).all()
     elif sort == "downloads":
         if tags == "":
-            r = util.exec_query(conn,
-                "select rowid, * from projects where status = 'live' ORDER BY downloads DESC"
+            r = util.exec_query(
+                conn,
+                "select rowid, * from projects where status = 'live' ORDER BY downloads DESC",
             ).all()
         else:
-            r = util.exec_query(conn,
-                    "select rowid, * from projects where status = 'live' and category like :q ORDER BY downloads DESC", q=f"%{tags}%"
+            r = util.exec_query(
+                conn,
+                "select rowid, * from projects where status = 'live' and category like :q ORDER BY downloads DESC",
+                q=f"%{tags}%",
             ).all()
     else:
         return "Unknown sorting method.", 400
