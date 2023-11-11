@@ -21,7 +21,7 @@ def generate_fake_project():
         description=fake.paragraph(),
         body=fake.text(),
         icon_url=fake.image_url(),
-        slug=fake.url(),
+        slug=fake.word(),
         status="live",
         category=[random.choice(config.valid_tags) for _ in range(0, 3)],
         uploaded=int(datetime.timestamp(fake.date_time_this_decade())),
