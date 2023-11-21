@@ -3,7 +3,9 @@ import logging
 import random
 import secrets
 import time
-from sqlalchemy import Connection, CursorResult, Engine, create_engine, text
+from typing import Any
+import regex
+from sqlalchemy import Connection, CursorResult, create_engine, text
 
 import config
 from utilities import weblogs
@@ -16,7 +18,7 @@ def make_connection() -> Connection:
     return connection
 
 
-def exec_query(conn: Connection, query: str, **params) -> CursorResult:
+def exec_query(conn: Connection, query: str, **params) -> CursorResult[Any]:
     q = text(query)
 
     if params:
@@ -24,14 +26,14 @@ def exec_query(conn: Connection, query: str, **params) -> CursorResult:
     return conn.execute(q)
 
 
-def commit_query(command: str, **params) -> CursorResult:
+def commit_query(command: str, **params) -> CursorResult[Any]:
     conn = make_connection()
     result = exec_query(conn, command, **params)
     conn.commit()
     return result
 
 
-def log(msg: object, level=logging.INFO):
+def log(msg: object, level: int = logging.INFO):
     logging.basicConfig(level=level, format=config.PYTHON_LOGGING_CONF)
     logging.log(level=level, msg=msg)
 
@@ -103,7 +105,7 @@ def user_owns_project(project: int, author: int):
 #     ).one()
 
 
-def send_notif(conn: Engine, title: str, msg: str, receiver: int):
+def send_notif(conn: Connection, title: str, msg: str, receiver: int):
     exec_query(
         conn,
         "INSERT INTO notifs VALUES (:title, :msg, False, 'default', :uid})",
@@ -113,18 +115,13 @@ def send_notif(conn: Engine, title: str, msg: str, receiver: int):
     )
 
 
-# Define a custom sorting key function
-def custom_sort_key(version):
-    # Split the version string by '.' into a list of components
-    components = version.split(".")
-
-    # Replace 'x' with a large number for sorting
-    for i in range(len(components)):
-        if components[i] == "x":
-            components[i] = "999999"
-
-    # Convert components to integers for sorting
-    return [int(component) for component in components]
+# Custom sorting function for semver
+def semver_key(version: str):
+    # Replace 'x' in the version with a high number for comparison
+    version = version.replace('x', '999999')
+    # Extract major, minor, and patch numbers using regex
+    major, minor, patch = map(int, regex.match(r"(\d+)\.(\d+)\.(\d+)", version).groups())
+    return major, minor, patch
 
 
 if __name__ == "__main__":

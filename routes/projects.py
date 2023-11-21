@@ -12,7 +12,7 @@ import bleach
 import regex as re
 from flask import Blueprint, request
 from flask_cors import CORS
-from sqlalchemy import Engine, Row, text
+from sqlalchemy import Connection, Row, text
 import sqlalchemy.exc
 
 import config
@@ -34,7 +34,7 @@ def after(response):
     return response
 
 
-def parse_project(output: Row, conn: Engine):
+def parse_project(output: Row, conn: Connection):
     this_user = utilities.auth_utils.authenticate(request.headers.get("Authorization"))
 
     latest_version = util.exec_query(

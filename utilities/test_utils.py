@@ -15,7 +15,7 @@ fake = Faker()
 def generate_fake_project():
     return Project(
         type="datapack",
-        id=random.randint(0, 9e9),
+        id=random.randint(0, 9_000_000),
         author=1,
         title=fake.sentence(),
         description=fake.paragraph(),

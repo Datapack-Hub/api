@@ -3,9 +3,9 @@
 """
 
 import ast
-from distutils.version import StrictVersion
 import sqlite3
 import time
+from distutils.version import StrictVersion
 from urllib.parse import quote
 
 from flask import Blueprint, request
@@ -196,7 +196,7 @@ def new(project: int):
         )
 
         parsed_versions: list = ast.literal_eval(data["minecraft_versions"])
-        parsed_versions.sort(key=StrictVersion)
+        parsed_versions.sort(key=util.semver_key)
 
         try:
             file_data["v_rp"]
