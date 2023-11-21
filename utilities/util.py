@@ -118,9 +118,11 @@ def send_notif(conn: Connection, title: str, msg: str, receiver: int):
 # Custom sorting function for semver
 def semver_key(version: str):
     # Replace 'x' in the version with a high number for comparison
-    version = version.replace('x', '999999')
+    version = version.replace("x", "999999")
     # Extract major, minor, and patch numbers using regex
-    major, minor, patch = map(int, regex.match(r"(\d+)\.(\d+)\.(\d+)", version).groups())
+    major, minor, patch = map(
+        int, regex.match(r"(\d+)\.(\d+)\.(\d+)", version).groups()
+    )
     return major, minor, patch
 
 
