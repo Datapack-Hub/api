@@ -133,5 +133,5 @@ if __name__ == "__main__":
         "Magic datapack which adds wands, spells, etc. and will soon even be well polished!",
         "https://files.datapackhub.net/icons/174209.png",
         1,
-        "hexenwerk"
+        "hexenwerk",
     )

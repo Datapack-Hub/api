@@ -35,7 +35,9 @@ def after(response: Response):
     return response
 
 
-def parse_project(output: Row[Any], request: Request, conn: Connection) -> dict[str, Any]:
+def parse_project(
+    output: Row[Any], request: Request, conn: Connection
+) -> dict[str, Any]:
     this_user = utilities.auth_utils.authenticate(request.headers.get("Authorization"))
 
     latest_version = util.exec_query(
@@ -44,8 +46,8 @@ def parse_project(output: Row[Any], request: Request, conn: Connection) -> dict[
         out0=output[0],
     ).all()
 
-    user = get_user.from_id(output[2]) 
-    
+    user = get_user.from_id(output[2])
+
     if user is None:
         raise KeyError("User is null!")
 
@@ -384,7 +386,10 @@ def create_new_project():
     if len(data["category"]) > 3:
         return "Categories exceed 3", 400
 
-    if len(data["url"]) > 50 and re.match(r"^[a-z0-9]+(?:-[a-z0-9]+)*$", data["url"]) is not None:
+    if (
+        len(data["url"]) > 50
+        and re.match(r"^[a-z0-9]+(?:-[a-z0-9]+)*$", data["url"]) is not None
+    ):
         return "Slug is invalid!", 400
 
     if not re.match(r'^[\w!@$()`.+,"\-\']{3,64}$', data["url"]):
@@ -398,7 +403,7 @@ def create_new_project():
             user.username,
             True,
         )
-        
+
     if type(icon) is tuple or None:
         return "Error uploading icon!", 500
 
