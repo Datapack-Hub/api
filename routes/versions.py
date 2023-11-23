@@ -5,7 +5,6 @@
 import ast
 import sqlite3
 import time
-from distutils.version import StrictVersion
 from urllib.parse import quote
 
 from flask import Blueprint, request

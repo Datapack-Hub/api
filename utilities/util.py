@@ -4,12 +4,12 @@ import random
 import secrets
 import time
 from typing import Any
+
 import regex
 from sqlalchemy import Connection, CursorResult, create_engine, text
 
 import config
 from utilities import weblogs
-
 
 connection = create_engine("sqlite:///" + config.DATA + "data.db").connect()
 
@@ -18,7 +18,7 @@ def make_connection() -> Connection:
     return connection
 
 
-def exec_query(conn: Connection, query: str, **params) -> CursorResult[Any]:
+def exec_query(conn: Connection, query: str, **params: Any) -> CursorResult[Any]:
     q = text(query)
 
     if params:
@@ -26,7 +26,7 @@ def exec_query(conn: Connection, query: str, **params) -> CursorResult[Any]:
     return conn.execute(q)
 
 
-def commit_query(command: str, **params) -> CursorResult[Any]:
+def commit_query(command: str, **params: Any) -> CursorResult[Any]:
     conn = make_connection()
     result = exec_query(conn, command, **params)
     conn.commit()
@@ -39,7 +39,7 @@ def log(msg: object, level: int = logging.INFO):
 
 
 def create_user_account(
-    github_data: dict,
+    github_data: dict[str, Any],
 ) -> str:
     conn = make_connection()
 
@@ -132,5 +132,6 @@ if __name__ == "__main__":
         "Hexenwerk",
         "Magic datapack which adds wands, spells, etc. and will soon even be well polished!",
         "https://files.datapackhub.net/icons/174209.png",
-        "Flynecraft",
+        1,
+        "hexenwerk"
     )

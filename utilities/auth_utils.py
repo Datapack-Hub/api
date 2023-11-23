@@ -1,12 +1,13 @@
 import json
 import secrets
 import sqlite3
+from typing import Union
 
 from utilities import util
 from utilities.commons import User
 
 
-def authenticate(auth: str):
+def authenticate(auth: Union[str, None]):
     """`dict` - If success returns user details\n
     `31` - If auth not supplied\n
     `32` - If auth is not basic\n
