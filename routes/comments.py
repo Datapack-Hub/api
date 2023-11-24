@@ -4,6 +4,7 @@
 
 import sqlite3
 import time
+from typing import Any, Union
 
 import regex
 from flask import Blueprint, request
@@ -16,7 +17,7 @@ comments = Blueprint("comments", __name__, url_prefix="/comments")
 
 
 @comments.route("/thread/<int:thread>")
-def messages_from_thread(thread: int):
+def messages_from_thread(thread: int) -> Union[dict[str, Any], tuple[str, int]]:
     conn = util.make_connection()
     cmts = util.exec_query(
         conn,
@@ -24,18 +25,25 @@ def messages_from_thread(thread: int):
         thread=thread,
     ).all()
 
-    out = []
+    out: list[dict[str, Any]] = []
     for cmt in cmts:
         author = utilities.get_user.from_id(cmt[2])
+            
+        if author is None:
+            return "User is not defined!", 400
         replies = util.exec_query(
             conn,
             "select rowid, message, author, sent from comments where thread_id = :thread and parent_id = :comment order by sent desc",
             thread=thread,
             comment=cmt[0],
         ).all()
-        reps = []
+        reps: list[dict[str, Any]] = []
         for reply in replies:
             repl_auth = utilities.get_user.from_id(reply[2])
+            
+            if repl_auth is None:
+                return "User is not defined!", 400
+            
             reps.append(
                 {
                     "id": reply[0],

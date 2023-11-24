@@ -38,6 +38,10 @@ def login_dc():
 def callback_gh():
     # Get an access token
     code = request.args.get("code")
+    
+    if code is None:
+        return "Github screwed up :(", 500
+    
     access_token = requests.post(
         f"https://github.com/login/oauth/access_token?client_id={config.GitHub.client_id}&client_secret={config.GitHub.client_secret}&code={quote(code)}",
         headers={"Accept": "application/json"},
@@ -172,7 +176,9 @@ def link_discord():
     usr = utilities.auth_utils.authenticate(request.headers.get("Authorization"))
     if usr == 32:
         return "Please make sure authorization type = Basic", 400
-    if usr == 33:
+    elif usr == 31:
+        return "Provide Authorization header!", 400
+    elif usr == 33:
         return "Token Expired", 401
 
     # Get discord user info
@@ -238,7 +244,9 @@ def link_github():
     usr = utilities.auth_utils.authenticate(request.headers.get("Authorization"))
     if usr == 32:
         return "Please make sure authorization type = Basic", 400
-    if usr == 33:
+    elif usr == 31:
+        return "Provide Authorization header!", 400
+    elif usr == 33:
         return "Token Expired", 401
 
     # Get github ID
