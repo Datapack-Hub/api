@@ -38,10 +38,10 @@ def login_dc():
 def callback_gh():
     # Get an access token
     code = request.args.get("code")
-    
+
     if code is None:
         return "Github screwed up :(", 500
-    
+
     access_token = requests.post(
         f"https://github.com/login/oauth/access_token?client_id={config.GitHub.client_id}&client_secret={config.GitHub.client_secret}&code={quote(code)}",
         headers={"Accept": "application/json"},

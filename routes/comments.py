@@ -28,7 +28,7 @@ def messages_from_thread(thread: int) -> Union[dict[str, Any], tuple[str, int]]:
     out: list[dict[str, Any]] = []
     for cmt in cmts:
         author = utilities.get_user.from_id(cmt[2])
-            
+
         if author is None:
             return "User is not defined!", 400
         replies = util.exec_query(
@@ -40,10 +40,10 @@ def messages_from_thread(thread: int) -> Union[dict[str, Any], tuple[str, int]]:
         reps: list[dict[str, Any]] = []
         for reply in replies:
             repl_auth = utilities.get_user.from_id(reply[2])
-            
+
             if repl_auth is None:
                 return "User is not defined!", 400
-            
+
             reps.append(
                 {
                     "id": reply[0],
