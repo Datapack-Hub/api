@@ -311,7 +311,7 @@ def get_user_projects(username: str):
     # Check if user is authenticated
     t = request.headers.get("Authorization")
     user = utilities.get_user.from_username(username)
-    
+
     authed = auth_util.authenticate(t)
     if authed == 32:
         return "Make sure authorization is basic!", 400
