@@ -99,7 +99,7 @@ def parse_project(
 
 
 @projects.route("/search", methods=["GET"])
-def search_projects(request: Request) -> Union[dict[str, Any], tuple[str, int]]:
+def search_projects() -> Union[dict[str, Any], tuple[str, int]]:
     x = time.perf_counter()
     query = request.args.get("query", "")
     page = int(request.args.get("page", 1))
