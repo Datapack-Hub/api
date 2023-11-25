@@ -305,17 +305,21 @@ def log_out_self():
 
 
 @user.route("/<string:username>/projects")
-def get_user_projects(username):
+def get_user_projects(username: str):
     conn = util.make_connection()
 
     # Check if user is authenticated
     t = request.headers.get("Authorization")
     user = utilities.get_user.from_username(username)
+    
     authed = auth_util.authenticate(t)
     if authed == 32:
         return "Make sure authorization is basic!", 400
     elif authed == 33:
         return "Token expired!", 401
+
+    if user is None:
+        return "User not found", 404
 
     if t:
         if authed.id == user.id:
