@@ -1,5 +1,6 @@
 bleach==6.1.0
 disnake==2.9.0
+Faker==20.1.0
 Flask==3.0.0
 Flask_Compress==1.14
 Flask_Cors==4.0.0
