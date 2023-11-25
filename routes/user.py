@@ -305,7 +305,7 @@ def log_out_self():
 
 
 @user.route("/<string:username>/projects")
-def get_user_projects(username: str):
+def get_user_projects_by_id(username: str):
     conn = util.make_connection()
 
     # Check if user is authenticated
