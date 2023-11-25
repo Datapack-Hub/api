@@ -393,7 +393,7 @@ def get_user_projects(id: int):
 
     # Check if user is authenticated
     t = request.headers.get("Authorization")
-    user = utilities.get_user.from_id(username)
+    user = utilities.get_user.from_id(id)
 
     authed = auth_util.authenticate(t)
     if authed == 32:
