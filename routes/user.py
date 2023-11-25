@@ -334,7 +334,7 @@ def get_user_projects(username: str):
             out = []
             for item in r:
                 try:
-                    temp = parse_project(item, conn)
+                    temp = parse_project(item,request,  conn)
                 except:
                     conn.rollback()
 
@@ -355,7 +355,7 @@ def get_user_projects(username: str):
             out = []
             for item in r:
                 try:
-                    temp = parse_project(item, conn)
+                    temp = parse_project(item,request,  conn)
                 except:
                     conn.rollback()
 
@@ -376,7 +376,89 @@ def get_user_projects(username: str):
         out = []
         for item in r:
             try:
-                temp = parse_project(item, conn)
+                temp = parse_project(item,request,  conn)
+            except:
+                conn.rollback()
+
+                return "Something bad happened", 500
+
+            out.append(temp)
+
+        return {"count": len(out), "result": out}
+
+@user.route("/<int:id>/projects")
+def get_user_projects(id: int):
+    conn = util.make_connection()
+
+    # Check if user is authenticated
+    t = request.headers.get("Authorization")
+    user = utilities.get_user.from_id(username)
+    
+    authed = auth_util.authenticate(t)
+    if authed == 32:
+        return "Make sure authorization is basic!", 400
+    elif authed == 33:
+        return "Token expired!", 401
+
+    if user is None:
+        return "User not found", 404
+
+    if t:
+        if authed.id == user.id:
+            # Get all submissions
+            r = util.exec_query(
+                conn,
+                "select rowid, * from projects where author = :id and status != 'deleted'",
+                id=user.id,
+            ).all()
+
+            # Form array
+            out = []
+            for item in r:
+                try:
+                    temp = parse_project(item, request, conn)
+                except:
+                    conn.rollback()
+
+                    return "Something bad happened", 500
+
+                out.append(temp)
+
+            return {"count": len(out), "result": out}
+        else:
+            # Get all PUBLIC submissions
+            r = util.exec_query(
+                conn,
+                "select rowid, * from projects where author = :id and status = 'live'",
+                id=user.id,
+            ).all()
+
+            # Form array
+            out = []
+            for item in r:
+                try:
+                    temp = parse_project(item,request,  conn)
+                except:
+                    conn.rollback()
+
+                    return "Something bad happened", 500
+
+                out.append(temp)
+
+            return {"count": len(out), "result": out}
+    else:
+        # Get all PUBLIC submissions
+        r = util.exec_query(
+            conn,
+            "select rowid, * from projects where author = :id and status = 'live'",
+            id=user.id,
+        ).all()
+
+        # Form array
+        out = []
+        for item in r:
+            try:
+                temp = parse_project(item,request,  conn)
             except:
                 conn.rollback()
 
@@ -388,7 +470,7 @@ def get_user_projects(username: str):
 
 
 @user.route("/id/<int:id>/follow", methods=["POST"])
-def follow_user(id):
+def follow_user(id: int):
     if not request.headers.get("Authorization"):
         return "Authorization required", 401
 
