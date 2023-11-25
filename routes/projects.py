@@ -49,7 +49,7 @@ def parse_project(
     user = get_user.from_id(output[2])
 
     if user is None:
-        raise KeyError("User is null!")
+        return {}
 
     temp = {
         "ID": output[0],
