@@ -334,7 +334,7 @@ def get_user_projects(username: str):
             out = []
             for item in r:
                 try:
-                    temp = parse_project(item,request,  conn)
+                    temp = parse_project(item, request, conn)
                 except:
                     conn.rollback()
 
@@ -355,7 +355,7 @@ def get_user_projects(username: str):
             out = []
             for item in r:
                 try:
-                    temp = parse_project(item,request,  conn)
+                    temp = parse_project(item, request, conn)
                 except:
                     conn.rollback()
 
@@ -376,7 +376,7 @@ def get_user_projects(username: str):
         out = []
         for item in r:
             try:
-                temp = parse_project(item,request,  conn)
+                temp = parse_project(item, request, conn)
             except:
                 conn.rollback()
 
@@ -386,6 +386,7 @@ def get_user_projects(username: str):
 
         return {"count": len(out), "result": out}
 
+
 @user.route("/<int:id>/projects")
 def get_user_projects(id: int):
     conn = util.make_connection()
@@ -393,7 +394,7 @@ def get_user_projects(id: int):
     # Check if user is authenticated
     t = request.headers.get("Authorization")
     user = utilities.get_user.from_id(username)
-    
+
     authed = auth_util.authenticate(t)
     if authed == 32:
         return "Make sure authorization is basic!", 400
@@ -437,7 +438,7 @@ def get_user_projects(id: int):
             out = []
             for item in r:
                 try:
-                    temp = parse_project(item,request,  conn)
+                    temp = parse_project(item, request, conn)
                 except:
                     conn.rollback()
 
@@ -458,7 +459,7 @@ def get_user_projects(id: int):
         out = []
         for item in r:
             try:
-                temp = parse_project(item,request,  conn)
+                temp = parse_project(item, request, conn)
             except:
                 conn.rollback()
 
