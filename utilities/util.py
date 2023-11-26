@@ -121,7 +121,7 @@ def semver_key(version: str):
     version = version.replace("x", "999999")
     # Use regex to match major, minor, and patch numbers
     match = re.match(r"(\d+)\.(\d+)\.(\d+)", version)
-    
+
     if match:
         # If there is a match, extract major, minor, and patch numbers
         major, minor, patch = map(int, match.groups())
