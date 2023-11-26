@@ -199,7 +199,7 @@ def get_comment(id: int) -> tuple[dict[str, Any] | str, int]:
         comment = comment[0]
 
         author = utilities.get_user.from_id(comment[2])
-        
+
         if author is None:
             return "Something went wrong!", 500
 
@@ -211,10 +211,10 @@ def get_comment(id: int) -> tuple[dict[str, Any] | str, int]:
         reps = []
         for reply in replies:
             repl_auth = utilities.get_user.from_id(reply[2])
-            
+
             if repl_auth is None:
                 return "We don't know how this happened, but it did", 500
-            
+
             reps.append(
                 {
                     "id": reply[0],

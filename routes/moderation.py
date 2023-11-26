@@ -41,7 +41,6 @@ def is_perm_level(token: str | None, perm_levels: list[str]):
 
     if isinstance(user, int):
         return user
-    
 
     if user.role not in perm_levels:
         return False
@@ -73,12 +72,12 @@ def console() -> tuple[dict[str, Any] | str, int]:
 
     # Check user authentication status
     auth_header = request.headers.get("Authorization")
-    
+
     if auth_header is None:
         return "Provide Authorization header", 400
-    
-    user = get_user.from_token(auth_header[6:])    
-    
+
+    user = get_user.from_token(auth_header[6:])
+
     if not user:
         return "hey u! sign in again plz (i am not hax)", 401
 
@@ -126,7 +125,9 @@ def console() -> tuple[dict[str, Any] | str, int]:
                 return "SQL error: " + (" ".join(error.args)), 400
             else:
                 return (
-                    bleach.clean(json.dumps(out, indent=2).replace("\n", "<br>"), ["br"]),
+                    bleach.clean(
+                        json.dumps(out, indent=2).replace("\n", "<br>"), ["br"]
+                    ),
                     200,
                 )
         case "user":
@@ -170,7 +171,7 @@ def console() -> tuple[dict[str, Any] | str, int]:
             )
 
             if not put.ok:
-                return "It didn't work." , 500
+                return "It didn't work.", 500
 
             return "Backed up the database as " + str(id), 200
         case "notify":
@@ -203,16 +204,13 @@ def console() -> tuple[dict[str, Any] | str, int]:
 
 @mod.route("/log_out/<int:id>", methods=["post"])
 def force_log_out_user(id: int) -> tuple[dict[str, Any] | str, int]:
-    
     auth_header = request.headers.get("Authorization")
 
     if auth_header is None:
         return "Provide Authorization header", 400
-    
+
     # Check auth
-    if not is_perm_level(
-        auth_header, ["admin", "moderator", "developer"]
-    ):
+    if not is_perm_level(auth_header, ["admin", "moderator", "developer"]):
         return "Unauthorized", 403
 
     try:
@@ -221,10 +219,10 @@ def force_log_out_user(id: int) -> tuple[dict[str, Any] | str, int]:
         return "Failed", 500
     else:
         user = get_user.from_token(auth_header[6:])
-        
+
         if not user:
             return "some sneaky hacker is preventing me from logging :(", 500
-        
+
         weblogs.site_log(
             user.username,
             "Logged user out",
@@ -262,15 +260,15 @@ def ban_user(user: int) -> tuple[dict[str, Any] | str, int]:
             conn.commit()
 
             auth_header = request.headers.get("Authorization")
-            
+
             if auth_header is None:
                 return "Provide Authorization header", 400
-            
+
             logged_in_user = get_user.from_token(auth_header[6:])
-            
+
             if not logged_in_user:
                 return "Sneaky hacker is stopping me from logging", 500
-            
+
             weblogs.site_log(
                 logged_in_user.username,
                 "Banned User",
@@ -292,15 +290,15 @@ def ban_user(user: int) -> tuple[dict[str, Any] | str, int]:
             conn.commit()
 
             auth_header = request.headers.get("Authorization")
-            
+
             if auth_header is None:
                 return "Provide Authorization header", 400
-            
+
             logged_in_user = get_user.from_token(auth_header[6:])
-            
+
             if not logged_in_user:
                 return "Sneaky hacker is stopping me from logging", 500
-            
+
             weblogs.site_log(
                 logged_in_user.username,
                 "Unbanned User",
@@ -352,10 +350,10 @@ def get_queue(type: str) -> tuple[dict[str, Any] | str, int]:
         out = []
         for item in r:
             author = get_user.from_id(item[1])
-            
+
             if author is None:
                 return "Author is bad :(", 500
-            
+
             out.append(
                 {
                     "type": item[0],
@@ -388,10 +386,10 @@ def get_queue(type: str) -> tuple[dict[str, Any] | str, int]:
         out = []
         for item in r:
             author = get_user.from_id(item[1])
-            
+
             if author is None:
                 return "Author is bad :(", 500
-            
+
             out.append(
                 {
                     "type": item[0],
@@ -428,7 +426,7 @@ def get_queue(type: str) -> tuple[dict[str, Any] | str, int]:
             usr = get_user.from_id(item[1])
 
             author = get_user.from_id(proj[1])
-            
+
             if usr is None or author is None:
                 return "Bad reporters", 500
 
@@ -504,7 +502,7 @@ def change_project_status(proj: int) -> tuple[dict[str, Any] | str, int]:
     project = project[0]
 
     author = get_user.from_id(project[2])
-    
+
     if author is None:
         return "Author is bad :(", 500
 

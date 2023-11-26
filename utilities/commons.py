@@ -65,6 +65,7 @@ class Comment:
     content: str
     replies: int
 
+
 class PlayerBanData(TypedDict):
     reason: str
     expires: int

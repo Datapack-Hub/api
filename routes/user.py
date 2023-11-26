@@ -31,7 +31,7 @@ user = Blueprint("user", __name__, url_prefix="/user")
 def user_badges_by_id(id: int) -> tuple[dict[str, Any] | str, int]:
     conn = util.make_connection()
     user = utilities.get_user.from_id(id)
-    
+
     if user is None:
         return "User not found!", 404
 
