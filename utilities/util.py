@@ -119,11 +119,16 @@ def send_notif(conn: Connection, title: str, msg: str, receiver: int):
 def semver_key(version: str):
     # Replace 'x' in the version with a high number for comparison
     version = version.replace("x", "999999")
-    # Extract major, minor, and patch numbers using regex
-    major, minor, patch = map(
-        int, regex.match(r"(\d+)\.(\d+)\.(\d+)", version).groups()
-    )
-    return major, minor, patch
+    # Use regex to match major, minor, and patch numbers
+    match = re.match(r"(\d+)\.(\d+)\.(\d+)", version)
+    
+    if match:
+        # If there is a match, extract major, minor, and patch numbers
+        major, minor, patch = map(int, match.groups())
+        return major, minor, patch
+    else:
+        # If no match is found, return a tuple of zeros
+        return 0, 0, 0
 
 
 if __name__ == "__main__":
