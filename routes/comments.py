@@ -270,7 +270,7 @@ def get_comment(id: int) -> tuple[dict[str, Any] | str, int]:
 
         if not (usr.id == comment[2] or usr.role in ["admin", "moderator"]):
             return "This isn't your comment.", 403
-        
+
         if comment[4] is None:
             util.exec_query(conn, "delete from comments where rowid = :id", id=id)
             util.exec_query(conn, "delete from comments where parent_id = :id", id=id)
