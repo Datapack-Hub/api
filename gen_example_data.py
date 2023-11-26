@@ -137,4 +137,8 @@ if __name__ == "__main__":
         """INSERT INTO users (username, token, role, bio, github_id, profile_icon, join_date) VALUES ("HoodieRocks", "LOREMIPSUM", "admin", "rock", 123897432978, "https://example.com/", 0)""",
     )
 
-    test_utils.commit_fake_project(50)
+    util.commit_query(
+        """INSERT INTO users (username, token, role, bio, github_id, profile_icon, join_date) VALUES ("sacrifice", "POTATOES", "default", "paper", 238746238746, "https://example.com/1", 0)""",
+    )
+
+    test_utils.commit_fake_project(10)

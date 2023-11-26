@@ -231,7 +231,7 @@ def force_log_out_user(id: int) -> tuple[dict[str, Any] | str, int]:
         return "Success!", 200
 
 
-@mod.route("/ban/<int:user>", methods=["post", "delete"])
+@mod.route("/ban/<int:user>", methods=["POST", "DELETE"])
 def ban_user(user: int) -> tuple[dict[str, Any] | str, int]:
     if not is_perm_level(
         request.headers.get("Authorization"), ["admin", "moderator", "developer"]
@@ -280,7 +280,7 @@ def ban_user(user: int) -> tuple[dict[str, Any] | str, int]:
         conn = util.make_connection()
         try:
             util.exec_query(
-                conn, "delete from banned_users where self = :user", user=user
+                conn, "delete from banned_users where id = :user", user=user
             )
         except sqlite3.Error as er:
             conn.rollback()
