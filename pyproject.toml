@@ -1,6 +1,6 @@
 [tool.ruff]
 # Enable pycodestyle (`E`) and Pyflakes (`F`) codes by default.
-select = ["E", "F", "PERF", "RUF", "B", "N", "PTH", "TCH"]
+select = ["E", "F", "PERF", "RUF", "B", "N", "PTH", "TCH", "UP"]
 ignore = ["E501", "E722"]
 
 # Allow autofix for all enabled rules (when `--fix`) is provided.
@@ -39,7 +39,7 @@ line-length = 88
 dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
 
 # Assume Python 3.9
-target-version = "py39"
+target-version = "py310"
 
 [tool.ruff.mccabe]
 # Unlike Flake8, default to a complexity level of 10.

@@ -7,7 +7,7 @@ import secrets
 import sqlite3
 import time
 import traceback
-from typing import Any, Union
+from typing import Any
 
 import bleach
 import regex as re
@@ -99,7 +99,7 @@ def parse_project(
 
 
 @projects.route("/search", methods=["GET"])
-def search_projects() -> Union[dict[str, Any], tuple[str, int]]:
+def search_projects() -> dict[str, Any] | tuple[str, int]:
     x = time.perf_counter()
     query = request.args.get("query", "")
     page = int(request.args.get("page", 1))
@@ -179,7 +179,7 @@ def search_projects() -> Union[dict[str, Any], tuple[str, int]]:
 
 
 @projects.route("/", methods=["GET"])
-def all_projects() -> Union[dict[str, Any], tuple[str, int]]:
+def all_projects() -> dict[str, Any] | tuple[str, int]:
     page = request.args.get("page", 1)
     page = int(page)
     sort = request.args.get("sort", "updated")
@@ -230,7 +230,7 @@ def all_projects() -> Union[dict[str, Any], tuple[str, int]]:
 
 
 @projects.route("/id/<int:id>")
-def get_project_by_id(id: int) -> Union[dict[str, Any], tuple[str, int]]:
+def get_project_by_id(id: int) -> dict[str, Any] | tuple[str, int]:
     conn = util.make_connection()
 
     this_user = utilities.auth_utils.authenticate(request.headers.get("Authorization"))
@@ -267,7 +267,7 @@ def get_project_by_id(id: int) -> Union[dict[str, Any], tuple[str, int]]:
 
 
 @projects.route("/get/<string:slug>")
-def get_project_by_slug(slug: str) -> Union[dict[str, Any], tuple[str, int]]:
+def get_project_by_slug(slug: str) -> dict[str, Any] | tuple[str, int]:
     # connect to the thingy
     conn = util.make_connection()
 
@@ -307,7 +307,7 @@ def get_project_by_slug(slug: str) -> Union[dict[str, Any], tuple[str, int]]:
 
 
 @projects.route("/random")
-def random_project() -> Union[dict[str, Any], tuple[str, int]]:
+def random_project() -> dict[str, Any] | tuple[str, int]:
     count = request.args.get("count", 1)
 
     conn = util.make_connection()
@@ -868,7 +868,7 @@ def feature(id: int):
 
 
 @projects.route("/featured")
-def featured() -> Union[dict[str, Any], tuple[str, int]]:
+def featured() -> dict[str, Any] | tuple[str, int]:
     conn = util.make_connection()
     proj = conn.execute(
         text(

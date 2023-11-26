@@ -10,6 +10,7 @@ from sqlalchemy import Connection, CursorResult, create_engine, text
 
 import config
 from utilities import weblogs
+from utilities.commons import PlayerBanData
 
 connection = create_engine("sqlite:///" + config.DATA + "data.db").connect()
 
@@ -73,7 +74,7 @@ def create_user_account(
     return token
 
 
-def get_user_ban_data(id: int):
+def get_user_ban_data(id: int) -> PlayerBanData | None:
     conn = make_connection()
 
     banned_user = exec_query(

@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from typing import TypedDict
 
 
 @dataclass
@@ -8,9 +9,9 @@ class User:
     role: str
     bio: str
     profile_icon: str
-    badges: list[str]
-    token: str = None
-    github_id: int = None
+    badges: list[str] | None = None
+    token: str | None = None
+    github_id: int | None = None
     join_date: int = 0
 
 
@@ -38,10 +39,10 @@ class Project:
     uploaded: int
     updated: int
     type: str = "datapack"
-    mod_message: str = None
+    mod_message: str | None = None
     downloads: int = 0
-    dependencies: str = None  # unimplemented
-    licence: str = None  # unimplemented
+    dependencies: str | None = None  # unimplemented
+    licence: str | None = None  # unimplemented
     featured_until: int = 0
 
 
@@ -63,3 +64,7 @@ class Comment:
     author: int
     content: str
     replies: int
+
+class PlayerBanData(TypedDict):
+    reason: str
+    expires: int
