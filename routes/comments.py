@@ -249,7 +249,7 @@ def get_comment(id: int) -> tuple[dict[str, Any] | str, int]:
         conn = util.make_connection()
         comment = util.exec_query(
             conn,
-            "select rowid, message, author, sent from comments where rowid = :id and parent_id is null order by sent desc",
+            "select rowid, message, author, sent, parent_id from comments where rowid = :id order by sent desc",
             id=id,
         ).all()
 
@@ -270,9 +270,12 @@ def get_comment(id: int) -> tuple[dict[str, Any] | str, int]:
 
         if not (usr.id == comment[2] or usr.role in ["admin", "moderator"]):
             return "This isn't your comment.", 403
-
-        util.exec_query(conn, "delete from comments where rowid = :id", id=id)
-        util.exec_query(conn, "delete from comments where parent_id = :id", id=id)
+        
+        if comment[4] is None:
+            util.exec_query(conn, "delete from comments where rowid = :id", id=id)
+            util.exec_query(conn, "delete from comments where parent_id = :id", id=id)
+        else:
+            util.exec_query(conn, "delete from comments where rowid = :id", id=id)
 
         conn.commit()
 
