@@ -62,7 +62,7 @@ def user_badges_by_id(id: int) -> tuple[dict[str, Any] | str, int]:
                 id=id,
             )
         except sqlite3.Error:
-            util.weblogs.error("Whoopsie!", traceback.print_exc())
+            util.weblogs.error("Whoopsie!", traceback.format_exc())
             conn.rollback()
 
             return "Database Error", 500
