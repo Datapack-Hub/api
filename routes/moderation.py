@@ -529,7 +529,7 @@ def change_project_status(proj: int) -> tuple[dict[str, Any] | str, int]:
                         conn,
                         f"{author.username} posted a project!",
                         f"[{author.username}](https://datapackhub.net/user/{author.username}) just posted a new project: [{project[1]}](https://datapackhub.net/project/{project[5]})",
-                        i,
+                        i[0],
                     )
             conn.commit()
 
