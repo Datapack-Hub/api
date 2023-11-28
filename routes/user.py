@@ -414,17 +414,11 @@ def get_user_projects(id: int):
     user = utilities.get_user.from_id(id)
 
     authed = auth_util.authenticate(t)
-    if authed == 32:
-        return "Make sure authorization is basic!", 400
-    elif authed == 31:
-        return "Provide Authorization header!"
-    elif authed == 33:
-        return "Token expired!", 401
 
     if user is None:
         return "User not found", 404
 
-    if t:
+    if t and authed:
         if authed.id == user.id:
             # Get all submissions
             r = util.exec_query(
