@@ -328,10 +328,12 @@ def get_user_projects_by_id(username: str):
     t = request.headers.get("Authorization")
     user = utilities.get_user.from_username(username)
 
+    authed = auth_util.authenticate(t)
+
     if user is None:
         return "User not found", 404
 
-    if t:
+    if t and authed and not (type(authed) is int):
         if authed.id == user.id:
             # Get all submissions
             r = util.exec_query(
