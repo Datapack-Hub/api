@@ -542,6 +542,7 @@ def follow_user(id: int):
 
             return "Unfollowed user!", 200
 
+
 @user.route("/obtain_token")
 def reset_get_token() -> tuple[dict[str, Any] | str, int] | Response:
     if not request.headers.get("Authorization"):
@@ -554,13 +555,13 @@ def reset_get_token() -> tuple[dict[str, Any] | str, int] | Response:
         return "Provide Authorization header!", 401
     elif user == 33:
         return "Token Expired", 401
-    
+
     auth_util.log_user_out(user.id)
-    
+
     conn = util.make_connection()
-    user = util.exec_query(conn, "select token from users where id = :id", id=user.id).one()[0]
+    user = util.exec_query(
+        conn, "select token from users where id = :id", id=user.id
+    ).one()[0]
     resp = make_response()
     resp.set_cookie("dph_token", user)
     return resp
-    
-    
