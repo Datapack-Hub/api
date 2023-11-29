@@ -19,7 +19,7 @@ from routes.user import user
 from routes.versions import versions
 
 app = flask.Flask(__name__)
-CORS(app)
+CORS(app, supports_credentials=True)
 Compress(app)
 
 
