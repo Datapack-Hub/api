@@ -9,7 +9,7 @@ import traceback
 from pathlib import Path
 from typing import Any
 
-from flask import Blueprint, request
+from flask import Blueprint, Response, make_response, request
 
 import config
 import utilities.auth_utils as auth_util
@@ -541,3 +541,26 @@ def follow_user(id: int):
             conn.commit()
 
             return "Unfollowed user!", 200
+
+@user.route("/obtain_token")
+def reset_get_token() -> tuple[dict[str, Any] | str, int] | Response:
+    if not request.headers.get("Authorization"):
+        return "Authorization required", 401
+
+    user = auth_util.authenticate(request.headers.get("Authorization"))
+    if user == 32:
+        return "Please make sure authorization type = Basic", 400
+    elif user == 31:
+        return "Provide Authorization header!", 401
+    elif user == 33:
+        return "Token Expired", 401
+    
+    auth_util.log_user_out(user.id)
+    
+    conn = util.make_connection()
+    user = util.exec_query(conn, "select token from users where id = :id", id=user.id).one()[0]
+    resp = make_response()
+    resp.set_cookie("dph_token", user)
+    return resp
+    
+    
