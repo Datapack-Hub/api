@@ -331,7 +331,7 @@ def get_user_projects_by_id(username: str):
     if user is None:
         return "User not found", 404
 
-    if t and authed:
+    if t:
         if authed.id == user.id:
             # Get all submissions
             r = util.exec_query(
