@@ -262,7 +262,12 @@ def new(project: int):
     conn = util.make_connection()
     v = util.exec_query(
         conn, "SELECT * FROM versions WHERE version_code = :vc", vc=data["version_code"]
-    ).one()
+    ).all()
+    
+    if len(v) > 1:
+        return "Version with that version code already exists!", 409
+
+    v = v[0]
 
     o = {
         "name": v[0],
