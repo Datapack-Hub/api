@@ -7,7 +7,7 @@ import secrets
 import sqlite3
 import time
 import traceback
-from typing import Any
+from typing import Any, Sequence
 
 import bleach
 import regex as re
@@ -97,6 +97,34 @@ def parse_project(
 
     return temp
 
+def search(conn, query, sort_by, tags, page):
+    if sort_by == "updated":
+        order_by = "updated DESC"
+    elif sort_by == "downloads":
+        order_by = "downloads DESC"
+    else:
+        raise ValueError("Unknown sorting method.")
+
+    base_query = """
+        SELECT rowid, * 
+        FROM projects 
+        WHERE status = 'live' 
+        AND LOWER(TRIM(title)) LIKE :q 
+    """
+
+    if tags:
+        base_query += "AND LOWER(TRIM(category)) LIKE :c "
+
+    full_query = base_query + f"ORDER BY {order_by} LIMIT :offset, :limit"
+
+    parameters = {
+        'q': f"%{query}%",
+        'c': f"%{tags}%" if tags else None,
+        'offset': (page - 1) * 20,
+        'limit': page * 20,
+    }
+
+    return util.exec_query(conn, full_query, **parameters).all()
 
 @projects.route("/search", methods=["GET"])
 def search_projects() -> dict[str, Any] | tuple[str, int]:
@@ -118,48 +146,17 @@ def search_projects() -> dict[str, Any] | tuple[str, int]:
         }
 
     conn = util.make_connection()
-    if sort == "updated":
-        if tags == "":
-            rows = util.exec_query(
-                conn,
-                "select rowid, * from projects where status = 'live' and lower(trim(title)) LIKE :q ORDER BY updated DESC LIMIT :offset, :limit",
-                q=f"%{query}%",
-                offset=page - 1 * 20,
-                limit=page * 20,
-            ).all()
-        else:
-            rows = util.exec_query(
-                conn,
-                "select rowid, * from projects where status = 'live' and (LOWER(TRIM(title)) LIKE :q AND LOWER(TRIM(category)) LIKE :c) ORDER BY updated DESC LIMIT :offset, :limit",
-                q=f"%{query}%",
-                offset=page - 1 * 20,
-                limit=page * 20,
-                c=f"%{tags}%",
-            ).all()
-    elif sort == "downloads":
-        if tags == "":
-            rows = util.exec_query(
-                conn,
-                "select rowid, * from projects where status = 'live' and lower(trim(title)) LIKE :q ORDER BY downloads DESC LIMIT :offset, :limit",
-                q=f"%{query}%",
-                offset=page - 1 * 20,
-                limit=page * 20,
-            ).all()
-        else:
-            rows = util.exec_query(
-                conn,
-                "select rowid, * from projects where status = 'live' and (LOWER(TRIM(title)) LIKE :q AND LOWER(TRIM(category)) LIKE :c) ORDER BY downloads DESC LIMIT :offset, :limit",
-                q=f"%{query}%",
-                offset=page - 1 * 20,
-                limit=page * 20,
-                c=f"%{tags}%",
-            ).all()
-    else:
+
+    result = None
+    
+    try:
+        result = search(conn, query, sort, tags, page)
+    except ValueError:
         return "Unknown sorting method.", 400
 
     out: list[dict[str, Any]] = []
 
-    for item in rows:
+    for item in result:
         try:
             temp = parse_project(item, request, conn)
         except sqlalchemy.exc.SQLAlchemyError:
@@ -174,7 +171,7 @@ def search_projects() -> dict[str, Any] | tuple[str, int]:
         "count": len(out),
         "time": y - x,
         "result": out,
-        "pages": str(math.ceil(len(rows) / 20)),
+        "pages": str(math.ceil(len(result) / 20)),
     }
 
 
