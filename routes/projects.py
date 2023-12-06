@@ -97,6 +97,7 @@ def parse_project(
 
     return temp
 
+
 def search(conn, query, sort_by, tags, page):
     if sort_by == "updated":
         order_by = "updated DESC"
@@ -118,13 +119,14 @@ def search(conn, query, sort_by, tags, page):
     full_query = base_query + f"ORDER BY {order_by} LIMIT :offset, :limit"
 
     parameters = {
-        'q': f"%{query}%",
-        'c': f"%{tags}%" if tags else None,
-        'offset': (page - 1) * 20,
-        'limit': page * 20,
+        "q": f"%{query}%",
+        "c": f"%{tags}%" if tags else None,
+        "offset": (page - 1) * 20,
+        "limit": page * 20,
     }
 
     return util.exec_query(conn, full_query, **parameters).all()
+
 
 @projects.route("/search", methods=["GET"])
 def search_projects() -> dict[str, Any] | tuple[str, int]:
@@ -148,7 +150,7 @@ def search_projects() -> dict[str, Any] | tuple[str, int]:
     conn = util.make_connection()
 
     result = None
-    
+
     try:
         result = search(conn, query, sort, tags, page)
     except ValueError:
