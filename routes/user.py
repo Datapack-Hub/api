@@ -7,8 +7,9 @@ import sqlite3
 import time
 import traceback
 from pathlib import Path
+from typing import Any
 
-from flask import Blueprint, request
+from flask import Blueprint, Response, make_response, request
 
 import config
 import utilities.auth_utils as auth_util
@@ -27,11 +28,15 @@ user = Blueprint("user", __name__, url_prefix="/user")
 
 
 @user.route("/badges/<int:id>", methods=["PATCH", "GET"])
-def user_badges_by_id(id: int):
+def user_badges_by_id(id: int) -> tuple[dict[str, Any] | str, int]:
     conn = util.make_connection()
+    user = utilities.get_user.from_id(id)
+
+    if user is None:
+        return "User not found!", 404
 
     if request.method == "GET":
-        return {"badges": utilities.get_user.from_id(id).badges}
+        return {"badges": user.badges}, 200
     if request.method == "PATCH":
         if not is_perm_level(
             request.headers.get("Authorization"), ["moderator", "developer", "admin"]
@@ -57,18 +62,18 @@ def user_badges_by_id(id: int):
                 id=id,
             )
         except sqlite3.Error:
-            util.weblogs.error("Whoopsie!", traceback.print_exc())
+            util.weblogs.error("Whoopsie!", traceback.format_exc())
             conn.rollback()
 
             return "Database Error", 500
-        else:
-            conn.commit()
+        conn.commit()
 
-            return "Success!"
+        return "Success!", 200
+    return "HTTP Method incorrect", 400
 
 
 @user.route("/staff/<role>")
-def get_staff_role(role):
+def get_staff_role(role) -> tuple[dict[str, Any] | str, int]:
     conn = util.make_connection()
     if role not in ["admin", "moderator", "helper"]:
         return "Role has to be staff role", 400
@@ -87,16 +92,16 @@ def get_staff_role(role):
         }
         for i in list
     ]
-    return {"count": len(finale), "values": finale}
+    return {"count": len(finale), "values": finale}, 200
 
 
 @user.route("/staff/roles")
-def get_all_roles():
-    return json.load(Path(config.DATA + "roles.json").open("r+"))
+def get_all_roles() -> tuple[dict[str, Any] | str, int]:
+    return json.load(Path(config.DATA + "roles.json").open("r+")), 200
 
 
 @user.route("/<string:username>", methods=["GET"])
-def get_by_username(username):
+def get_by_username(username) -> tuple[dict[str, Any] | str, int]:
     # TODO: mods can see banned users
     u = utilities.get_user.from_username(username)
     if not u:
@@ -116,6 +121,8 @@ def get_by_username(username):
         usr = auth_util.authenticate(request.headers.get("Authorization"))
         if usr == 32:
             return "Please make sure authorization type = Basic", 400
+        if usr == 31:
+            return "Provide Authorization header!", 400
         if usr == 33:
             return "Token Expired", 401
 
@@ -131,11 +138,11 @@ def get_by_username(username):
         else:
             return_data["followed"] = True
 
-    return return_data
+    return return_data, 200
 
 
 @user.route("/id/<int:id>", methods=["GET", "PATCH"])
-def user_by_id(id):
+def user_by_id(id) -> tuple[dict[str, Any] | str, int]:
     # TODO: mods can see banned users
     if request.method == "GET":
         u = utilities.get_user.from_id(id)
@@ -156,6 +163,8 @@ def user_by_id(id):
             usr = auth_util.authenticate(request.headers.get("Authorization"))
             if usr == 32:
                 return "Please make sure authorization type = Basic", 400
+            if usr == 31:
+                return "Provide Authorization header", 400
             if usr == 33:
                 return "Token Expired", 401
 
@@ -171,13 +180,15 @@ def user_by_id(id):
             else:
                 return_data["followed"] = True
 
-        return return_data
+        return return_data, 200
     elif request.method == "PATCH":
         dat = request.get_json(force=True)
 
         usr = auth_util.authenticate(request.headers.get("Authorization"))
         if usr == 32:
             return "Please make sure authorization type = Basic", 400
+        if usr == 31:
+            return "Provide Authorization header", 400
         if usr == 33:
             return "Token Expired", 401
 
@@ -226,20 +237,23 @@ def user_by_id(id):
         except sqlite3.Error:
             conn.rollback()
 
-            return "Something went a little bit wrong"
+            return "Something went a little bit wrong", 500
         conn.commit()
 
-        return "done!"
+        return "done!", 200
+    return "HTTP Method incorrect", 400
 
 
 @user.route("/me")
-def get_self():
+def get_self() -> tuple[dict[str, Any] | str, int]:
     if not request.headers.get("Authorization"):
         return "Authorization required", 401
 
     usr = auth_util.authenticate(request.headers.get("Authorization"))
     if usr == 32:
         return "Please make sure authorization type = Basic", 400
+    if usr == 31:
+        return "Provide Authorization header", 400
     if usr == 33:
         return "Token Expired", 401
 
@@ -283,7 +297,7 @@ def get_self():
         )
         conn.commit()
 
-    return user_data
+    return user_data, 200
 
 
 @user.route("/me/log_out")
@@ -294,6 +308,8 @@ def log_out_self():
     usr = auth_util.authenticate(request.headers.get("Authorization"))
     if usr == 32:
         return "Please make sure authorization type = Basic", 400
+    if usr == 31:
+        return "Provide Authorization header", 400
     if usr == 33:
         return (
             "Your token expired or you're already logged out, we don't know at this point",
@@ -305,19 +321,19 @@ def log_out_self():
 
 
 @user.route("/<string:username>/projects")
-def get_user_projects(username):
+def get_user_projects_by_id(username: str):
     conn = util.make_connection()
 
     # Check if user is authenticated
     t = request.headers.get("Authorization")
     user = utilities.get_user.from_username(username)
-    authed = auth_util.authenticate(t)
-    if authed == 32:
-        return "Make sure authorization is basic!", 400
-    elif authed == 33:
-        return "Token expired!", 401
 
-    if t:
+    authed = auth_util.authenticate(t)
+
+    if user is None:
+        return "User not found", 404
+
+    if t and authed and not isinstance(authed, int):
         if authed.id == user.id:
             # Get all submissions
             r = util.exec_query(
@@ -330,7 +346,7 @@ def get_user_projects(username):
             out = []
             for item in r:
                 try:
-                    temp = parse_project(item, conn)
+                    temp = parse_project(item, request, conn)
                 except:
                     conn.rollback()
 
@@ -351,7 +367,7 @@ def get_user_projects(username):
             out = []
             for item in r:
                 try:
-                    temp = parse_project(item, conn)
+                    temp = parse_project(item, request, conn)
                 except:
                     conn.rollback()
 
@@ -372,7 +388,86 @@ def get_user_projects(username):
         out = []
         for item in r:
             try:
-                temp = parse_project(item, conn)
+                temp = parse_project(item, request, conn)
+            except:
+                conn.rollback()
+
+                return "Something bad happened", 500
+
+            out.append(temp)
+
+        return {"count": len(out), "result": out}
+
+
+@user.route("/<int:id>/projects")
+def get_user_projects(id: int):
+    conn = util.make_connection()
+
+    # Check if user is authenticated
+    t = request.headers.get("Authorization")
+    user = utilities.get_user.from_id(id)
+
+    authed = auth_util.authenticate(t)
+
+    if user is None:
+        return "User not found", 404
+
+    if t and authed:
+        if authed.id == user.id:
+            # Get all submissions
+            r = util.exec_query(
+                conn,
+                "select rowid, * from projects where author = :id and status != 'deleted'",
+                id=user.id,
+            ).all()
+
+            # Form array
+            out = []
+            for item in r:
+                try:
+                    temp = parse_project(item, request, conn)
+                except:
+                    conn.rollback()
+
+                    return "Something bad happened", 500
+
+                out.append(temp)
+
+            return {"count": len(out), "result": out}
+        else:
+            # Get all PUBLIC submissions
+            r = util.exec_query(
+                conn,
+                "select rowid, * from projects where author = :id and status = 'live'",
+                id=user.id,
+            ).all()
+
+            # Form array
+            out = []
+            for item in r:
+                try:
+                    temp = parse_project(item, request, conn)
+                except:
+                    conn.rollback()
+
+                    return "Something bad happened", 500
+
+                out.append(temp)
+
+            return {"count": len(out), "result": out}
+    else:
+        # Get all PUBLIC submissions
+        r = util.exec_query(
+            conn,
+            "select rowid, * from projects where author = :id and status = 'live'",
+            id=user.id,
+        ).all()
+
+        # Form array
+        out = []
+        for item in r:
+            try:
+                temp = parse_project(item, request, conn)
             except:
                 conn.rollback()
 
@@ -384,14 +479,16 @@ def get_user_projects(username):
 
 
 @user.route("/id/<int:id>/follow", methods=["POST"])
-def follow_user(id):
+def follow_user(id: int):
     if not request.headers.get("Authorization"):
         return "Authorization required", 401
 
     follower = auth_util.authenticate(request.headers.get("Authorization"))
     if follower == 32:
         return "Please make sure authorization type = Basic", 400
-    if follower == 33:
+    elif follower == 31:
+        return "Provide Authorization header!"
+    elif follower == 33:
         return "Token Expired", 401
 
     followed = utilities.get_user.from_id(id)
@@ -446,3 +543,27 @@ def follow_user(id):
             conn.commit()
 
             return "Unfollowed user!", 200
+
+
+@user.route("/obtain_token")
+def reset_get_token() -> tuple[dict[str, Any] | str, int] | Response:
+    if not request.headers.get("Authorization"):
+        return "Authorization required", 401
+
+    user = auth_util.authenticate(request.headers.get("Authorization"))
+    if user == 32:
+        return "Please make sure authorization type = Basic", 400
+    elif user == 31:
+        return "Provide Authorization header!", 401
+    elif user == 33:
+        return "Token Expired", 401
+
+    auth_util.log_user_out(user.id)
+
+    conn = util.make_connection()
+    user = util.exec_query(
+        conn, "select token from users where id = :id", id=user.id
+    ).one()[0]
+    resp = make_response()
+    resp.set_cookie("dph_token", user)
+    return resp

@@ -15,10 +15,6 @@ Get started with the Datapack Hub API development and contribute to its enhancem
 
 1. **Clone the Repository:** Begin by cloning the repository using the following command:
 
-    ```bash
-    git clone https://github.com/Datapack-Hub/api.git
-    ```
-
 2. **Configure `prod.py`:** Create a `prod.py` file to set the environment:
 
     ```python

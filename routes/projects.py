@@ -7,12 +7,14 @@ import secrets
 import sqlite3
 import time
 import traceback
+from typing import Any, Sequence
 
 import bleach
 import regex as re
-from flask import Blueprint, request
+from flask import Blueprint, Request, Response, request
 from flask_cors import CORS
-from sqlalchemy import Engine, text
+from sqlalchemy import Connection, Row, text
+import sqlalchemy.exc
 
 import config
 import utilities.auth_utils
@@ -26,14 +28,16 @@ CORS(projects)
 
 
 @projects.after_request
-def after(response):
+def after(response: Response):
     header = response.headers
     header["Access-Control-Allow-Credentials"] = "true"
     # Other headers can be added here if needed
     return response
 
 
-def parse_project(output: tuple, conn: Engine):
+def parse_project(
+    output: Row[Any], request: Request, conn: Connection
+) -> dict[str, Any]:
     this_user = utilities.auth_utils.authenticate(request.headers.get("Authorization"))
 
     latest_version = util.exec_query(
@@ -43,6 +47,9 @@ def parse_project(output: tuple, conn: Engine):
     ).all()
 
     user = get_user.from_id(output[2])
+
+    if user is None:
+        return {}
 
     temp = {
         "ID": output[0],
@@ -91,15 +98,46 @@ def parse_project(output: tuple, conn: Engine):
     return temp
 
 
+def search(conn, query, sort_by, tags, page):
+    if sort_by == "updated":
+        order_by = "updated DESC"
+    elif sort_by == "downloads":
+        order_by = "downloads DESC"
+    else:
+        raise ValueError("Unknown sorting method.")
+
+    base_query = """
+        SELECT rowid, * 
+        FROM projects 
+        WHERE status = 'live' 
+        AND LOWER(TRIM(title)) LIKE :q 
+    """
+
+    if tags:
+        base_query += "AND LOWER(TRIM(category)) LIKE :c "
+
+    full_query = base_query + f"ORDER BY {order_by} LIMIT :offset, :limit"
+
+    parameters = {
+        "q": f"%{query}%",
+        "c": f"%{tags}%" if tags else None,
+        "offset": (page - 1) * 20,
+        "limit": page * 20,
+    }
+
+    return util.exec_query(conn, full_query, **parameters).all()
+
+
 @projects.route("/search", methods=["GET"])
-def search_projects():
+def search_projects() -> dict[str, Any] | tuple[str, int]:
     x = time.perf_counter()
     query = request.args.get("query", "")
     page = int(request.args.get("page", 1))
     sort = request.args.get("sort", "updated")
+    tags = request.args.get("category", "")
 
     if len(query) > 75:
-        return
+        return "Query too long!", 400
 
     if page < 1:
         return {
@@ -110,31 +148,20 @@ def search_projects():
         }
 
     conn = util.make_connection()
-    if sort == "updated":
-        rows = util.exec_query(
-            conn,
-            "select rowid, * from projects where status = 'live' and trim(title) LIKE :q ORDER BY updated DESC LIMIT :offset, :limit",
-            q=f"%{query}%",
-            offset=page - 1 * 20,
-            limit=page * 20,
-        ).all()
-    elif sort == "downloads":
-        rows = util.exec_query(
-            conn,
-            "select rowid, * from projects where status = 'live' and trim(title) LIKE :q ORDER BY downloads DESC LIMIT :offset, :limit",
-            q=f"%{query}%",
-            offset=page - 1 * 20,
-            limit=page * 20,
-        ).all()
-    else:
+
+    result = None
+
+    try:
+        result = search(conn, query, sort, tags, page)
+    except ValueError:
         return "Unknown sorting method.", 400
 
-    out = []
+    out: list[dict[str, Any]] = []
 
-    for item in rows:
+    for item in result:
         try:
-            temp = parse_project(item, conn)
-        except:
+            temp = parse_project(item, request, conn)
+        except sqlalchemy.exc.SQLAlchemyError:
             conn.rollback()
 
             return "Something bad happened", 500
@@ -146,38 +173,51 @@ def search_projects():
         "count": len(out),
         "time": y - x,
         "result": out,
-        "pages": str(math.ceil(len(rows) / 20)),
+        "pages": str(math.ceil(len(result) / 20)),
     }
 
 
 @projects.route("/", methods=["GET"])
-def all_projects():
+def all_projects() -> dict[str, Any] | tuple[str, int]:
     page = request.args.get("page", 1)
     page = int(page)
     sort = request.args.get("sort", "updated")
+    tags = request.args.get("category", "")
 
     # SQL stuff
     conn = util.make_connection()
     if sort == "updated":
-        r = conn.execute(
-            text(
-                "select rowid, * from projects where status = 'live' ORDER BY updated DESC"
-            )
-        ).all()
+        if tags == "":
+            r = util.exec_query(
+                conn,
+                "select rowid, * from projects where status = 'live' ORDER BY updated DESC",
+            ).all()
+        else:
+            r = util.exec_query(
+                conn,
+                "select rowid, * from projects where status = 'live' and category like :q ORDER BY updated DESC",
+                q=f"%{tags}%",
+            ).all()
     elif sort == "downloads":
-        r = conn.execute(
-            text(
-                "select rowid, * from projects where status = 'live' ORDER BY downloads DESC"
-            )
-        ).all()
+        if tags == "":
+            r = util.exec_query(
+                conn,
+                "select rowid, * from projects where status = 'live' ORDER BY downloads DESC",
+            ).all()
+        else:
+            r = util.exec_query(
+                conn,
+                "select rowid, * from projects where status = 'live' and category like :q ORDER BY downloads DESC",
+                q=f"%{tags}%",
+            ).all()
     else:
         return "Unknown sorting method.", 400
 
-    out = []
+    out: list[dict[str, Any]] = []
 
     for item in r[(page - 1) * 20 : page * 20 - 1]:
         try:
-            temp = parse_project(item, conn)
+            temp = parse_project(item, request, conn)
         except:
             conn.rollback()
 
@@ -189,7 +229,7 @@ def all_projects():
 
 
 @projects.route("/id/<int:id>")
-def get_project_by_id(id):
+def get_project_by_id(id: int) -> dict[str, Any] | tuple[str, int]:
     conn = util.make_connection()
 
     this_user = utilities.auth_utils.authenticate(request.headers.get("Authorization"))
@@ -216,7 +256,7 @@ def get_project_by_id(id):
             return "Not found", 404
 
     try:
-        temp = parse_project(proj, conn)
+        temp = parse_project(proj, request, conn)
     except:
         conn.rollback()
 
@@ -226,7 +266,7 @@ def get_project_by_id(id):
 
 
 @projects.route("/get/<string:slug>")
-def get_project_by_slug(slug: str):
+def get_project_by_slug(slug: str) -> dict[str, Any] | tuple[str, int]:
     # connect to the thingy
     conn = util.make_connection()
 
@@ -256,7 +296,7 @@ def get_project_by_slug(slug: str):
             return "Not found", 404
 
     try:
-        temp = parse_project(proj, conn)
+        temp = parse_project(proj, request, conn)
     except:
         conn.rollback()
 
@@ -266,7 +306,7 @@ def get_project_by_slug(slug: str):
 
 
 @projects.route("/random")
-def random_project():
+def random_project() -> dict[str, Any] | tuple[str, int]:
     count = request.args.get("count", 1)
 
     conn = util.make_connection()
@@ -276,9 +316,9 @@ def random_project():
         count=count,
     ).all()
 
-    out = []
+    out: list[dict[str, Any]] = []
     for i in proj:
-        temp = parse_project(i, conn)
+        temp = parse_project(i, request, conn)
 
         out.append(temp)
 
@@ -308,6 +348,8 @@ def create_new_project():
     user = utilities.auth_utils.authenticate(tok)
     if user == 32:
         return "Make sure authorization is basic!", 400
+    elif user == 31:
+        return "Provide Authorization header!", 400
     elif user == 33:
         return "Token expired!", 401
 
@@ -343,12 +385,16 @@ def create_new_project():
     if len(data["category"]) > 3:
         return "Categories exceed 3", 400
 
-    if len(data["url"]) > 50 and not re.match(r"^[a-z0-9]+(?:-[a-z0-9]+)*$"):
+    if (
+        len(data["url"]) > 50
+        and re.match(r"^[a-z0-9]+(?:-[a-z0-9]+)*$", data["url"]) is not None
+    ):
         return "Slug is invalid!", 400
 
     if not re.match(r'^[\w!@$()`.+,"\-\']{3,64}$', data["url"]):
         return "URL is invalid!", 400
 
+    icon = None
     if data.get("icon"):
         icon = files.upload_file(
             data["icon"],
@@ -356,6 +402,9 @@ def create_new_project():
             user.username,
             True,
         )
+
+    if type(icon) is tuple or None:
+        return "Error uploading icon!", 500
 
     # Update database
     cat_str = ",".join(data["category"])
@@ -444,6 +493,8 @@ def edit_project(id: int):
     user = utilities.auth_utils.authenticate(tok)
     if user == 32:
         return "Make sure authorization is basic!", 400
+    elif user == 31:
+        return "Provide Authorization header!", 400
     elif user == 33:
         return "Token expired!", 401
 
@@ -480,6 +531,7 @@ def edit_project(id: int):
     if len(data["category"]) > 3:
         return "Categories exceed 3", 400
 
+    icon = None
     if data.get("icon"):
         icon = files.upload_file(
             data["icon"],
@@ -487,6 +539,9 @@ def edit_project(id: int):
             user.username,
             True,
         )
+
+    if type(icon) is tuple or None:
+        return "Error uploading icon!", 500
 
     # Update database
     conn = util.make_connection()
@@ -543,7 +598,7 @@ def edit_project(id: int):
 
 
 @projects.route("/id/<int:id>/publish", methods=["POST"])
-def publish(id):
+def publish(id: int):
     tok = request.headers.get("Authorization")
     if not tok:
         return "Not authenticated! You gotta log in first :P", 401
@@ -551,6 +606,8 @@ def publish(id):
     user = utilities.auth_utils.authenticate(tok)
     if user == 32:
         return "Make sure authorization is basic!", 400
+    elif user == 31:
+        return "Provide Authorization header!", 400
     elif user == 33:
         return "Token expired!", 401
 
@@ -601,7 +658,7 @@ def publish(id):
 
 
 @projects.route("/id/<int:id>/draft", methods=["POST"])
-def draft(id):
+def draft(id: int):
     tok = request.headers.get("Authorization")
     if not tok:
         return "Not authenticated! You gotta log in first :P", 401
@@ -609,6 +666,8 @@ def draft(id):
     user = utilities.auth_utils.authenticate(tok)
     if user == 32:
         return "Make sure authorization is basic!", 400
+    elif user == 31:
+        return "Provide Authorization header!", 400
     elif user == 33:
         return "Token expired!", 401
 
@@ -639,7 +698,7 @@ def draft(id):
 
 
 @projects.route("/id/<int:id>/report", methods=["POST"])
-def report(id):
+def report(id: int):
     tok = request.headers.get("Authorization")
     if not tok:
         return "Not authenticated! You gotta log in first :P", 401
@@ -647,6 +706,8 @@ def report(id):
     user = utilities.auth_utils.authenticate(tok)
     if user == 32:
         return "Make sure authorization is basic!", 400
+    elif user == 31:
+        return "Provide Authorization header!", 400
     elif user == 33:
         return "Token expired!", 401
 
@@ -679,7 +740,7 @@ def report(id):
 
 
 @projects.route("/id/<int:id>/remove", methods=["POST"])
-def remove(id):
+def remove(id: int):
     tok = request.headers.get("Authorization")
     if not tok:
         return "Not authenticated! You gotta log in first :P", 401
@@ -687,6 +748,8 @@ def remove(id):
     user = utilities.auth_utils.authenticate(tok)
     if user == 32:
         return "Make sure authorization is basic!", 400
+    elif user == 31:
+        return "Provide Authorization header!", 400
     elif user == 33:
         return "Token expired!", 401
 
@@ -717,7 +780,7 @@ def remove(id):
 
 
 @projects.route("/id/<int:id>/download", methods=["POST"])
-def download(id):
+def download(id: int):
     tok = request.headers.get("Authorization")
     if tok != config.FILE_SERVER_TOKEN:
         return "This is a private route!", 403
@@ -740,7 +803,7 @@ def download(id):
 
 
 @projects.route("/id/<int:id>/feature", methods=["POST"])
-def feature(id):
+def feature(id: int):
     # Authenticate
     tok = request.headers.get("Authorization")
     if not tok:
@@ -750,6 +813,8 @@ def feature(id):
         return "Make sure authorization is basic!", 400
     elif user == 33:
         return "Token expired!", 401
+    elif user == 31:
+        return "Provide Authorization header!", 400
     if user.role not in ["admin", "moderator"]:
         return "You don't have permission to do this", 403
 
@@ -802,7 +867,7 @@ def feature(id):
 
 
 @projects.route("/featured")
-def featured():
+def featured() -> dict[str, Any] | tuple[str, int]:
     conn = util.make_connection()
     proj = conn.execute(
         text(
@@ -810,7 +875,7 @@ def featured():
         )
     ).all()
 
-    out = []
+    out: list[dict[str, Any]] = []
     for i in proj:
         if time.time() > i[14]:
             util.exec_query(
@@ -821,7 +886,7 @@ def featured():
             conn.commit()
         else:
             try:
-                temp = parse_project(i, conn)
+                temp = parse_project(i, request, conn)
             except:
                 conn.rollback()
 

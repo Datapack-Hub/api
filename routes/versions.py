@@ -3,7 +3,6 @@
 """
 
 import ast
-from distutils.version import StrictVersion
 import sqlite3
 import time
 from urllib.parse import quote
@@ -196,7 +195,7 @@ def new(project: int):
         )
 
         parsed_versions: list = ast.literal_eval(data["minecraft_versions"])
-        parsed_versions.sort(key=StrictVersion)
+        parsed_versions.sort(key=util.semver_key)
 
         try:
             file_data["v_rp"]
@@ -263,7 +262,12 @@ def new(project: int):
     conn = util.make_connection()
     v = util.exec_query(
         conn, "SELECT * FROM versions WHERE version_code = :vc", vc=data["version_code"]
-    ).one()
+    ).all()
+
+    if len(v) > 1:
+        return "Version with that version code already exists!", 409
+
+    v = v[0]
 
     o = {
         "name": v[0],

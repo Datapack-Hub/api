@@ -48,7 +48,7 @@
             "name": "donator",
             "color": "#00ff00",
             "permissions": [],
-            "verified": "true"
+            "verified": true
         },
         {
             "name": "beta access",

@@ -3,11 +3,14 @@ import logging
 import random
 import secrets
 import time
-from sqlalchemy import Connection, CursorResult, Engine, create_engine, text
+from typing import Any
+import re
+
+from sqlalchemy import Connection, CursorResult, create_engine, text
 
 import config
 from utilities import weblogs
-
+from utilities.commons import PlayerBanData
 
 connection = create_engine("sqlite:///" + config.DATA + "data.db").connect()
 
@@ -16,7 +19,7 @@ def make_connection() -> Connection:
     return connection
 
 
-def exec_query(conn: Connection, query: str, **params) -> CursorResult:
+def exec_query(conn: Connection, query: str, **params: Any) -> CursorResult[Any]:
     q = text(query)
 
     if params:
@@ -24,20 +27,20 @@ def exec_query(conn: Connection, query: str, **params) -> CursorResult:
     return conn.execute(q)
 
 
-def commit_query(command: str, **params) -> CursorResult:
+def commit_query(command: str, **params: Any) -> CursorResult[Any]:
     conn = make_connection()
     result = exec_query(conn, command, **params)
     conn.commit()
     return result
 
 
-def log(msg: object, level=logging.INFO):
+def log(msg: object, level: int = logging.INFO):
     logging.basicConfig(level=level, format=config.PYTHON_LOGGING_CONF)
     logging.log(level=level, msg=msg)
 
 
 def create_user_account(
-    github_data: dict,
+    github_data: dict[str, Any],
 ) -> str:
     conn = make_connection()
 
@@ -71,7 +74,7 @@ def create_user_account(
     return token
 
 
-def get_user_ban_data(id: int):
+def get_user_ban_data(id: int) -> PlayerBanData | None:
     conn = make_connection()
 
     banned_user = exec_query(
@@ -103,7 +106,7 @@ def user_owns_project(project: int, author: int):
 #     ).one()
 
 
-def send_notif(conn: Engine, title: str, msg: str, receiver: int):
+def send_notif(conn: Connection, title: str, msg: str, receiver: int):
     exec_query(
         conn,
         "INSERT INTO notifs VALUES (:title, :msg, False, 'default', :uid})",
@@ -113,18 +116,20 @@ def send_notif(conn: Engine, title: str, msg: str, receiver: int):
     )
 
 
-# Define a custom sorting key function
-def custom_sort_key(version):
-    # Split the version string by '.' into a list of components
-    components = version.split(".")
+# Custom sorting function for semver
+def semver_key(version: str):
+    # Replace 'x' in the version with a high number for comparison
+    version = version.replace("x", "999999")
+    # Use regex to match major, minor, and patch numbers
+    match = re.match(r"(\d+)\.(\d+)\.(\d+)", version)
 
-    # Replace 'x' with a large number for sorting
-    for i in range(len(components)):
-        if components[i] == "x":
-            components[i] = "999999"
-
-    # Convert components to integers for sorting
-    return [int(component) for component in components]
+    if match:
+        # If there is a match, extract major, minor, and patch numbers
+        major, minor, patch = map(int, match.groups())
+        return major, minor, patch
+    else:
+        # If no match is found, return a tuple of zeros
+        return 0, 0, 0
 
 
 if __name__ == "__main__":
@@ -133,5 +138,6 @@ if __name__ == "__main__":
         "Hexenwerk",
         "Magic datapack which adds wands, spells, etc. and will soon even be well polished!",
         "https://files.datapackhub.net/icons/174209.png",
-        "Flynecraft",
+        1,
+        "hexenwerk",
     )

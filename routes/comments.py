@@ -4,6 +4,7 @@
 
 import sqlite3
 import time
+from typing import Any
 
 import regex
 from flask import Blueprint, request
@@ -16,7 +17,7 @@ comments = Blueprint("comments", __name__, url_prefix="/comments")
 
 
 @comments.route("/thread/<int:thread>")
-def messages_from_thread(thread: int):
+def messages_from_thread(thread: int) -> tuple[dict[str, Any] | str, int]:
     conn = util.make_connection()
     cmts = util.exec_query(
         conn,
@@ -24,18 +25,25 @@ def messages_from_thread(thread: int):
         thread=thread,
     ).all()
 
-    out = []
+    out: list[dict[str, Any]] = []
     for cmt in cmts:
         author = utilities.get_user.from_id(cmt[2])
+
+        if author is None:
+            return "User is not defined!", 400
         replies = util.exec_query(
             conn,
             "select rowid, message, author, sent from comments where thread_id = :thread and parent_id = :comment order by sent desc",
             thread=thread,
             comment=cmt[0],
         ).all()
-        reps = []
+        reps: list[dict[str, Any]] = []
         for reply in replies:
             repl_auth = utilities.get_user.from_id(reply[2])
+
+            if repl_auth is None:
+                return "User is not defined!", 400
+
             reps.append(
                 {
                     "id": reply[0],
@@ -67,7 +75,7 @@ def messages_from_thread(thread: int):
                 "replies": reps,
             }
         )
-    return {"count": out.__len__(), "result": out}
+    return {"count": out.__len__(), "result": out}, 200
 
 
 @comments.route("/thread/<int:thread>/post", methods=["POST"])
@@ -77,6 +85,8 @@ def post_msg(thread: int):
     usr = utilities.auth_utils.authenticate(request.headers.get("Authorization"))
     if usr == 32:
         return "Please make sure authorization type = Basic", 400
+    if usr == 31:
+        return "Provide Authorization header", 400
     if usr == 33:
         return "Token Expired", 401
 
@@ -88,7 +98,7 @@ def post_msg(thread: int):
 
     conn = util.make_connection()
     try:
-        mentions = regex.findall("@(\w+)", cmt_data["message"])
+        mentions = regex.findall(r"@(\w+)", cmt_data["message"])
         for user in mentions:
             if utilities.get_user.from_username(user):
                 auth = util.exec_query(
@@ -174,7 +184,7 @@ def post_msg(thread: int):
 
 
 @comments.route("/id/<int:id>", methods=["GET", "DELETE"])
-def get_comment(id: int):
+def get_comment(id: int) -> tuple[dict[str, Any] | str, int]:
     if request.method == "GET":
         conn = util.make_connection()
         comment = util.exec_query(
@@ -190,6 +200,9 @@ def get_comment(id: int):
 
         author = utilities.get_user.from_id(comment[2])
 
+        if author is None:
+            return "Something went wrong!", 500
+
         replies = util.exec_query(
             conn,
             "select rowid, message, author, sent from comments where parent_id = :id order by sent desc",
@@ -198,6 +211,10 @@ def get_comment(id: int):
         reps = []
         for reply in replies:
             repl_auth = utilities.get_user.from_id(reply[2])
+
+            if repl_auth is None:
+                return "We don't know how this happened, but it did", 500
+
             reps.append(
                 {
                     "id": reply[0],
@@ -227,12 +244,12 @@ def get_comment(id: int):
             },
             "sent": comment[3],
             "replies": reps,
-        }
+        }, 200
     elif request.method == "DELETE":
         conn = util.make_connection()
         comment = util.exec_query(
             conn,
-            "select rowid, message, author, sent from comments where rowid = :id and parent_id is null order by sent desc",
+            "select rowid, message, author, sent, parent_id from comments where rowid = :id order by sent desc",
             id=id,
         ).all()
 
@@ -246,15 +263,21 @@ def get_comment(id: int):
         usr = utilities.auth_utils.authenticate(request.headers.get("Authorization"))
         if usr == 32:
             return "Please make sure authorization type = Basic", 400
+        if usr == 31:
+            return "Provide Authorization header", 400
         if usr == 33:
             return "Token Expired", 401
 
         if not (usr.id == comment[2] or usr.role in ["admin", "moderator"]):
             return "This isn't your comment.", 403
 
-        util.exec_query(conn, "delete from comments where rowid = :id", id=id)
-        util.exec_query(conn, "delete from comments where parent_id = :id", id=id)
+        if comment[4] is None:
+            util.exec_query(conn, "delete from comments where rowid = :id", id=id)
+            util.exec_query(conn, "delete from comments where parent_id = :id", id=id)
+        else:
+            util.exec_query(conn, "delete from comments where rowid = :id", id=id)
 
         conn.commit()
 
-        return "Deleted comment."
+        return "Deleted comment.", 200
+    return "HTTP Method disallowed", 400
