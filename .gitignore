@@ -229,4 +229,4 @@ fabric.properties
 .dccache
 # config-unsafe.py
 # for now
-# config.py
+config.py
