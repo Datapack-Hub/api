@@ -14,7 +14,7 @@
             "!Module"
         ],
         "editor.formatOnType": true,
-        "editor.wordBasedSuggestions": false,
+        "editor.wordBasedSuggestions": "off",
         "editor.defaultFormatter": "charliermarsh.ruff"
     }
 }

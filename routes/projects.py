@@ -7,7 +7,7 @@ import secrets
 import sqlite3
 import time
 import traceback
-from typing import Any, Sequence
+from typing import Any
 
 import bleach
 import regex as re
@@ -113,17 +113,17 @@ def search(conn, query, sort_by, tags, page):
         AND LOWER(TRIM(title)) LIKE :q 
     """
 
-    if tags:
-        base_query += "AND LOWER(TRIM(category)) LIKE :c "
-
-    full_query = base_query + f"ORDER BY {order_by} LIMIT :offset, :limit"
-
     parameters = {
         "q": f"%{query}%",
-        "c": f"%{tags}%" if tags else None,
         "offset": (page - 1) * 20,
         "limit": page * 20,
     }
+
+    if tags:
+        parameters["c"] = f"%{tags}%",
+        base_query += "AND LOWER(TRIM(category)) LIKE :c "
+
+    full_query = base_query + f"ORDER BY {order_by} LIMIT :offset, :limit"
 
     return util.exec_query(conn, full_query, **parameters).all()
 
