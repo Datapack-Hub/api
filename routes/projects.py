@@ -120,7 +120,7 @@ def search(conn, query, sort_by, tags, page):
     }
 
     if tags:
-        parameters["c"] = f"%{tags}%",
+        parameters["c"] = (f"%{tags}%",)
         base_query += "AND LOWER(TRIM(category)) LIKE :c "
 
     full_query = base_query + f"ORDER BY {order_by} LIMIT :offset, :limit"
