@@ -115,8 +115,8 @@ def search(conn, query, sort_by, tags, page):
 
     parameters = {
         "q": f"%{query}%",
-        "offset": (page - 1) * 20,
-        "limit": page * 20,
+        "offset": (page - 1) * 24,
+        "limit": page * 24,
     }
 
     if tags:
@@ -173,7 +173,7 @@ def search_projects() -> dict[str, Any] | tuple[str, int]:
         "count": len(out),
         "time": y - x,
         "result": out,
-        "pages": str(math.ceil(len(result) / 20)),
+        "pages": str(math.ceil(len(result) / 24)),
     }
 
 
@@ -215,7 +215,7 @@ def all_projects() -> dict[str, Any] | tuple[str, int]:
 
     out: list[dict[str, Any]] = []
 
-    for item in r[(page - 1) * 20 : page * 20 - 1]:
+    for item in r[(page - 1) * 24 : page * 24 - 1]:
         try:
             temp = parse_project(item, request, conn)
         except:
