@@ -215,7 +215,7 @@ def all_projects() -> dict[str, Any] | tuple[str, int]:
 
     out: list[dict[str, Any]] = []
 
-    for item in r[(page - 1) * 24 : page * 24 - 1]:
+    for item in r[(page - 1) * 24 : page * 24]:
         try:
             temp = parse_project(item, request, conn)
         except:
@@ -225,7 +225,7 @@ def all_projects() -> dict[str, Any] | tuple[str, int]:
 
         out.append(temp)
 
-    return {"count": len(out), "result": out, "pages": str(math.ceil(len(r) / 20))}
+    return {"count": len(out), "result": out, "pages": str(math.ceil(len(r) / 24))}
 
 
 @projects.route("/id/<int:id>")
