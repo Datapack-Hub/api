@@ -120,13 +120,33 @@ def search(conn, query, sort_by, tags, page):
     }
 
     if tags:
-        parameters["c"] = (f"%{tags}%",)
+        parameters["c"] = f"%{tags}%"
         base_query += "AND LOWER(TRIM(category)) LIKE :c "
 
     full_query = base_query + f"ORDER BY {order_by} LIMIT :offset, :limit"
 
     return util.exec_query(conn, full_query, **parameters).all()
 
+def count_total(conn, query, tags):
+    sql_query = """
+        SELECT COUNT(1)
+        FROM projects
+        WHERE status = 'live'
+    """
+
+    parameters = {}
+
+    if query:
+        parameters["q"] = f"%{query}%"
+        sql_query += "AND LOWER(TRIM(title)) LIKE :q\n"
+
+    if tags:
+        parameters["c"] = f"%{tags}%"
+        sql_query += "AND LOWER(TRIM(category)) LIKE :c"
+
+    matching_count = util.exec_query(conn, sql_query, **parameters).first()
+
+    return matching_count[0] if matching_count else 0
 
 @projects.route("/search", methods=["GET"])
 def search_projects() -> dict[str, Any] | tuple[str, int]:
@@ -168,15 +188,17 @@ def search_projects() -> dict[str, Any] | tuple[str, int]:
 
         out.append(temp)
 
+    total_count = count_total(conn, query, tags)
+
     y = time.perf_counter()
     return {
-        "count": len(out),
+        "count": total_count,
         "time": y - x,
         "result": out,
-        "pages": str(math.ceil(len(result) / 24)),
+        "pages": math.ceil(total_count / 24),
     }
 
-
+@DeprecationWarning
 @projects.route("/", methods=["GET"])
 def all_projects() -> dict[str, Any] | tuple[str, int]:
     page = request.args.get("page", 1)
@@ -328,13 +350,7 @@ def random_project() -> dict[str, Any] | tuple[str, int]:
 @projects.route("/count")
 def count():
     conn = util.make_connection()
-    x = (
-        conn.execute(text("select * from projects where status = 'live'"))
-        .all()
-        .__len__()
-    )
-
-    return {"count": x}
+    return {"count": count_total(conn, None, None)}
 
 
 @projects.route("/create", methods=["POST"])
