@@ -127,6 +127,25 @@ def search(conn, query, sort_by, tags, page):
 
     return util.exec_query(conn, full_query, **parameters).all()
 
+def count(conn, query, tags):
+    sql_query = """
+        SELECT COUNT(1)
+        FROM projects
+        WHERE status = 'live'
+        AND LOWER(TRIM(title)) LIKE :q
+    """
+
+    parameters = {
+        "q": f"%s{query}%s",
+    }
+
+    if tags:
+        parameters["c"] = (f"%{tags}%",)
+        sql_query += "AND LOWER(TRIM(category)) LIKE :c"
+
+    matching_count = util.exec_query(conn, sql_query, **parameters).first()
+
+    return matching_count[0] if matching_count else 0
 
 @projects.route("/search", methods=["GET"])
 def search_projects() -> dict[str, Any] | tuple[str, int]:
@@ -173,7 +192,7 @@ def search_projects() -> dict[str, Any] | tuple[str, int]:
         "count": len(out),
         "time": y - x,
         "result": out,
-        "pages": str(math.ceil(len(result) / 24)),
+        "pages": str(math.ceil(len(count(conn, query, tags)) / 24)),
     }
 
 
