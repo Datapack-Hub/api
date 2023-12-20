@@ -127,6 +127,7 @@ def search(conn, query, sort_by, tags, page):
 
     return util.exec_query(conn, full_query, **parameters).all()
 
+
 def count_total(conn, query, tags):
     sql_query = """
         SELECT COUNT(1)
@@ -147,6 +148,7 @@ def count_total(conn, query, tags):
     matching_count = util.exec_query(conn, sql_query, **parameters).first()
 
     return matching_count[0] if matching_count else 0
+
 
 @projects.route("/search", methods=["GET"])
 def search_projects() -> dict[str, Any] | tuple[str, int]:
@@ -197,6 +199,7 @@ def search_projects() -> dict[str, Any] | tuple[str, int]:
         "result": out,
         "pages": math.ceil(total_count / 24),
     }
+
 
 @DeprecationWarning
 @projects.route("/", methods=["GET"])
