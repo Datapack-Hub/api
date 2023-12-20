@@ -187,15 +187,17 @@ def search_projects() -> dict[str, Any] | tuple[str, int]:
 
         out.append(temp)
 
+    total_count = count(conn, query, tags)
+
     y = time.perf_counter()
     return {
-        "count": len(out),
+        "count": total_count,
         "time": y - x,
         "result": out,
-        "pages": str(math.ceil(len(count(conn, query, tags)) / 24)),
+        "pages": math.ceil(total_count / 24),
     }
 
-
+@DeprecationWarning
 @projects.route("/", methods=["GET"])
 def all_projects() -> dict[str, Any] | tuple[str, int]:
     page = request.args.get("page", 1)
