@@ -120,27 +120,28 @@ def search(conn, query, sort_by, tags, page):
     }
 
     if tags:
-        parameters["c"] = (f"%{tags}%",)
+        parameters["c"] = f"%{tags}%"
         base_query += "AND LOWER(TRIM(category)) LIKE :c "
 
     full_query = base_query + f"ORDER BY {order_by} LIMIT :offset, :limit"
 
     return util.exec_query(conn, full_query, **parameters).all()
 
-def count(conn, query, tags):
+def count_total(conn, query, tags):
     sql_query = """
         SELECT COUNT(1)
         FROM projects
         WHERE status = 'live'
-        AND LOWER(TRIM(title)) LIKE :q
     """
 
-    parameters = {
-        "q": f"%s{query}%s",
-    }
+    parameters = {}
+
+    if query:
+        parameters["q"] = f"%{query}%"
+        sql_query += "AND LOWER(TRIM(title)) LIKE :q\n"
 
     if tags:
-        parameters["c"] = (f"%{tags}%",)
+        parameters["c"] = f"%{tags}%"
         sql_query += "AND LOWER(TRIM(category)) LIKE :c"
 
     matching_count = util.exec_query(conn, sql_query, **parameters).first()
@@ -187,7 +188,7 @@ def search_projects() -> dict[str, Any] | tuple[str, int]:
 
         out.append(temp)
 
-    total_count = count(conn, query, tags)
+    total_count = count_total(conn, query, tags)
 
     y = time.perf_counter()
     return {
@@ -349,13 +350,7 @@ def random_project() -> dict[str, Any] | tuple[str, int]:
 @projects.route("/count")
 def count():
     conn = util.make_connection()
-    x = (
-        conn.execute(text("select * from projects where status = 'live'"))
-        .all()
-        .__len__()
-    )
-
-    return {"count": x}
+    return {"count": count_total(conn, None, None)}
 
 
 @projects.route("/create", methods=["POST"])
