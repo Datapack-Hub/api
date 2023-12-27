@@ -126,9 +126,11 @@ def semver_key(version: str) -> tuple[int, int, int]:
     if match:
         # If there is a match, extract major, minor, and patch numbers
         groups = map(int, match.groups())
-        return (groups[0],
-                groups[1] if len(groups) >= 2 else 0,
-                groups[2] if len(groups) == 3 else 0)
+        return (
+            groups[0],
+            groups[1] if len(groups) >= 2 else 0,
+            groups[2] if len(groups) == 3 else 0,
+        )
     else:
         # If no match is found, return a tuple of zeros
         return 0, 0, 0
