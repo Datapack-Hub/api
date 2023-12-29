@@ -360,6 +360,12 @@ def create_new_project():
 
     if not re.match(r'^[\w!@$()`.+,"\-\']{3,64}$', data["url"]):
         return "URL is invalid!", 400
+    
+    conn = util.make_connection()
+    other_project_with_slug = util.exec_query(conn, "SELECT url FROM projects WHERE url = :slug", slug=data["url"]).first()
+    
+    if other_project_with_slug is not None:
+        return "A project with that URL already exists!", 400
 
     icon = None
     if data.get("icon"):
