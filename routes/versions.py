@@ -195,7 +195,6 @@ def new(project: int):
         )
 
         parsed_versions: list = ast.literal_eval(data["minecraft_versions"])
-        parsed_versions.sort(key=util.semver_key)
 
         try:
             file_data["v_rp"]
