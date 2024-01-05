@@ -85,7 +85,7 @@ def upload_file(file: str, file_name: str, uploader: str, is_icon: bool = False)
 
     if len(decoded) > 255999:
         return "File too big."
-    
+
     path.touch()
     path.write_bytes(decoded)
 
