@@ -116,26 +116,6 @@ def send_notif(conn: Connection, title: str, msg: str, receiver: int):
     )
 
 
-# Custom sorting function for semver
-def semver_key(version: str) -> tuple[int, int, int]:
-    # Replace 'x' in the version with a high number for comparison
-    version = version.replace("x", "999999")
-    # Use regex to match major, minor, and patch numbers
-    match = re.match(r"(\d+)(?:\.(\d+))?(?:\.(\d+))?", version)
-
-    if match:
-        # If there is a match, extract major, minor, and patch numbers
-        groups = map(int, match.groups())
-        return (
-            groups[0],
-            groups[1] if len(groups) >= 2 else 0,
-            groups[2] if len(groups) == 3 else 0,
-        )
-    else:
-        # If no match is found, return a tuple of zeros
-        return 0, 0, 0
-
-
 if __name__ == "__main__":
     weblogs.approval(
         "Silabear",

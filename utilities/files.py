@@ -83,11 +83,10 @@ def upload_file(file: str, file_name: str, uploader: str, is_icon: bool = False)
     decoded = base64.b64decode(file.split(",")[1].encode("unicode_escape"))
     path = Path(config.DATA + "tempfile")
 
-    path.touch()
-
-    if path.stat().st_size > 255999:
+    if len(decoded) > 255999:
         return "File too big."
-
+    
+    path.touch()
     path.write_bytes(decoded)
 
     if is_icon:
