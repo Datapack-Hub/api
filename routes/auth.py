@@ -256,18 +256,21 @@ def link_github():
     ).json()
 
     conn = util.make_connection()
-    
+
     existing_user = util.exec_query(
         conn,
         "select from users where github_id = :g_id;",
         g_id=github["id"],
         id=usr.id,
     ).one_or_none()
-    
+
     # the actual proposed solution is too awkward :sob:
     if existing_user is not None:
-        return "A user with that GitHub ID already exists! Contact an admin to solve this issue!", 409
-    
+        return (
+            "A user with that GitHub ID already exists! Contact an admin to solve this issue!",
+            409,
+        )
+
     try:
         util.exec_query(
             conn,
