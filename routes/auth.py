@@ -224,18 +224,9 @@ def link_discord():
 
 @auth.route("/link/github", methods=["put"])
 def link_github():
-    # Get an access token
     code = request.args.get("code")
-
-    access_token = requests.post(
-        quote(
-            f"https://github.com/login/oauth/access_token?client_id={config.GitHub.client_id}&client_secret={config.GitHub.client_secret}&code={code}"
-        ),
-        headers={"Accept": "application/json"},
-        timeout=180,
-    ).json()
-
-    access_token = access_token["access_token"]
+    if not code:
+        return "Code required", 400
 
     # Get signed-in user
     if not request.headers.get("Authorization"):
@@ -249,6 +240,14 @@ def link_github():
     elif usr == 33:
         return "Token Expired", 401
 
+    access_token = requests.post(
+        quote(
+            f"https://github.com/login/oauth/access_token?client_id={config.GitHub.client_id}&client_secret={config.GitHub.client_secret}&code={code}"
+        ),
+        headers={"Accept": "application/json"},
+        timeout=180,
+    ).json()["access_token"]
+
     # Get github ID
     github = requests.get(
         "https://api.github.com/user",
@@ -257,6 +256,18 @@ def link_github():
     ).json()
 
     conn = util.make_connection()
+    
+    existing_user = util.exec_query(
+        conn,
+        "select from users where github_id = :g_id;",
+        g_id=github["id"],
+        id=usr.id,
+    ).one_or_none()
+    
+    # the actual proposed solution is too awkward :sob:
+    if existing_user is not None:
+        return "A user with that GitHub ID already exists! Contact an admin to solve this issue!", 409
+    
     try:
         util.exec_query(
             conn,
@@ -270,4 +281,4 @@ def link_github():
         return "Something went wrong!", 500
     conn.commit()
 
-    return "Discord linked!", 200
+    return "GitHub linked!", 200
