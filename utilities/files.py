@@ -25,7 +25,6 @@ from utilities import util
 def upload_zipfile(
     unsafe_file: FileStorage, file_name: str, uploader: str, squash: bool = False
 ):
-    # decoded = base64.b64decode(file.split(",")[1].encode("unicode_escape"))
     file = secure_filename(unsafe_file.filename).split(".")[0]
     zip_path = Path(config.DATA + f"{file}-Temporary.zip")
     folder_path = Path(config.DATA + f"{file}-Temporary")
