@@ -218,13 +218,19 @@ def get_project_by_id(id: int) -> dict[str, Any] | tuple[str, int]:
     if proj is None:
         return "Not found", 404
 
-    if proj[8] in ["disabled", "draft", "unpublished", "review_queue", "publish_queue", "deleted", "ghost"]:
+    if proj[8] in [
+        "disabled",
+        "draft",
+        "unpublished",
+        "review_queue",
+        "publish_queue",
+        "deleted",
+        "ghost",
+    ]:
         if not this_user:
             return "Not found", 404
-        if (
-            this_user == 31
-            or (proj[3] != this_user.id
-            and this_user.role not in ["admin", "moderator"])
+        if this_user == 31 or (
+            proj[3] != this_user.id and this_user.role not in ["admin", "moderator"]
         ):
             return "Not found", 404
 
@@ -262,7 +268,15 @@ def get_project_by_slug(slug: str) -> dict[str, Any] | tuple[str, int]:
     if proj is None:
         return "Not found", 404
 
-    if proj[8] in ["disabled", "draft", "unpublished", "review_queue", "publish_queue", "deleted", "ghost"]:
+    if proj[8] in [
+        "disabled",
+        "draft",
+        "unpublished",
+        "review_queue",
+        "publish_queue",
+        "deleted",
+        "ghost",
+    ]:
         if not this_user or this_user == 31:
             return "Not found", 404
         if proj[2] != this_user.id and this_user.role not in ["admin", "moderator"]:
