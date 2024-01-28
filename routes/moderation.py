@@ -30,7 +30,7 @@ console_commands = [
     "user",
     "backup",
     "restore",
-    "pfpreset"
+    "pfpreset",
 ]
 
 
@@ -207,16 +207,22 @@ def console() -> tuple[dict[str, Any] | str, int]:
             # Run SQLITE command
             try:
                 conn = util.make_connection()
-                dsc_users = util.exec_query(conn, "select discord_id from users where discord_id != null")  # nosec
-                hub_users = util.exec_query(conn, "select github_id from users where github_id is not null")  # nosec
-                
+                dsc_users = util.exec_query(
+                    conn, "select discord_id from users where discord_id != null"
+                )  # nosec
+                hub_users = util.exec_query(
+                    conn, "select github_id from users where github_id is not null"
+                )  # nosec
+
                 for user in hub_users.all():
-                    util.exec_query(conn, f"update users set profile_icon = \"https://avatars.githubusercontent.com/u/{user[0]}\" where github_id = {user[0]}")
+                    util.exec_query(
+                        conn,
+                        f'update users set profile_icon = "https://avatars.githubusercontent.com/u/{user[0]}" where github_id = {user[0]}',
+                    )
                 conn.commit()
                 # for user in dsc_users.all():
                 #     util.exec_query(conn, f"update from users set profile_icon = \"https://avatars.githubusercontent.com/u/{user["discord_id"]}\"")
-                
-                
+
             except sqlalchemy.exc.SQLAlchemyError as error:
                 return "SQL Error: " + (" ".join(error.args)), 400
             else:
