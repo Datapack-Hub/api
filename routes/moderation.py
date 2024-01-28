@@ -30,6 +30,7 @@ console_commands = [
     "user",
     "backup",
     "restore",
+    "pfpreset"
 ]
 
 
@@ -199,6 +200,27 @@ def console() -> tuple[dict[str, Any] | str, int]:
             conn.commit()
 
             return "Notified the user!", 200
+        case "pfpreset":
+            if not is_perm_level(request.headers.get("Authorization"), ["admin"]):
+                return "You do not have permission to run this command!", 401
+
+            # Run SQLITE command
+            try:
+                conn = util.make_connection()
+                dsc_users = util.exec_query(conn, "select discord_id from users where discord_id != null")  # nosec
+                hub_users = util.exec_query(conn, "select github_id from users where github_id is not null")  # nosec
+                
+                for user in hub_users.all():
+                    util.exec_query(conn, f"update users set profile_icon = \"https://avatars.githubusercontent.com/u/{user[0]}\" where github_id = {user[0]}")
+                conn.commit()
+                # for user in dsc_users.all():
+                #     util.exec_query(conn, f"update from users set profile_icon = \"https://avatars.githubusercontent.com/u/{user["discord_id"]}\"")
+                
+                
+            except sqlalchemy.exc.SQLAlchemyError as error:
+                return "SQL Error: " + (" ".join(error.args)), 400
+            else:
+                return "Processed command!", 200
     return "Unknown command", 400
 
 
