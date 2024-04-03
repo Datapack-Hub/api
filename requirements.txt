@@ -4,7 +4,7 @@ Faker==20.1.0
 Flask==3.0.1
 Flask_Compress==1.14
 Flask_Cors==4.0.0
-Pillow==10.2.0
+Pillow==10.3.0
 pillow_avif_plugin==1.4.1
 regex==2023.10.3
 Requests==2.31.0
