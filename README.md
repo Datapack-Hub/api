@@ -1,5 +1,9 @@
 # Datapack Hub API
 
+> [!WARNING]
+> This code is really old and for a defunct website, not only is this code not used, it should not be used for reference by other devs
+> AKA: getting archived
+
 Welcome to the Datapack Hub API repository. This API powers the Datapack Hub website and is built using Python.
 
 ## Overview
